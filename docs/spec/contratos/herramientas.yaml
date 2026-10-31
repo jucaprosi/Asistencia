@@ -9,6 +9,7 @@ definiciones:
   periodo: {type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$"}
   ticket: {type: string, pattern: "^V-[0-9]{4}-[0-9]{4,}$"}
   incidencia_id: {type: string, pattern: "^I-[0-9]{4}-[0-9]{4,}$"}
+  solicitud: {type: string, pattern: "^PL-[0-9]{4}-[0-9]{4,}$"}
 
 herramientas:
   consultar_disponibilidad:
@@ -245,6 +246,84 @@ herramientas:
         pendiente: {$ref: "#/definiciones/dinero"}
         ventas: {type: integer}
         periodo: {$ref: "#/definiciones/periodo"}
+  solicitar_reserva:
+    requisito: RF-ANF-04
+    sala_destino: anfitriones
+    roles: [huesped_potencial, huesped_activo]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [codigo_reserva]
+      properties:
+        codigo_reserva: {type: string}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [solicitud, estado, vence_en]
+      properties:
+        solicitud: {$ref: "#/definiciones/solicitud"}
+        estado: {const: solicitada}
+        vence_en: {type: string, format: date-time}
+  responder_solicitud:
+    requisito: RF-ANF-05
+    sala_destino: anfitriones
+    roles: [anfitrion]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [solicitud, acepta]
+      properties:
+        solicitud: {$ref: "#/definiciones/solicitud"}
+        acepta: {type: boolean}
+        motivo: {type: string, maxLength: 300}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [solicitud, estado]
+      properties:
+        solicitud: {$ref: "#/definiciones/solicitud"}
+        estado: {enum: [confirmada, rechazada]}
+  reportar_resultado_estadia:
+    requisito: RF-ANF-06
+    sala_destino: anfitriones
+    roles: [anfitrion]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [solicitud, resultado]
+      properties:
+        solicitud: {$ref: "#/definiciones/solicitud"}
+        resultado: {enum: [cancelada, no_show, completada]}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [solicitud, estado]
+      properties:
+        solicitud: {$ref: "#/definiciones/solicitud"}
+        estado: {enum: [cancelada, no_show, completada]}
+  consultar_estado_cuenta_anfitrion:
+    requisito: RF-ANF-07
+    sala_destino: anfitriones
+    roles: [anfitrion]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [periodo]
+      properties:
+        periodo: {$ref: "#/definiciones/periodo"}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [periodo, total, estado, estadias]
+      properties:
+        periodo: {$ref: "#/definiciones/periodo"}
+        total: {$ref: "#/definiciones/dinero"}
+        estado: {enum: [emitido, pagado, vencido]}
+        estadias: {type: integer}
 
 modelos:
   venta_extraida:

@@ -41,13 +41,14 @@ class HerramientasGlampingService:
 
     def __init__(
         self, config: Mapping[str, Any], *, seguridad: Any, pms: Any, conocimiento: Any, crm: Any, arm: Any,
-        comisiones: Any, observabilidad: Any,
+        comisiones: Any, anfitriones: Any, observabilidad: Any,
     ) -> None:
         self._config = config
         self._seguridad = seguridad
         self._pms = pms
         self._conocimiento = conocimiento
         self._crm = crm
+        self._anfitriones = anfitriones
         self._arm = arm
         self._comisiones = comisiones
         self._observabilidad = observabilidad

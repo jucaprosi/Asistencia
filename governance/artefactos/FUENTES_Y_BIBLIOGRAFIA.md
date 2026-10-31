@@ -83,6 +83,14 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | :--- | :--- | :--- |
 | [wacrm, README](https://raw.githubusercontent.com/ArnasDon/wacrm/main/README.md) | ADR-0015 | Next.js, Supabase y licencia MIT según su README. Solo patrón de inbox. |
 
+## Modelo de plataforma (`¤anfitriones`)
+
+| Fuente | Función | Nota |
+| :--- | :--- | :--- |
+| [Airbnb: pagos dentro de la plataforma](https://www.airbnb.com/help/article/2799) | ADR-0018 | Consultada el 2026-10-31. Pagos en la plataforma, con excepciones limitadas. |
+| [Hostelworld: cómo funcionan los pagos](https://support.hostelworld.com/knowledge/understanding-how-payments-work-on-hostelworld) | ADR-0018 | Consultada el 2026-10-31. Depósito al reservar y saldo al hospedaje. |
+| [Booking.com: preguntas de socios](https://join.booking.com/faq.html) | ADR-0018 | Consultada el 2026-10-31. Sin comisión general por no-show salvo cargo configurado. El ciclo mensual solo se vio en guías de terceros. |
+
 ## Proveedor de PostgreSQL (`¤infra-hibrida`)
 
 | Fuente | Función | Nota |

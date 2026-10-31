@@ -24,6 +24,7 @@ salas:
   - agente
   - panel_operativo
   - web_huespedes
+  - anfitriones
 
 egreso_permitido:
   # Destinos de red salientes autorizados (RNF-10). El arnés de despliegue lo verifica.

@@ -3,10 +3,10 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Estado | Aceptado por el propietario el 2026-10-31 en lo funcional. Los puntos abiertos siguen pendientes |
+| Estado | Aceptado por el propietario el 2026-10-31 en lo funcional; el modelo de comisión lo fijó el responsable técnico a su pedido y es revisable |
 | Fecha | 2026-10-31 |
 | Rol | `¤¤solutions-architect` |
-| Bloquea | Especificación 0.3.0; T-111 y las tareas de PMS, comisiones y datos reales que dependan de los puntos abiertos |
+| Bloquea | Publicar hospedajes reales: faltan marca, términos y revisión legal |
 
 ## Contexto
 
@@ -24,19 +24,40 @@ El proyecto nació como asistente de un negocio propio, Glamping Imbabura. El pr
 | Comparación | Entre hospedajes publicados en la plataforma, hasta tres. | Solo propiedades propias. |
 | Nombres internos | Repositorio, salas y rastros conservan sus nombres. | Renombrar ahora: costo sin efecto para el usuario. |
 
+## Comparación con plataformas similares
+
+| Plataforma | Cómo asegura su comisión | Qué se toma |
+| :--- | :--- | :--- |
+| Airbnb | El pago ocurre dentro de la plataforma y limita los cobros por fuera. | No aplica: exige custodiar dinero. Se toma que el canal sea el punto de control. |
+| Hostelworld | El huésped paga un depósito al reservar y el resto al hospedaje. | Queda como plan B si la comisión no se cobra. |
+| Booking.com | Emite facturas periódicas con un detalle de reservas, y el hospedaje marca los no-show. | Modelo adoptado. |
+
+Las condiciones de pago en destino de Booking.com no se confirmaron en fuente oficial. Las fechas exactas de su ciclo tampoco, así que las de este proyecto son valores propios.
+
+## Modelo de comisión
+
+| Tema | Decisión | Alternativa descartada |
+| :--- | :--- | :--- |
+| Registro | Toda reserva nace como solicitud con código antes de que el huésped y el anfitrión tengan el contacto del otro. | Registrar después: sin evidencia de la reserva. |
+| Confirmación | El anfitrión confirma por WhatsApp. | Confirmar por el huésped: no sabe si el pago llegó. |
+| Devengo | Tras la salida, sin reporte en 3 días pasa a completada. `no_show` y `cancelada` no pagan. | Devengar al confirmar: cobra estadías que no ocurrieron. |
+| Cobro | Estado de cuenta mensual el día 5, pago en 14 días y pausa a los 15 días de vencido. | Depósito del huésped: la plataforma recibiría dinero, contra lo decidido. |
+| Porcentaje | Se pacta por anfitrión y se congela en cada solicitud. | Un porcentaje global fijo en la especificación: el valor aún no existe. |
+| Comisión del vendedor | Se calcula aparte, sobre la venta, y no cambia lo que paga el anfitrión. Revisable. | Descontarla al anfitrión. |
+
+**Riesgo aceptado:** huésped y anfitrión pueden acordar por fuera, y un anfitrión puede reportar `cancelada` sin que sea cierto. Los controles son los términos, la pausa y `ON-06`. Si el cobro queda por debajo del umbral, se debe reevaluar el depósito.
+
 ## Puntos abiertos
 
-1. **Comisión con pago directo:** cómo se confirma que una reserva ocurrió y cómo cobra la plataforma al anfitrión. Sin esa regla, la comisión no se puede calcular.
-2. **Disponibilidad y precios:** si todos los anfitriones usan un PMS común o si cada uno informa por otra vía. Esto reabre ADR-0007.
-3. **Marca:** nombre comercial de la plataforma.
-4. **Legal:** términos con anfitriones, responsabilidad ante un reclamo y rol sobre los datos personales. Se suman a ADR-0012.
-5. **Dos comisiones:** si la comisión del vendedor sale de la comisión de la plataforma o se calcula aparte.
+1. **Disponibilidad y precios:** ADR-0007 sigue pendiente. Se recomienda un calendario propio detrás de la interfaz del PMS.
+2. **Marca:** nombre comercial de la plataforma.
+3. **Legal y tributario:** términos con anfitriones, responsabilidad ante un reclamo, rol sobre datos personales y comprobantes de la comisión. Se suman a ADR-0012.
+4. **Porcentaje:** valor comercial por anfitrión.
 
 ## Consecuencias
 
 - Los datos de Glamping Imbabura dejan de ser requisito del producto. Se piden cuando se publique ese hospedaje.
-- T-105 sigue válida: usa datos sintéticos y solo lectura.
-- Hasta la especificación 0.3.0 faltan anfitrión, publicación, comisión de plataforma y aislamiento por anfitrión en PRD, esquema, roles, escenarios y tareas.
-- La web pública y WhatsApp deben decir quién ofrece cada hospedaje.
+- Nacen la sala `anfitriones`, el rol `anfitrion`, RF-ANF-01..08, US-19, US-20, T-305, T-306, T-405 y T-506.
+- T-105 sigue válida: usa datos sintéticos y solo lectura. T-405 limita el catálogo a lo publicado.
 
 `¤spec-glamping/`

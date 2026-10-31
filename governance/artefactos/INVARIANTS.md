@@ -36,6 +36,10 @@
 | `INV_SALA_CONFORME` | Cada `features/<sala>/` tiene `<sala>_service.py` y `config_<sala>.yaml`; `app_core/` solo importa compuertas. | `¤arquitectura-salas` | `¤¦adpa` | pasillo central | `tests/test_estructura_adpa.py` + `adpa_linter`. | Fase 0 |
 | `INV_PANEL_POR_ROL` | El BFF del panel rechaza con 403 toda acción fuera de la allowlist del rol aunque la UI la muestre; un gestor nunca obtiene datos de otra zona. | `¤panel-operativo` `¤seguridad-canal` | `¤¦panel-operativo` | `panel_operativo`, `seguridad` | `tests/panel_operativo/test_bff_*.py` (cada endpoint con cada rol). | Fase 4 |
 | `INV_PANEL_SIN_LOGICA` | El panel no contiene reglas de negocio: cada acción es una llamada a la compuerta de la sala dueña. | `¤panel-operativo` | `¤¦panel-operativo` | `panel_operativo` | `adpa_linter` (solo imports `_service`) + revisión de `bff_internal.py` sin cálculos de comisión ni transiciones de estado propias (`tests/panel_operativo/test_sin_logica.py` por AST). | Fase 4 |
+| `INV_SOLO_PUBLICADO` | La web y el asistente solo ofrecen hospedajes publicados de anfitriones activos. | `¤anfitriones` | `¤¦anfitriones` | `anfitriones` | `tests/anfitriones/test_publicacion.py`. | Fase 4 |
+| `INV_CONTACTO_TRAS_CONFIRMAR` | Huésped y anfitrión reciben el contacto del otro solo con la solicitud confirmada. | `¤anfitriones` | `¤¦anfitriones` | `anfitriones` | `tests/anfitriones/test_solicitudes.py`. | Fase 4 |
+| `INV_COMISION_PLATAFORMA_UNICA` | Una estadía genera a lo sumo un cargo de comisión. | `¤anfitriones` | `¤¦anfitriones` | `anfitriones` | `tests/anfitriones/test_estado_cuenta.py`; `docs/spec/verificacion_esquema.sql` en la CI. | Fase 6 |
+| `INV_AISLAMIENTO_ANFITRION` | Un anfitrión solo ve y opera lo suyo. | `¤anfitriones` | `¤¦anfitriones` | `anfitriones` | `tests/anfitriones/test_aislamiento.py`; `docs/spec/verificacion_esquema.sql` en la CI. | Fase 4 |
 | `INV_WEB_SOLO_LECTURA` | La web pública nunca crea, cambia ni cancela reservas. | `¤web-huespedes` | `¤¦web-huespedes` | `web_huespedes` | `tests/web_huespedes/test_contacto.py`. | Fase 1 |
 | `INV_WEB_SIN_PII` | La web pública no pide ni guarda datos personales. | `¤web-huespedes` | `¤¦web-huespedes` | `web_huespedes` | `tests/web_huespedes/test_contacto.py`; `docs/spec/verificacion_esquema.sql` en la CI. | Fase 1 |
 | `INV_WEB_PRECIO_EN_VIVO` | Precio y disponibilidad se piden al PMS en cada búsqueda y nunca se guardan. | `¤web-huespedes` | `¤¦web-huespedes` | `web_huespedes` | `tests/web_huespedes/test_busqueda.py`. | Fase 3 |
@@ -88,6 +92,10 @@ Cada invariante activa se expresa como predicado booleano. El mecanismo no es un
 | `INV_SALA_CONFORME` | `∀ s ∈ salas : ∃ compuerta(s) ∧ ∃ config(s)` | `tests/test_estructura_adpa.py`. |
 | `INV_PANEL_POR_ROL` | `ejecutada(accion, sesion) ⇒ accion ∈ allowlist(rol) ∧ zona(dato) ∈ zonas(sesion)` | Autorización en el BFF por endpoint. |
 | `INV_PANEL_SIN_LOGICA` | `∀ c ∈ cálculos_de_negocio : c ∉ panel_operativo` | Prueba por AST. |
+| `INV_SOLO_PUBLICADO` | `visible(h) ⇒ estado(h) = publicado ∧ estado(anfitrion(h)) = activo` | La web y el agente leen `anfitriones.publicados()`. |
+| `INV_CONTACTO_TRAS_CONFIRMAR` | `contacto_entregado(s) ⇒ estado(s) = confirmada` | El contacto sale solo en la transición a `confirmada`, dentro de `responder_solicitud`. |
+| `INV_COMISION_PLATAFORMA_UNICA` | `∀ s : ∣cargos(s)∣ ≤ 1` | `UNIQUE (solicitud, tipo)` en `anfitriones.lineas_cuenta`. |
+| `INV_AISLAMIENTO_ANFITRION` | `actor = anfitrion ⇒ anfitrion_id(fila) = identidad(actor)` | `anfitrion_id` sale de la identidad verificada; RLS con `FORCE` en `anfitriones.solicitudes`. |
 | `INV_WEB_SOLO_LECTURA` | `∀ r ∈ rutas(web) : efectos_pms(r) = ∅` | La compuerta recibe un puerto de `pms` con solo `consultar_disponibilidad` y `cotizar`. |
 | `INV_WEB_SIN_PII` | `∀ f ∈ tablas(web) ∪ enlaces ∪ logs : PII(f) = ∅` | Sin formularios de datos; código aleatorio `W-` con `secrets`; IP solo como HMAC con secreto. |
 | `INV_WEB_PRECIO_EN_VIVO` | `mostrado(precio, t) ⇒ precio = cotizar(t)` | `Cache-Control: no-store` en `/buscar` y `/comparar`, sin caché de servidor. |

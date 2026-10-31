@@ -56,6 +56,7 @@
 | `observabilidad` | `scripts/run_evals.py` | `¤¤devops-engineer` |
 | `panel_operativo` | `tests/e2e/**` | `¤¤frontend-developer` |
 | `web_huespedes` | — | `¤¤frontend-developer` |
+| `anfitriones` | — | `¤¤backend-developer` |
 | `operaciones` (condicional) | — | `¤¤backend-developer` |
 | *coordinador* (`pasillo_central`, `infraestructura`) | las rutas reservadas de la regla 5 | `¤¤solutions-architect`, `¤¤devops-engineer` |
 
@@ -68,9 +69,9 @@ coordinación (`T-x10`) que enlaza las salas en `app_core` y, si aplica, la de i
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | 1 MVP WhatsApp | T-101 canal · T-102 seguridad · T-103 observabilidad · T-104 agente · T-105 web pública | T-110 pasillo · T-111 integración | TASK-001 |
 | 2 | 2–3 RAG y PMS | T-201 conocimiento · T-202 pms (fake) · T-203 herramientas · T-204 operaciones (cond.) · T-205 web búsqueda | T-212 pms real (bloq. ADR-0007) · T-210 pasillo · T-211 integración | TASK-002, TASK-003 |
-| 3 | 4 Multi-propiedad | T-301 agente enrutador · T-302 crm (fake) · T-303 panel handoff · T-304 seguridad RLS | T-310 pasillo · T-311 integración | TASK-004 |
-| 4 | 5 Seguridad y observabilidad | T-401 seguridad · T-402 observabilidad · T-403 agente caché · T-404 panel admin | T-410 infraestructura beta · T-411 integración (salida de beta) | TASK-005 |
-| 5 | 6 ARM | T-501 comisiones · T-502 arm · T-503 canal vendedores · T-504 herramientas ventas · T-505 panel ventas | T-510 pasillo · T-511 integración | TASK-006 |
+| 3 | 4 Multi-propiedad | T-301 agente enrutador · T-302 crm (fake) · T-303 panel handoff · T-304 seguridad RLS · T-305 anfitriones · T-306 herramientas de anfitrión | T-310 pasillo · T-311 integración | TASK-004 |
+| 4 | 5 Seguridad y observabilidad | T-401 seguridad · T-402 observabilidad · T-403 agente caché · T-404 panel admin · T-405 web publicados | T-410 infraestructura beta · T-411 integración (salida de beta) | TASK-005 |
+| 5 | 6 ARM | T-501 comisiones · T-502 arm · T-503 canal vendedores · T-504 herramientas ventas · T-505 panel ventas · T-506 estados de cuenta | T-510 pasillo · T-511 integración | TASK-006 |
 | 6 | 7 CRM y producción | T-601 crm real · T-602 arm tablero · T-603 comisiones export · T-604 panel tablero | T-610 producción · T-611 integración (hito producción) | TASK-007 |
 | 7 | 8 (condicional) | T-701 panel inbox | — | TASK-008 |
 | 8 | 8 Terminal móvil | T-801 panel terminal móvil | T-810 despliegue móvil | RF-PAN-11..14 |
@@ -431,6 +432,42 @@ arbitro = "tests/seguridad/test_rls.py contra PostgreSQL real en CI; arnés Exit
 ```
 Entregables: migraciones de políticas RLS para los esquemas con `propiedad_id`, rol de aplicación `NOBYPASSRLS`, prueba que con propiedad A no devuelve filas de B.
 
+### T-305 — Anfitriones: alta, publicación, solicitud y resultado de la estadía
+`¤anfitriones`
+```toml
+id = "T-305"
+ola = 3
+fase = 4
+estado = "pendiente"
+sala = "anfitriones"
+rol = "¤¤backend-developer"
+requisitos = ["RF-ANF-01", "RF-ANF-02", "RF-ANF-04", "RF-ANF-05", "RF-ANF-06", "US-19"]
+depende_de = ["T-202"]
+bloqueada_por = []
+propiedad = ["features/anfitriones/**", "tests/anfitriones/**", "docs/modulos/anfitriones.md"]
+consume = ["seguridad_service", "canal_whatsapp_service", "pms_conector_service", "observabilidad_service"]
+arbitro = "tests/anfitriones/{test_publicacion,test_solicitudes,test_resultado,test_aislamiento}.py; arnés Exit Code 0"
+```
+Entregables: `registro_internal.py`, `solicitudes_internal.py`, persistencia `esquema anfitriones`. **Hecho cuando** el contacto no sale antes de confirmar y un anfitrión no puede operar lo de otro.
+
+### T-306 — Herramientas MCP de solicitud y anfitrión
+`¤herramientas-mcp`
+```toml
+id = "T-306"
+ola = 3
+fase = 4
+estado = "pendiente"
+sala = "herramientas_glamping"
+rol = "¤¤backend-developer"
+requisitos = ["RF-ANF-04", "RF-ANF-05", "RF-ANF-06"]
+depende_de = ["T-203"]
+bloqueada_por = []
+propiedad = ["features/herramientas_glamping/**", "tests/herramientas_glamping/**", "docs/modulos/herramientas_glamping.md"]
+consume = ["seguridad_service", "anfitriones_service", "observabilidad_service"]
+arbitro = "tests/herramientas_glamping/test_anfitriones.py; arnés Exit Code 0"
+```
+Entregables: `solicitar_reserva`, `responder_solicitud` y `reportar_resultado_estadia` según `docs/spec/contratos/herramientas.yaml`. `anfitrion_id` sale siempre de la identidad.
+
 ### T-310 — Pasillo central, fase 4: planificador de check-in, ruta del panel, eventos del CRM
 `¤pasillo-central`
 ```toml
@@ -440,8 +477,8 @@ fase = 4
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤solutions-architect"
-requisitos = ["US-03 (disparo)", "RF-PAN (montaje)", "RF-CRM-05 (ruta)"]
-depende_de = ["T-301", "T-302", "T-303", "T-304"]
+requisitos = ["US-03 (disparo)", "RF-PAN (montaje)", "RF-CRM-05 (ruta)", "RF-ANF-04 (procesos diarios)"]
+depende_de = ["T-301", "T-302", "T-303", "T-304", "T-305", "T-306"]
 bloqueada_por = []
 propiedad = ["app_core/**", "tests/app_core/**", "compose.yaml", "compose.production.yaml", ".env.example", "infra/**"]
 consume = ["todas las compuertas"]
@@ -534,14 +571,32 @@ fase = 5
 estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
-requisitos = ["RF-PAN-09 (usuarios, auditoría, privacidad, salud)", "RF-PAN-10"]
+requisitos = ["RF-PAN-09 (usuarios, auditoría, privacidad, salud)", "RF-PAN-10", "RF-ANF-01", "RF-ANF-02"]
 depende_de = ["T-303"]
 bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
-consume = ["seguridad_service", "observabilidad_service"]
+consume = ["seguridad_service", "anfitriones_service", "observabilidad_service"]
 arbitro = "tests/panel_operativo/test_bff_admin.py (cada rol); tests/e2e/test_calidad_ui.py (accesibilidad AA, LCP ≤ 2,5 s, 0 rastros en el build); arnés Exit Code 0"
 ```
 Entregables: P-11 usuarios, roles y bloqueos, auditoría, solicitudes de titulares, salud del sistema; auditoría de accesibilidad y presupuesto de rendimiento en CI; `tests/test_interfaz_purificada.py` extendido al build (coordinado con T-410, que es dueño de ese archivo: el panel entrega la función de comprobación en su sala y el coordinador la invoca).
+
+### T-405 — Web pública: solo hospedajes publicados
+`¤web-huespedes`
+```toml
+id = "T-405"
+ola = 4
+fase = 5
+estado = "pendiente"
+sala = "web_huespedes"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-ANF-03", "INV_SOLO_PUBLICADO"]
+depende_de = ["T-205", "T-305"]
+bloqueada_por = []
+propiedad = ["features/web_huespedes/**", "tests/web_huespedes/**", "docs/modulos/web_huespedes.md"]
+consume = ["anfitriones_service", "observabilidad_service"]
+arbitro = "tests/web_huespedes/test_publicados.py; arnés Exit Code 0"
+```
+Entregables: el catálogo filtra con `anfitriones.publicados()` y cada ficha dice quién ofrece el hospedaje. La compuerta recibe `anfitriones` por inyección; T-410 la enlaza en `app_core`.
 
 ### T-410 — Infraestructura beta: prueba de carga, aislamiento de red, alertas de despliegue
 `¤infra-hibrida`
@@ -553,7 +608,7 @@ estado = "pendiente"
 sala = "infraestructura"
 rol = "¤¤devops-engineer"
 requisitos = ["RNF-05", "RNF-06", "RNF-10", "INV_RED_AISLADA"]
-depende_de = ["T-401", "T-402", "T-403", "T-404"]
+depende_de = ["T-401", "T-402", "T-403", "T-404", "T-405"]
 bloqueada_por = []
 propiedad = ["compose.yaml", "compose.production.yaml", "infra/**", "scripts/arnes_glamping.py", "scripts/verificar_secretos.py", ".github/**", "tests/test_interfaz_purificada.py", "tests/integracion/**", "app_core/**", "tests/app_core/**"]
 consume = ["todas las compuertas"]
@@ -646,11 +701,11 @@ fase = 6
 estado = "pendiente"
 sala = "herramientas_glamping"
 rol = "¤¤backend-developer"
-requisitos = ["RF-MCP-08", "RF-MCP-09"]
+requisitos = ["RF-MCP-08", "RF-MCP-09", "RF-ANF-07"]
 depende_de = ["T-203"]
 bloqueada_por = []
 propiedad = ["features/herramientas_glamping/**", "tests/herramientas_glamping/**", "docs/modulos/herramientas_glamping.md"]
-consume = ["seguridad_service", "arm_jarvis_service", "comisiones_service", "observabilidad_service"]
+consume = ["seguridad_service", "arm_jarvis_service", "comisiones_service", "anfitriones_service", "observabilidad_service"]
 arbitro = "tests/herramientas_glamping/test_contratos.py ampliado a las dos herramientas con dobles propios; arnés Exit Code 0"
 ```
 
@@ -671,6 +726,24 @@ consume = ["arm_jarvis_service", "comisiones_service", "seguridad_service", "obs
 arbitro = "tests/panel_operativo/{test_bff_ventas,test_bff_jarvis}.py; tests/e2e/test_validar_venta.py (validar con un toque, corrección de campos dudosos, conflicto); arnés Exit Code 0"
 ```
 Entregables: P-03, P-04, P-07 (`docs/FRONTEND.md` §4), componentes `TarjetaVenta`, `HojaCorreccion`, `DialogoMotivo`, `ChatJarvis`.
+
+### T-506 — Anfitriones: estado de cuenta, cobro y pausa
+`¤anfitriones`
+```toml
+id = "T-506"
+ola = 5
+fase = 6
+estado = "pendiente"
+sala = "anfitriones"
+rol = "¤¤backend-developer"
+requisitos = ["RF-ANF-07", "RF-ANF-08", "US-20", "INV_COMISION_PLATAFORMA_UNICA"]
+depende_de = ["T-305"]
+bloqueada_por = []
+propiedad = ["features/anfitriones/**", "tests/anfitriones/**", "docs/modulos/anfitriones.md"]
+consume = ["seguridad_service", "canal_whatsapp_service", "observabilidad_service"]
+arbitro = "tests/anfitriones/test_estado_cuenta.py; arnés Exit Code 0"
+```
+Entregables: `estado_cuenta_internal.py` con cierre mensual, registro de pago, ajustes y pausa por vencimiento. **Hecho cuando** una estadía no se cobra dos veces y el total coincide con sus líneas.
 
 ### T-510 — Pasillo central, fase 6: canal de vendedores en producción de pruebas
 `¤pasillo-central`
@@ -773,11 +846,11 @@ fase = 7
 estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
-requisitos = ["RF-PAN-04", "RF-PAN-05", "RF-PAN-09 (reglas, plantillas, conocimiento, propiedades)", "US-08"]
+requisitos = ["RF-PAN-04", "RF-PAN-05", "RF-PAN-09 (reglas, plantillas, conocimiento, propiedades)", "US-08", "RF-ANF-08"]
 depende_de = ["T-505"]
 bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
-consume = ["arm_jarvis_service", "comisiones_service", "pms_conector_service", "canal_whatsapp_service", "conocimiento_service", "seguridad_service", "observabilidad_service"]
+consume = ["anfitriones_service", "arm_jarvis_service", "comisiones_service", "pms_conector_service", "canal_whatsapp_service", "conocimiento_service", "seguridad_service", "observabilidad_service"]
 arbitro = "tests/panel_operativo/test_bff_comisiones.py (409 tras cierre); tests/e2e/test_tablero.py (totales al centavo con la exportación); arnés Exit Code 0"
 ```
 Entregables: P-05, P-06 y el resto de P-11 (`docs/FRONTEND.md` §4), componentes `TarjetaMetrica`, `GraficoBarras`, `TablaDensa`.

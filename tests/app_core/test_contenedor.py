@@ -49,7 +49,8 @@ def test_catalogo_de_herramientas_declaradas_coincide_con_el_prd() -> None:
     esperadas = {
         "consultar_disponibilidad", "cotizar", "crear_reserva_preliminar", "obtener_instrucciones_checkin",
         "reportar_incidencia", "solicitar_humano", "buscar_contacto_crm", "crear_oportunidad_crm",
-        "registrar_venta", "consultar_comision_propia",
+        "registrar_venta", "consultar_comision_propia", "solicitar_reserva", "responder_solicitud",
+            "reportar_resultado_estadia", "consultar_estado_cuenta_anfitrion",
     }
     assert declaradas == esperadas
 
@@ -66,4 +67,4 @@ def test_salud_y_health_http() -> None:
 
 def test_main_comprobar_lee_config_app(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["--comprobar"]) == 0
-    assert "12 salas declaradas" in capsys.readouterr().out
+    assert "13 salas declaradas" in capsys.readouterr().out

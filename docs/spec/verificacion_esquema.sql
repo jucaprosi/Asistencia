@@ -131,5 +131,39 @@ BEGIN
   END;
 END $$;
 
+SET LOCAL app.anfitrion_id = 'todos';
+DO $$
+DECLARE
+  anf uuid;
+  cuenta uuid;
+  otro integer;
+BEGIN
+  INSERT INTO anfitriones.anfitriones (nombre_comercial, telefono_token, comision_porcentaje, terminos_version, terminos_aceptados_en)
+  VALUES ('Anfitrión de prueba', 'tok-1', 10, 'v1', now()) RETURNING anfitrion_id INTO anf;
+  INSERT INTO anfitriones.hospedajes (propiedad_id, anfitrion_id) VALUES ('H1', anf);
+  INSERT INTO anfitriones.solicitudes (solicitud, codigo_reserva, propiedad_id, anfitrion_id, desde, hasta, total, comision_porcentaje, vence_en)
+  VALUES ('PL-2026-0001', 'R-1', 'H1', anf, '2026-11-01', '2026-11-02', 100, 10, now());
+  INSERT INTO anfitriones.estados_cuenta (anfitrion_id, periodo, total, vence_en)
+  VALUES (anf, '2026-11', 10, '2026-12-19') RETURNING estado_cuenta_id INTO cuenta;
+  INSERT INTO anfitriones.lineas_cuenta (estado_cuenta_id, solicitud, base, porcentaje, comision)
+  VALUES (cuenta, 'PL-2026-0001', 100, 10, 10);
+  BEGIN
+    INSERT INTO anfitriones.lineas_cuenta (estado_cuenta_id, solicitud, base, porcentaje, comision)
+    VALUES (cuenta, 'PL-2026-0001', 100, 10, 10);
+    RAISE EXCEPTION 'AssertionError: una estadía se cobró dos veces' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN unique_violation THEN NULL;
+  END;
+  BEGIN
+    UPDATE anfitriones.hospedajes SET estado = 'publicado' WHERE propiedad_id = 'H1';
+    RAISE EXCEPTION 'AssertionError: publicar exige actor y fecha' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  PERFORM set_config('app.anfitrion_id', gen_random_uuid()::text, true);
+  SELECT count(*) INTO otro FROM anfitriones.solicitudes;
+  IF otro <> 0 THEN
+    RAISE EXCEPTION 'AssertionError: fuga entre anfitriones, % filas', otro USING ERRCODE = 'raise_exception';
+  END IF;
+END $$;
+
 ROLLBACK;
 SELECT 'esquema verificado' AS resultado;

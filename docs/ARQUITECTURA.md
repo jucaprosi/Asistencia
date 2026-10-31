@@ -34,7 +34,7 @@ Este documento fija **cómo se materializa** la arquitectura del informe en un r
 │  features/                                                                         │
 │   canal_whatsapp ─ seguridad ─ agente ─ conocimiento ─ herramientas_glamping        │
 │   pms_conector ─ crm_conector ─ arm_jarvis ─ comisiones ─ observabilidad           │
-│   panel_operativo · web_huespedes (pública) · operaciones (condicional, ver §3)     │
+│   panel_operativo · web_huespedes (pública) · anfitriones · operaciones (cond., §3)  │
 │                                                                                    │
 │  tests/  evals/  scripts/  docs/  governance/  compose.yaml  compose.production.yaml│
 └────────────────────────────────────────────────────────────────────────────────────┘
@@ -139,7 +139,7 @@ Convenciones: un `pyproject.toml` en la raíz con un paquete por sala (`features
 ## 4. Pasillo central y flujo de un mensaje
 `¤pasillo-central`
 
-`app_core/contenedor.py` construye las compuertas en este orden y las enlaza por inyección: `observabilidad` → `seguridad` → `conocimiento` → `pms_conector` → `crm_conector` → `comisiones` → `canal_whatsapp` → `arm_jarvis` → `herramientas_glamping` → `agente` → `panel_operativo`; al final registra en el canal los receptores (huéspedes → `agente.atender`, vendedores → `arm.procesar`), de modo que el canal no depende de quien lo escucha. Los puntos de entrada HTTP públicos son el webhook de Meta, los eventos firmados del CRM y el panel operativo (`/panel/*`, con sesión); el servidor MCP escucha solo en `agent-net`.
+`app_core/contenedor.py` construye las compuertas en este orden y las enlaza por inyección: `observabilidad` → `seguridad` → `conocimiento` → `pms_conector` → `crm_conector` → `comisiones` → `canal_whatsapp` → `anfitriones` → `arm_jarvis` → `herramientas_glamping` → `agente` → `panel_operativo`; al final registra en el canal los receptores (huéspedes → `agente.atender`, vendedores → `arm.procesar`), de modo que el canal no depende de quien lo escucha. Los puntos de entrada HTTP públicos son el webhook de Meta, los eventos firmados del CRM y el panel operativo (`/panel/*`, con sesión); el servidor MCP escucha solo en `agent-net`.
 
 ```
 Meta ──POST /webhook──► canal_whatsapp_service.recibir()

@@ -17,6 +17,9 @@ plantillas:
   - {nombre: incidencia_actualizada, idioma: es, categoria: utility, variables: [nombre, incidencia, estado], aprobada: false}
   - {nombre: handoff_asignado, idioma: es, categoria: utility, variables: [gestor, propiedad, motivo], aprobada: false}
   - {nombre: seguimiento_atencion, idioma: es, categoria: utility, variables: [nombre, propiedad], aprobada: false}
+  - {nombre: solicitud_reserva_anfitrion, idioma: es, categoria: utility, variables: [anfitrion, propiedad, fechas, solicitud], aprobada: false}
+  - {nombre: reserva_confirmada, idioma: es, categoria: utility, variables: [nombre, propiedad, contacto], aprobada: false}
+  - {nombre: estado_cuenta_anfitrion, idioma: es, categoria: utility, variables: [anfitrion, periodo, total], aprobada: false}
   - {nombre: codigo_acceso_panel, idioma: es, categoria: authentication, variables: [codigo], aprobada: false}
 ingesta:
   reintentos_evento: 5

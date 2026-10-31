@@ -1,0 +1,6 @@
+# ¤anfitriones
+solicitud_vigencia_h: 24
+reporte_estadia_dias: 3
+cierre_dia_del_mes: 5
+pago_plazo_dias: 14
+pausa_tras_vencimiento_dias: 15

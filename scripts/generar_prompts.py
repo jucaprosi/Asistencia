@@ -22,7 +22,7 @@ SALIDA = SPEC / "prompts"
 ESQUEMA_POR_SALA = {
     "canal_whatsapp": "canal", "seguridad": "seguridad", "agente": "agente", "conocimiento": "conocimiento",
     "pms_conector": "pms", "operaciones": "pms", "crm_conector": "crm", "arm_jarvis": "arm", "comisiones": "comisiones",
-    "observabilidad": "observabilidad", "panel_operativo": "panel", "web_huespedes": "web",
+    "observabilidad": "observabilidad", "panel_operativo": "panel", "web_huespedes": "web", "anfitriones": "anfitriones",
 }
 REGLAS = """1. Esta especificación es tu única fuente. No consultes cómo se implementaron otras salas.
 2. Escribe solo en las rutas de "Rutas que puedes escribir".

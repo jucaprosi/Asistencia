@@ -14,6 +14,8 @@ El agente necesita disponibilidad, cotización, reserva preliminar, instruccione
 
 ## Opciones consideradas
 
+> **Nota de ADR-0018:** con varios anfitriones aparece una cuarta opción recomendada: calendario propio de la plataforma detrás de la misma interfaz, con importación iCal después. Sigue pendiente de decisión.
+
 | Criterio | Kamra PMS (open source, AGPL-3.0) | Repull MCP (API unificada) | Hospitable (comercial, MCP oficial) |
 | :--- | :--- | :--- | :--- |
 | Control y datos | Total, on-prem posible (favorece ADR-0012) | Abstracción sobre 50+ PMS y OTAs | SaaS |

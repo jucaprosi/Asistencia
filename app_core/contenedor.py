@@ -33,6 +33,8 @@ from features.observabilidad.observabilidad_service import ObservabilidadService
 from features.observabilidad.observabilidad_service import cargar_config as cargar_config_observabilidad
 from features.panel_operativo.panel_operativo_service import PanelOperativoService
 from features.panel_operativo.panel_operativo_service import cargar_config as cargar_config_panel
+from features.anfitriones.anfitriones_service import AnfitrionesService
+from features.anfitriones.anfitriones_service import cargar_config as cargar_config_anfitriones
 from features.web_huespedes.web_huespedes_service import WebHuespedesService
 from features.web_huespedes.web_huespedes_service import cargar_config as cargar_config_web
 from features.pms_conector.pms_conector_service import PMSConectorService
@@ -67,6 +69,7 @@ class Contenedor:
     agente: AgenteService
     panel: PanelOperativoService
     web: WebHuespedesService
+    anfitriones: AnfitrionesService
 
 
 # ¤pasillo-central
@@ -117,13 +120,16 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
     crm = CRMConectorService(_config(cargar_config_crm), observabilidad=observabilidad)
     comisiones = ComisionesService(_config(cargar_config_comisiones), seguridad=seguridad, observabilidad=observabilidad)
     canal = CanalWhatsappService(_config(cargar_config_canal), seguridad=seguridad, observabilidad=observabilidad)
+    anfitriones = AnfitrionesService(
+        _config(cargar_config_anfitriones), seguridad=seguridad, canal=canal, pms=pms, observabilidad=observabilidad,
+    )
     arm = ArmJarvisService(
         _config(cargar_config_arm), seguridad=seguridad, comisiones=comisiones, crm=crm, canal=canal,
         observabilidad=observabilidad,
     )
     herramientas = HerramientasGlampingService(
         _config(cargar_config_herramientas), seguridad=seguridad, pms=pms, conocimiento=conocimiento, crm=crm,
-        arm=arm, comisiones=comisiones, observabilidad=observabilidad,
+        arm=arm, comisiones=comisiones, anfitriones=anfitriones, observabilidad=observabilidad,
     )
     agente = AgenteService(
         _config(cargar_config_agente), seguridad=seguridad, herramientas=herramientas, conocimiento=conocimiento,
@@ -142,4 +148,5 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
         pms=pms, crm=crm, comisiones=comisiones, canal=canal, arm=arm, herramientas=herramientas, agente=agente,
         panel=panel,
         web=WebHuespedesService(_config(cargar_config_web), pms=pms, observabilidad=observabilidad),
+        anfitriones=anfitriones,
     )

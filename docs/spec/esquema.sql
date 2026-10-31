@@ -21,6 +21,7 @@ CREATE SCHEMA comisiones;
 CREATE SCHEMA observabilidad;
 CREATE SCHEMA panel;
 CREATE SCHEMA web;
+CREATE SCHEMA anfitriones;
 
 -- Sala canal_whatsapp
 CREATE TABLE canal.eventos_entrantes (
@@ -69,7 +70,7 @@ CREATE TABLE seguridad.usuarios (
   usuario_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   correo_hash      text NOT NULL UNIQUE,
   numero_hash      text NOT NULL UNIQUE,
-  rol              text NOT NULL CHECK (rol IN ('vendedor','lider','gestor','administrador')),
+  rol              text NOT NULL CHECK (rol IN ('vendedor','lider','gestor','administrador','anfitrion')),
   sujeto_id        text,
   activo           boolean NOT NULL DEFAULT true,
   alta_por         uuid,
@@ -555,8 +556,74 @@ CREATE TABLE panel.sesiones (
 );
 
 -- Permisos
-GRANT USAGE ON SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, comisiones, observabilidad, panel TO app_glamping;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, comisiones, observabilidad, panel TO app_glamping;
+-- Sala anfitriones: la plataforma no custodia dinero; registra solicitudes y comisión
+CREATE TABLE anfitriones.anfitriones (
+  anfitrion_id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nombre_comercial    text NOT NULL,
+  telefono_token      text NOT NULL UNIQUE,
+  comision_porcentaje numeric(5,2) NOT NULL CHECK (comision_porcentaje BETWEEN 0 AND 100),
+  terminos_version    text NOT NULL,
+  terminos_aceptados_en timestamptz NOT NULL,
+  estado              text NOT NULL DEFAULT 'activo' CHECK (estado IN ('activo','suspendido')),
+  creado_en           timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE anfitriones.hospedajes (
+  propiedad_id     text PRIMARY KEY,
+  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  estado           text NOT NULL DEFAULT 'borrador' CHECK (estado IN ('borrador','publicado','pausado')),
+  publicado_por    text,
+  publicado_en     timestamptz,
+  CHECK (estado <> 'publicado' OR (publicado_por IS NOT NULL AND publicado_en IS NOT NULL))
+);
+
+CREATE TABLE anfitriones.solicitudes (
+  solicitud        text PRIMARY KEY CHECK (solicitud ~ '^PL-[0-9]{4}-[0-9]{4,}$'),
+  codigo_reserva   text NOT NULL UNIQUE,
+  propiedad_id     text NOT NULL REFERENCES anfitriones.hospedajes (propiedad_id),
+  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  desde            date NOT NULL,
+  hasta            date NOT NULL,
+  total            numeric(12,2) NOT NULL CHECK (total >= 0),
+  comision_porcentaje numeric(5,2) NOT NULL CHECK (comision_porcentaje BETWEEN 0 AND 100),
+  estado           text NOT NULL DEFAULT 'solicitada' CHECK (estado IN ('solicitada','confirmada','rechazada','expirada','cancelada','no_show','completada')),
+  vence_en         timestamptz NOT NULL,
+  respondida_en    timestamptz,
+  creado_en        timestamptz NOT NULL DEFAULT now(),
+  CHECK (hasta > desde)
+);
+ALTER TABLE anfitriones.solicitudes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE anfitriones.solicitudes FORCE ROW LEVEL SECURITY;
+CREATE POLICY solicitudes_por_anfitrion ON anfitriones.solicitudes
+  USING (anfitrion_id::text = current_setting('app.anfitrion_id', true) OR current_setting('app.anfitrion_id', true) = 'todos');
+
+CREATE TABLE anfitriones.estados_cuenta (
+  estado_cuenta_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  periodo          text NOT NULL CHECK (periodo ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),
+  total            numeric(12,2) NOT NULL,
+  estado           text NOT NULL DEFAULT 'emitido' CHECK (estado IN ('emitido','pagado','vencido')),
+  emitido_en       timestamptz NOT NULL DEFAULT now(),
+  vence_en         date NOT NULL,
+  pagado_en        timestamptz,
+  pago_registrado_por text,
+  UNIQUE (anfitrion_id, periodo),
+  CHECK (estado <> 'pagado' OR (pagado_en IS NOT NULL AND pago_registrado_por IS NOT NULL))
+);
+
+CREATE TABLE anfitriones.lineas_cuenta (
+  linea_id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  estado_cuenta_id uuid NOT NULL REFERENCES anfitriones.estados_cuenta (estado_cuenta_id),
+  solicitud        text NOT NULL,
+  tipo             text NOT NULL DEFAULT 'cargo' CHECK (tipo IN ('cargo','ajuste')),
+  base             numeric(12,2) NOT NULL,
+  porcentaje       numeric(5,2) NOT NULL,
+  comision         numeric(12,2) NOT NULL,
+  UNIQUE (solicitud, tipo)
+);
+
+GRANT USAGE ON SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, comisiones, observabilidad, panel, web, anfitriones TO app_glamping;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, comisiones, observabilidad, panel, web, anfitriones TO app_glamping;
 REVOKE UPDATE, DELETE, TRUNCATE ON seguridad.audit_log FROM app_glamping;
 REVOKE UPDATE, DELETE, TRUNCATE ON arm.transiciones FROM app_glamping;
 

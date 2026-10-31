@@ -12,18 +12,20 @@ roles:
   - lider
   - gestor
   - administrador
+  - anfitrion                 # dueño de hospedajes; opera por WhatsApp sobre lo suyo
   - sistema                 # procesos internos del agente; nunca un remitente de WhatsApp
   - desconocido             # remitente sin rol privilegiado en el canal de vendedores: se descarta
 
-roles_con_whitelist: [vendedor, lider, gestor, administrador]
+roles_con_whitelist: [vendedor, lider, gestor, administrador, anfitrion]
 
 allowlist:
-  huesped_potencial: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano]
-  huesped_activo: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano, obtener_instrucciones_checkin, reportar_incidencia]
+  huesped_potencial: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_reserva, solicitar_humano]
+  huesped_activo: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_reserva, solicitar_humano, obtener_instrucciones_checkin, reportar_incidencia]
   vendedor: [registrar_venta, consultar_comision_propia, solicitar_humano]
   lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, cerrar_periodo, preguntar_jarvis]
   gestor: [ver_conversaciones_zona, resolver_incidencia, tomar_handoff, responder_handoff, devolver_handoff]
   administrador: ["*"]
+  anfitrion: [responder_solicitud, reportar_resultado_estadia, consultar_estado_cuenta_anfitrion]
   sistema: [buscar_contacto_crm, crear_oportunidad_crm]
   desconocido: []
 
@@ -84,6 +86,27 @@ incidencia:
   estados: [abierta, en_curso, resuelta]
   eta_horas_por_prioridad: {baja: 24, media: 8, alta: 2, critica: 0.5}
 
+anfitriones:
+  estados_anfitrion: [activo, suspendido]
+  estados_hospedaje: [borrador, publicado, pausado]
+  solicitud:
+    estados: [solicitada, confirmada, rechazada, expirada, cancelada, no_show, completada]
+    transiciones:
+      solicitada: [confirmada, rechazada, expirada]
+      confirmada: [cancelada, no_show, completada]
+      rechazada: []
+      expirada: []
+      cancelada: []
+      no_show: []
+      completada: []
+    vigencia_horas: 24
+    reporte_dias: 3
+  estado_cuenta:
+    estados: [emitido, pagado, vencido]
+    cierre_dia_del_mes: 5
+    pago_plazo_dias: 14
+    pausa_tras_vencimiento_dias: 15
+
 plantillas:
   - {nombre: instrucciones_checkin, categoria: utility, variables: [nombre, propiedad, hora]}
   - {nombre: recordatorio_llegada, categoria: utility, variables: [nombre, propiedad, fecha]}
@@ -92,6 +115,9 @@ plantillas:
   - {nombre: incidencia_actualizada, categoria: utility, variables: [nombre, incidencia, estado]}
   - {nombre: handoff_asignado, categoria: utility, variables: [gestor, propiedad, motivo]}
   - {nombre: seguimiento_atencion, categoria: utility, variables: [nombre, propiedad]}
+  - {nombre: solicitud_reserva_anfitrion, categoria: utility, variables: [anfitrion, propiedad, fechas, solicitud]}
+  - {nombre: reserva_confirmada, categoria: utility, variables: [nombre, propiedad, contacto]}
+  - {nombre: estado_cuenta_anfitrion, categoria: utility, variables: [anfitrion, periodo, total]}
   - {nombre: codigo_acceso_panel, categoria: authentication, variables: [codigo]}
 
 datos_personales:

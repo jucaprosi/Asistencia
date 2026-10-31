@@ -15,6 +15,7 @@ class Rol(str, Enum):
     LIDER = "lider"
     GESTOR = "gestor"
     ADMINISTRADOR = "administrador"
+    ANFITRION = "anfitrion"
     SISTEMA = "sistema"
     DESCONOCIDO = "desconocido"
 

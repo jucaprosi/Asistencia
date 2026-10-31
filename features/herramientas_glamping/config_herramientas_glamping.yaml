@@ -13,3 +13,7 @@ herramientas:
   - {nombre: crear_oportunidad_crm, esquema: esquemas/crear_oportunidad_crm.json, roles: [sistema], sala_destino: crm_conector, habilitada: false}
   - {nombre: registrar_venta, esquema: esquemas/registrar_venta.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}
   - {nombre: consultar_comision_propia, esquema: esquemas/consultar_comision_propia.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}
+  - {nombre: solicitar_reserva, esquema: esquemas/solicitar_reserva.json, roles: [huesped_potencial, huesped_activo], sala_destino: anfitriones, habilitada: false}
+  - {nombre: responder_solicitud, esquema: esquemas/responder_solicitud.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
+  - {nombre: reportar_resultado_estadia, esquema: esquemas/reportar_resultado_estadia.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
+  - {nombre: consultar_estado_cuenta_anfitrion, esquema: esquemas/consultar_estado_cuenta_anfitrion.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}

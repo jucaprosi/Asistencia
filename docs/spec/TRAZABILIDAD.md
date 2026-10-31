@@ -100,6 +100,14 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-WEB-04 | T-105, T-205 | web_publica.feature: Pasar a WhatsApp con contexto<br>web_publica.feature: La web no reserva |
 | RF-WEB-05 | T-105 | web_publica.feature: Exceso de consultas |
 | RF-WEB-06 | T-105 | web_publica.feature: Calidad pública |
+| RF-ANF-01 | T-305, T-404 | anfitriones.feature: Alta de un anfitrión<br>anfitriones.feature: Alta sin términos aceptados |
+| RF-ANF-02 | T-305, T-404 | anfitriones.feature: El equipo publica un hospedaje |
+| RF-ANF-03 | T-405 | anfitriones.feature: Un hospedaje pausado no se ofrece |
+| RF-ANF-04 | T-305, T-306, T-310 | anfitriones.feature: El huésped solicita una reserva |
+| RF-ANF-05 | T-305, T-306 | anfitriones.feature: El anfitrión confirma<br>anfitriones.feature: Solicitud sin respuesta<br>anfitriones.feature: Otro anfitrión intenta responder |
+| RF-ANF-06 | T-305, T-306 | anfitriones.feature: El anfitrión reporta que el huésped no llegó<br>anfitriones.feature: Sin reporte la estadía se completa |
+| RF-ANF-07 | T-504, T-506 | anfitriones.feature: Estado de cuenta mensual |
+| RF-ANF-08 | T-506, T-604 | anfitriones.feature: Pago registrado<br>anfitriones.feature: Estado de cuenta vencido |
 | RNF-01 | T-111 | por árbitro de la tabla del PRD |
 | RNF-02 | T-211 | por árbitro de la tabla del PRD |
 | RNF-03 | T-502 | por árbitro de la tabla del PRD |
@@ -137,5 +145,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | US-16 | T-611 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
 | US-17 | T-411 | privacidad.feature: Aviso en el primer contacto<br>privacidad.feature: Eliminación por criptoborrado<br>privacidad.feature: Retención automática<br>privacidad.feature: Conservación por obligación legal |
 | US-18 | T-105, T-205 | web_publica.feature: Ver el catálogo sin datos del PMS<br>web_publica.feature: Buscar por fechas<br>web_publica.feature: El PMS no responde durante la búsqueda<br>web_publica.feature: Comparar propiedades<br>web_publica.feature: Pasar a WhatsApp con contexto |
+| US-19 | T-305 | anfitriones.feature: El huésped solicita una reserva<br>anfitriones.feature: El anfitrión confirma<br>anfitriones.feature: Solicitud sin respuesta |
+| US-20 | T-506 | anfitriones.feature: Estado de cuenta mensual<br>anfitriones.feature: Pago registrado |
 
 `¤spec-glamping/`

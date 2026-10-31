@@ -63,7 +63,7 @@ def _referencias(nodo: Any) -> Iterator[str]:
 def test_toda_historia_tiene_escenario() -> None:
     etiquetas = {e for _, _, grupo in trazabilidad.escenarios() for e in grupo}
     historias = [i for i in trazabilidad.ids_del_prd() if i.startswith("US-")]
-    assert len(historias) == 18
+    assert len(historias) == 20
     assert not [h for h in historias if h not in etiquetas]
 
 
@@ -115,7 +115,7 @@ def test_cada_tarea_tiene_prompt_al_dia_y_completo() -> None:
 
 # ¤spec-glamping
 def test_las_entidades_del_prd_tienen_tabla() -> None:
-    for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados"):
+    for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados", "anfitriones.solicitudes", "anfitriones.lineas_cuenta"):
         assert f"CREATE TABLE {tabla} (" in ESQUEMA, tabla
 
 
@@ -173,6 +173,8 @@ def test_tipos_de_las_salas_coinciden_con_el_dominio() -> None:
     assert _valores_enum("comisiones", "EstadoComision") == set(DOMINIO["comision"]["estados"])
     assert _valores_enum("comisiones", "TipoRegla") == set(DOMINIO["comision"]["tipos_regla"])
     assert _valores_enum("comisiones", "ModoEscalon") == set(DOMINIO["comision"]["modos_escalon"])
+    assert _valores_enum("anfitriones", "EstadoSolicitud") == set(DOMINIO["anfitriones"]["solicitud"]["estados"])
+    assert _valores_enum("anfitriones", "EstadoCuenta") == set(DOMINIO["anfitriones"]["estado_cuenta"]["estados"])
 
 
 # ¤spec-glamping
@@ -217,7 +219,7 @@ def test_esquemas_json_validos_y_referencias_resueltas() -> None:
 
 # ¤spec-glamping
 def test_el_modelo_no_envia_identidad() -> None:
-    prohibidos = {"telefono_token", "vendedor_id", "conversacion_id", "huesped_id", "prioridad"}
+    prohibidos = {"telefono_token", "vendedor_id", "conversacion_id", "huesped_id", "prioridad", "anfitrion_id"}
     for nombre, definicion in HERRAMIENTAS["herramientas"].items():
         if nombre == "buscar_contacto_crm":
             continue
@@ -236,7 +238,7 @@ def test_transiciones_del_ddl_coinciden_con_el_dominio() -> None:
 
 # ¤spec-glamping
 def test_cada_sala_con_datos_tiene_esquema_y_el_audit_es_append_only() -> None:
-    for esquema in ("canal", "seguridad", "agente", "conocimiento", "pms", "crm", "arm", "comisiones", "observabilidad", "panel"):
+    for esquema in ("canal", "seguridad", "agente", "conocimiento", "pms", "crm", "arm", "comisiones", "observabilidad", "panel", "web", "anfitriones"):
         assert f"CREATE SCHEMA {esquema};" in ESQUEMA, esquema
     assert "REVOKE UPDATE, DELETE, TRUNCATE ON seguridad.audit_log" in ESQUEMA
     assert "vector(1024)" in ESQUEMA

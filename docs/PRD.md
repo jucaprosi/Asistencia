@@ -1,9 +1,9 @@
-# PRD — Asistente de WhatsApp, ARM y CRM para Glamping Imbabura
+# PRD — Plataforma local de hospedajes con asistente de WhatsApp, ARM y CRM
 `¤prd-glamping`
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.9 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.3.0 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -18,11 +18,9 @@
 ## 1. Visión del producto
 `¤prd-vision`
 
-> **Cambio de producto (2026-10-31).** El producto es una plataforma local de hospedajes de varios anfitriones, y Glamping Imbabura es uno más. [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md) prevalece sobre este PRD hasta la especificación 0.3.0.
+**Qué es.** Una plataforma local de hospedajes de varios anfitriones, con Glamping Imbabura como uno más ([ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md)). El huésped busca y compara en la web y reserva por WhatsApp con un asistente basado en Claude, que actúa sobre el sistema de reservas (PMS) con herramientas MCP. El anfitrión confirma por WhatsApp y recibe un estado de cuenta mensual de la comisión de la plataforma. Incluye un módulo ARM («Jarvis») que convierte las ventas que los vendedores escriben en WhatsApp en registros con comisión calculada, validables por el líder comercial en un panel operativo propio y publicados en el CRM.
 
-**Qué es.** Un asistente conversacional sobre WhatsApp, con Claude como motor, que atiende a los huéspedes de Glamping Imbabura y de sus futuros departamentos urbanos, ejecuta acciones reales sobre el sistema de reservas (PMS) a través de herramientas MCP, y que incluye un módulo ARM (Agent Relationship Manager, «Jarvis») que convierte las ventas que los vendedores escriben en su canal de WhatsApp en registros estructurados con comisión calculada, validables por el líder comercial en un panel operativo propio y publicados en el CRM.
-
-**Para quién.** Seis perfiles (§2.3): huésped potencial, huésped activo, vendedor, líder comercial, gestor de propiedad y administrador.
+**Para quién.** Siete perfiles (§2.3): huésped potencial, huésped activo, anfitrión, vendedor, líder comercial, gestor de propiedad y administrador.
 
 **Qué problema resuelve.** Hoy una sola ubicación se atiende a mano por WhatsApp. La expansión a departamentos distribuidos por la ciudad multiplica calendarios, precios, instrucciones de check-in, equipos de limpieza y gestores por zona (§2.2): atenderlo a mano no escala y degrada el tiempo de respuesta. En paralelo, las ventas de los vendedores se reportan en texto libre y se transcriben a mano a una planilla o CRM, con errores, demoras y comisiones calculadas tarde.
 
@@ -50,6 +48,7 @@ Convención de plazos: **T0** = inicio de la fase 1 (MVP WhatsApp). **Beta** = f
 | ON-03 | Pagar comisiones con datos validados, no reconstruidos. | Días entre cierre del período y disponibilidad del tablero de comisiones validadas. | ≤ 1 día hábil. | Primer cierre mensual tras la fase 7. |
 | ON-04 | Proteger el negocio contable existente. | Incidentes de degradación del flujo contable atribuibles al asistente. | 0. | Permanente, revisado mensualmente. |
 | ON-05 | Mantener el canal sin riesgo de suspensión. | Dependencias de librerías no oficiales de WhatsApp en el repositorio. | 0 (árbitro: `tests/test_canal_oficial.py`). | Permanente. |
+| ON-06 | Cobrar la comisión de plataforma sin custodiar dinero. | Comisión cobrada dentro del plazo / comisión emitida. | ≥ 95 % (umbral inicial, se recalibra con el primer trimestre). | Tres cierres después de la fase 6. |
 
 ### 2.2 Objetivos de producto
 
@@ -90,6 +89,7 @@ Convención de plazos: **T0** = inicio de la fase 1 (MVP WhatsApp). **Beta** = f
 | **Huésped potencial** | Saber si hay disponibilidad, cuánto cuesta, qué hay cerca, y reservar. | Espera horas una respuesta; los precios cambian según quién contesta. | Obtiene disponibilidad y precio exactos en menos de un minuto, cualquier hora, y deja una reserva preliminar. | WhatsApp. | `consultar_disponibilidad`, `cotizar`, `crear_reserva_preliminar`, `solicitar_humano`. |
 | **Huésped activo** | Instrucciones de llegada, wifi, normas; reportar un problema. | Las instrucciones dependen del edificio y llegan tarde o incompletas. | Recibe las instrucciones de *su* propiedad el día del check-in sin pedirlas; una incidencia queda registrada con número en el primer mensaje. | WhatsApp. | Todo lo del huésped potencial, más `obtener_instrucciones_checkin` y `reportar_incidencia`. |
 | **Vendedor** | Reportar una venta en una frase y saber su comisión. | Digitar en formularios; no saber cuánto lleva ganado. | Escribe la venta como siempre, recibe confirmación en segundos y puede preguntar «¿cuánto llevo?». | Canal de vendedores de WhatsApp: grupo o chat 1:1 según S-01. | `registrar_venta`, `consultar_comision_propia`, `solicitar_humano`. No ve comisiones ajenas. |
+| **Anfitrión** | Recibir reservas sin intermediación manual. | Responder consultas sin saber si son reales; no entender qué comisión debe. | Confirma por WhatsApp y consulta su estado de cuenta. | WhatsApp, con número registrado. | `responder_solicitud`, `reportar_resultado_estadia`, `consultar_estado_cuenta_anfitrion`. Solo ve lo suyo. |
 | **Líder comercial** | Validar ventas y ver comisiones por vendedor y período. | Reconstruir ventas desde el chat a fin de mes. | Valida o rechaza cada venta con una acción; el tablero refleja el cambio al instante. | Panel operativo (ventas, comisiones, Jarvis). | `validar_venta`, `rechazar_venta`, `ver_comisiones_todas`, `exportar_periodo`, `cerrar_periodo`, `preguntar_jarvis`. |
 | **Gestor de propiedad** | Coordinar limpieza, mantenimiento y check-in de su zona. | Conversaciones mezcladas de varias propiedades. | Recibe solo las conversaciones e incidencias de su zona, con la propiedad identificada. | Panel operativo (handoffs e incidencias de su zona). | `ver_conversaciones_zona`, `resolver_incidencia`, `tomar_handoff`, `responder_handoff`, `devolver_handoff`. |
 | **Administrador** | Configurar propiedades, precios, políticas, usuarios y seguridad. | Cambios dispersos en varios sistemas. | Cambia una política o un precio en un solo lugar y el asistente lo refleja tras reindexar. | Panel operativo (administración: usuarios, propiedades, reglas, plantillas, conocimiento, auditoría, privacidad, salud). | Todas las acciones. |
@@ -317,6 +317,20 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 
 `¤web-huespedes/`
 
+### 5.13 Anfitriones y comisión de plataforma → sala `anfitriones`
+`¤anfitriones`
+
+- **RF-ANF-01 — Alta de anfitrión.** El administrador registra al anfitrión con versión de términos aceptada y porcentaje pactado. *Criterios:* (a) sin términos no hay alta; (b) el teléfono se guarda como token; (c) cada cambio queda en el audit log. *Árbitro:* `tests/anfitriones/test_publicacion.py`.
+- **RF-ANF-02 — Publicación revisada.** El equipo pasa cada hospedaje por `borrador`, `publicado` y `pausado`. *Criterios:* (a) publicar exige actor y fecha; (b) el anfitrión no publica por sí mismo. *Árbitro:* `tests/anfitriones/test_publicacion.py`.
+- **RF-ANF-03 — Solo lo publicado.** La web y el asistente ofrecen solo hospedajes publicados de anfitriones activos (`INV_SOLO_PUBLICADO`). *Criterios:* cada hospedaje dice quién lo ofrece. *Árbitro:* `tests/web_huespedes/test_publicados.py`.
+- **RF-ANF-04 — Solicitud de reserva.** Una reserva preliminar genera una solicitud con código `PL-`. *Criterios:* (a) fechas y total salen del PMS, nunca del modelo; (b) el porcentaje queda congelado; (c) el anfitrión recibe la plantilla con vigencia de 24 horas. *Árbitro:* `tests/anfitriones/test_solicitudes.py`.
+- **RF-ANF-05 — Respuesta del anfitrión.** Confirma o rechaza por WhatsApp. *Criterios:* (a) el contacto se entrega solo al confirmar (`INV_CONTACTO_TRAS_CONFIRMAR`); (b) sin respuesta la solicitud expira y el huésped recibe otras opciones; (c) nadie responde por otro anfitrión (`INV_AISLAMIENTO_ANFITRION`). *Árbitro:* `tests/anfitriones/test_solicitudes.py`, `tests/anfitriones/test_aislamiento.py`.
+- **RF-ANF-06 — Resultado de la estadía.** El anfitrión reporta `cancelada` o `no_show` hasta 3 días después de la salida. *Criterios:* (a) sin reporte pasa a `completada`; (b) `cancelada` y `no_show` no generan comisión. *Árbitro:* `tests/anfitriones/test_resultado.py`.
+- **RF-ANF-07 — Estado de cuenta mensual.** El día 5 se cierra el mes de salida anterior por anfitrión. *Criterios:* (a) cada línea muestra base, porcentaje y comisión (`INV_COMISION_PLATAFORMA_UNICA`); (b) el anfitrión lo recibe y lo consulta por WhatsApp; (c) una corrección posterior es una línea `ajuste` en el período abierto. *Árbitro:* `tests/anfitriones/test_estado_cuenta.py`.
+- **RF-ANF-08 — Cobro y pausa.** El anfitrión paga por fuera de la plataforma en 14 días y el administrador registra el pago. *Criterios:* (a) el pago guarda actor y fecha; (b) a los 15 días de vencido, sus hospedajes pasan a `pausado`; (c) la plataforma nunca custodia el pago del huésped. *Árbitro:* `tests/anfitriones/test_estado_cuenta.py`.
+
+`¤anfitriones/`
+
 ## 6. Requisitos no funcionales
 `¤prd-rnf`
 
@@ -371,6 +385,8 @@ Cada historia declara el rol, la necesidad y el beneficio. Sus criterios de acep
 | US-16 | CU-09 | Como administrador, quiero gestionar usuarios, reglas y configuración en un solo lugar con auditoría. | [`administracion.feature`](spec/features/administracion.feature) |
 | US-17 | transversal | Como titular de datos, quiero saber qué se guarda de mí y pedir su eliminación para ejercer mis derechos. | [`privacidad.feature`](spec/features/privacidad.feature) |
 | US-18 | transversal | Como huésped potencial, quiero buscar y comparar las propiedades en la web para elegir antes de escribir por WhatsApp. | [`web_publica.feature`](spec/features/web_publica.feature) |
+| US-19 | transversal | Como anfitrión, quiero confirmar cada solicitud por WhatsApp para recibir reservas sin atender cada consulta. | [`anfitriones.feature`](spec/features/anfitriones.feature) |
+| US-20 | transversal | Como anfitrión, quiero ver cada mes qué comisión debo y por qué estadías para pagar sin disputas. | [`anfitriones.feature`](spec/features/anfitriones.feature) |
 
 `¤prd-user-stories/`
 
@@ -690,6 +706,8 @@ Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de n
 
 | Término | Definición en este proyecto |
 | :--- | :--- |
+| Anfitrión | Dueño u operador de uno o más hospedajes publicados en la plataforma. |
+| Comisión de plataforma | Lo que el anfitrión paga a la plataforma por una estadía completada. Es distinta de la comisión del vendedor. |
 | **ARM** | *Agent Relationship Manager.* Capa agéntica que captura datos comerciales desde la conversación (aquí, ventas en WhatsApp) y los estructura, dejando persistencia, permisos y auditoría en el CRM. No es un estándar de la industria. |
 | **MCP** | *Model Context Protocol.* Protocolo abierto por el que un servidor expone herramientas tipadas a un modelo; aquí, `herramientas_glamping` y los conectores. |
 | **PMS** | *Property Management System.* Sistema de gestión de propiedades: calendario, reservas, check-in, housekeeping; conectado a OTAs por un channel manager. |
@@ -771,6 +789,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.3.0 | 2026-10-31 | Sala `anfitriones`, rol `anfitrion`, US-19 y 20, RF-ANF-01..08, cuatro herramientas, cuatro invariantes, T-305, T-306, T-405 y T-506. | Modelo de comisión con pago directo tras comparar plataformas; [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md). |
 | 0.2.9 | 2026-10-31 | El producto pasa a ser una plataforma local de hospedajes. Los datos de Glamping Imbabura dejan de ser requisito de la fase 1. | Decisión del propietario; [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md). |
 | 0.2.8 | 2026-10-31 | PostgreSQL gestionado en Neon con ventana de 7 días; `jinja2` entra en dependencias; T-110 monta las rutas de la web pública. | Decisión del propietario y revisión previa al arranque. |
 | 0.2.7 | 2026-10-31 | Web pública para huéspedes desde la fase 1, sala `web_huespedes`, US-18, RF-WEB-01..06, T-105 y T-205. App en tiendas como fase futura. | Pedido del propietario; [ADR-0017](adr/ADR-0017-web-publica-huespedes.md). |
