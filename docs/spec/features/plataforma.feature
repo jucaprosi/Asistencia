@@ -252,3 +252,29 @@ Característica: Comportamiento técnico de canal, agente, conectores y observab
     Dado una reserva guardada en la referencia local
     Cuando se valida al titular de la conversación
     Entonces la decisión usa esa referencia y el PMS no recibe ninguna llamada
+
+  @RF-PAN-11
+  Escenario: Instalar la terminal móvil
+    Dado un líder con sesión en el navegador del teléfono
+    Cuando instala la app
+    Entonces se abre a pantalla completa con las pantallas de su rol
+    Y al cerrar sesión el dispositivo queda revocado
+
+  @RF-PAN-12 @INV_AVISO_SIN_PII
+  Escenario: Aviso de venta por validar
+    Dado un líder con avisos activos
+    Cuando entra una venta por validar
+    Entonces el aviso dice solo el tipo y la cantidad
+    Y al tocarlo abre esa pantalla tras comprobar la sesión
+
+  @RF-PAN-13 @INV_MOVIL_SIN_ESCRITURA_SIN_RED @INV_MOVIL_SIN_PII_EN_DISCO
+  Escenario: Sin red
+    Dado la terminal con ventas cargadas y sin conexión
+    Cuando el líder intenta validar
+    Entonces el botón está deshabilitado, no se encola nada y el teléfono no guardó datos de negocio
+
+  @RF-PAN-14 @INV_ACCION_IDEMPOTENTE
+  Escenario: Doble toque con red inestable
+    Dado una venta por validar
+    Cuando la acción llega dos veces con la misma clave
+    Entonces se valida una sola vez y el vendedor recibe un solo aviso

@@ -524,6 +524,27 @@ CREATE TABLE panel.codigos_acceso (
   usado_en         timestamptz
 );
 
+-- Un teléfono por fila; se revoca al cerrar sesión o dar de baja al usuario
+CREATE TABLE panel.dispositivos (
+  dispositivo_id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id       uuid NOT NULL,
+  endpoint         text NOT NULL UNIQUE,
+  clave_p256dh     text NOT NULL,
+  clave_auth       text NOT NULL,
+  creado_en        timestamptz NOT NULL DEFAULT now(),
+  revocado_en      timestamptz
+);
+
+-- Repetir una acción con la misma clave devuelve la respuesta guardada
+CREATE TABLE panel.acciones_idempotentes (
+  usuario_id       uuid NOT NULL,
+  clave            uuid NOT NULL,
+  accion           text NOT NULL,
+  respuesta        jsonb,
+  creada_en        timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (usuario_id, clave)
+);
+
 CREATE TABLE panel.sesiones (
   sesion_id_hash   text PRIMARY KEY,
   usuario_id       uuid NOT NULL,

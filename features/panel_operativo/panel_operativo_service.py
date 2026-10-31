@@ -11,7 +11,7 @@ from typing import Any, Mapping
 
 import yaml
 
-from features.panel_operativo.tipos import EstadoSistema, Sesion, VistaHandoff, VistaVentaPorValidar
+from features.panel_operativo.tipos import AvisoMovil, EstadoSistema, Sesion, VistaHandoff, VistaVentaPorValidar
 
 __all__ = [
     "EstadoSistema", "Sesion", "VistaHandoff", "VistaVentaPorValidar", "ErrorPanel", "PanelOperativoService",
@@ -60,6 +60,15 @@ class PanelOperativoService:
     # sesión
     def iniciar_sesion(self, correo: str, codigo_un_uso: str) -> Sesion:
         raise NotImplementedError("TASK-004 RF-PAN-01")
+
+    def registrar_dispositivo(self, sesion: Sesion, endpoint: str, clave_p256dh: str, clave_auth: str) -> str:
+        raise NotImplementedError("T-801 RF-PAN-11")
+
+    def revocar_dispositivo(self, sesion: Sesion, dispositivo_id: str) -> None:
+        raise NotImplementedError("T-801 RF-PAN-11")
+
+    def enviar_aviso(self, usuario_id: str, aviso: AvisoMovil) -> None:
+        raise NotImplementedError("T-801 RF-PAN-12")
 
     def cerrar_sesion(self, sesion: Sesion) -> None:
         raise NotImplementedError("TASK-004 RF-PAN-01")

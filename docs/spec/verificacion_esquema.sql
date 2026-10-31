@@ -40,6 +40,17 @@ DO $$ BEGIN
   END;
 END $$;
 
+INSERT INTO panel.acciones_idempotentes (usuario_id, clave, accion)
+VALUES ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000006', 'validar_venta');
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO panel.acciones_idempotentes (usuario_id, clave, accion)
+    VALUES ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000006', 'validar_venta');
+    RAISE EXCEPTION 'AssertionError: una acción no se repite' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN unique_violation THEN NULL;
+  END;
+END $$;
+
 INSERT INTO agente.envios_programados (codigo_reserva, plantilla, fecha) VALUES ('R1', 'instrucciones_checkin', '2026-10-30');
 INSERT INTO pms.propiedades (propiedad_id, tipo, nombre, zona_id, direccion, prompt_variante)
 VALUES ('P1', 'glamping', 'Prueba', 'Z1', 'Dir', 'glamping');

@@ -35,6 +35,10 @@ class PanelOperativoService:
     # sesión
     def iniciar_sesion(self, correo: str, codigo_un_uso: str) -> Sesion: ...                  # código enviado por WhatsApp al número del usuario activo
     def cerrar_sesion(self, sesion: Sesion) -> None: ...
+    # terminal móvil
+    def registrar_dispositivo(self, sesion: Sesion, endpoint: str, clave_p256dh: str, clave_auth: str) -> str: ...
+    def revocar_dispositivo(self, sesion: Sesion, dispositivo_id: str) -> None: ...
+    def enviar_aviso(self, usuario_id: str, aviso: AvisoMovil) -> None: ...                   # solo tipo, cantidad y ruta
     # ventas (→ arm_jarvis, comisiones)
     def ventas_por_validar(self, sesion: Sesion, filtros: Mapping[str, Any]) -> tuple[VistaVentaPorValidar, ...]: ...
     def validar_venta(self, sesion: Sesion, venta_id: str, correcciones: Mapping[str, Any] | None) -> None: ...
@@ -74,7 +78,7 @@ class PanelOperativoService:
 `CredencialesInvalidas`, `SesionExpirada`, `AccionNoAutorizada` (de `seguridad`, se muestra sin detalle técnico), `ZonaNoAsignada`, `ConflictoDeEstado` (otro usuario validó antes: la UI recarga la tarjeta), `ErrorDeSala` (envuelve el error tipado de la sala dueña con `mensaje_usuario`).
 
 ## Persistencia (`esquema panel`)
-`usuarios(usuario_id PK, correo, telefono_token, rol, zonas, activo)`, `sesiones(sesion_id PK, usuario_id, csrf, creada, expira)`, `codigos_acceso(correo, codigo_hash, expira, intentos)`. Ningún dato de negocio: todo se lee de las salas dueñas.
+`usuarios(usuario_id PK, correo, telefono_token, rol, zonas, activo)`, `sesiones(sesion_id PK, usuario_id, csrf, creada, expira)`, `codigos_acceso(correo, codigo_hash, expira, intentos)`, `dispositivos` y `acciones_idempotentes`. Ningún dato de negocio: todo se lee de las salas dueñas.
 
 ## Tests (árbitro)
 `tests/panel_operativo/test_bff_ventas.py`, `test_bff_handoff.py`, `test_bff_admin.py` (cada endpoint con cada rol: 403 donde corresponde), `test_sesiones.py`; `tests/e2e/` con navegador real sobre `localhost` (protocolo de autoevaluación E2E de ZERAG) para US-06, US-08, US-09, US-10; `tests/test_interfaz_purificada.py` sobre el build de `estaticos/`.

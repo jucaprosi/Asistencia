@@ -82,3 +82,9 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | Fuente | Función | Nota |
 | :--- | :--- | :--- |
 | [wacrm, README](https://raw.githubusercontent.com/ArnasDon/wacrm/main/README.md) | ADR-0015 | Next.js, Supabase y licencia MIT según su README. Solo patrón de inbox. |
+
+## Terminal móvil (`¤panel-operativo`)
+
+| Fuente | Función | Nota |
+| :--- | :--- | :--- |
+| [WebKit: Web Push para apps web en iOS y iPadOS](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/) | ADR-0016 | Web Push para apps en la pantalla de inicio desde 16.4. |

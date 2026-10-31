@@ -90,6 +90,10 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PAN-08 | T-303 | plataforma.feature: Resolver incidencia |
 | RF-PAN-09 | T-404, T-604 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
 | RF-PAN-10 | T-404 | plataforma.feature: Calidad del panel |
+| RF-PAN-11 | T-801, T-810 | plataforma.feature: Instalar la terminal móvil |
+| RF-PAN-12 | T-801, T-810 | plataforma.feature: Aviso de venta por validar |
+| RF-PAN-13 | T-801 | plataforma.feature: Sin red |
+| RF-PAN-14 | T-801 | plataforma.feature: Doble toque con red inestable |
 | RNF-01 | T-111 | por árbitro de la tabla del PRD |
 | RNF-02 | T-211 | por árbitro de la tabla del PRD |
 | RNF-03 | T-502 | por árbitro de la tabla del PRD |

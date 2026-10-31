@@ -3,8 +3,8 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.0 (2026-10-30) |
-| Decisión | [ADR-0013 — Panel operativo propio](adr/ADR-0013-panel-operativo-propio.md) (aceptado por el propietario el 2026-10-30; revisa la adopción de la UI del CRM del informe §3) y [ADR-0015 — Referentes de interfaz](adr/ADR-0015-referentes-de-interfaz.md) |
+| Versión | 0.3.0 (2026-10-31) |
+| Decisión | [ADR-0013 — Panel operativo propio](adr/ADR-0013-panel-operativo-propio.md) (aceptado por el propietario el 2026-10-30; revisa la adopción de la UI del CRM del informe §3) y [ADR-0015 — Referentes de interfaz](adr/ADR-0015-referentes-de-interfaz.md); terminal móvil en [ADR-0016](adr/ADR-0016-terminal-movil.md) |
 | Módulo | [`modulos/panel_operativo.md`](modulos/panel_operativo.md) (compuerta, BFF, persistencia, tests) |
 | Requisitos | [`PRD.md` §5.11](PRD.md#511-panel-operativo--sala-panel_operativo) (RF-PAN-01..10) |
 | Método | BBAP en 2 pasos: boceto libre con inspiración en la ergonomía de plataformas líderes (densidad de datos, espaciado limpio, una acción principal por pantalla) → sellado sin logotipos, nombres comerciales ni CSS/JS propietario de terceros |
@@ -20,7 +20,7 @@ El panel es la **única interfaz propia del equipo**. Huéspedes y vendedores no
 | **Gestor de propiedad** | Atender handoffs e incidencias de **su zona**, devolver conversaciones al asistente. | Teléfono. | Ventas, comisiones, otras zonas. |
 | **Administrador** | Usuarios, roles y bloqueos, propiedades y zonas, reglas de comisión, plantillas, conocimiento, auditoría, salud. | Portátil. | Nada: ve todo, y todo lo que hace queda en el audit log. |
 
-Fuera del panel (v0.1): app nativa, modo sin conexión, multi-idioma, edición del corpus (se edita en `CORPUS_DIR` y se reindexa desde el panel).
+Fuera del panel (v0.1): app nativa de tienda, escritura sin conexión, multi-idioma, edición del corpus (se edita en `CORPUS_DIR` y se reindexa desde el panel).
 
 `¤frontend-alcance/`
 
@@ -218,6 +218,23 @@ En ≥ 1024 px, P-08 y P-09 se unen en tres columnas: lista, hilo y contexto (hu
 ### P-10 Incidencias
 Lista por zona con prioridad y estado; detalle con número, descripción, propiedad, reserva, historial; acción **Resolver** con nota (notifica al huésped por plantilla si corresponde).
 
+### P-12 Terminal móvil
+Es el mismo panel instalado en el teléfono. Sin barra del navegador, con la barra inferior de §3 y las pantallas de cada rol.
+
+```
+┌──────────────────────────────┐
+│ Sin conexión · solo lectura  │
+│ ▤ V-2026-0107                │
+│ [ Validar ] (deshabilitado)  │
+├──────────────────────────────┤
+│ Ventas · Comisiones · Jarvis │
+└──────────────────────────────┘
+```
+
+- **Instalación:** tras el acceso, una tarjeta en P-02 explica cómo instalarla. Se puede descartar y no bloquea nada.
+- **Avisos:** la tarjeta pide el permiso solo al tocar «Activar avisos». En iPhone exige instalar primero la app en la pantalla de inicio. Cada aviso dice el tipo y la cantidad, por ejemplo «2 ventas por validar», y abre esa pantalla.
+- **Dispositivos:** cerrar sesión revoca el teléfono y deja de enviarle avisos.
+
 ### P-11 Administración (solo administrador)
 
 | Subpantalla | Contenido | Acción principal | Compuerta |
@@ -287,14 +304,14 @@ Boceto inspirado en la ergonomía de paneles de operaciones de referencia (densi
 - **Accesibilidad:** WCAG 2.1 AA; contraste ≥ 4,5:1; navegación por teclado completa; foco visible; objetivos táctiles ≥ 44 px; estados nunca solo por color; gráficos con tabla alternativa; `lang="es"`.
 - **Rendimiento (presupuesto en 4G, teléfono medio):** LCP ≤ 2,5 s, INP ≤ 200 ms, JS inicial ≤ 200 KB comprimido, sin fuentes web externas.
 - **Localización:** español de Ecuador; moneda USD con coma decimal y espacio de miles («USD 12 450,00»); zona horaria America/Guayaquil; fechas relativas («hace 4 min») con fecha completa al pasar o tocar.
-- **Sin conexión:** no se soporta; se muestra un aviso y se bloquean las acciones hasta recuperar la red.
+- **Sin conexión:** la terminal móvil abre su interfaz y muestra en solo lectura lo que tenía en memoria, con un aviso; las acciones se bloquean hasta recuperar la red y nada se guarda en el teléfono.
 
 `¤frontend-calidad/`
 
 ## 8. Contrato del BFF (`/panel/api`)
 `¤frontend-bff`
 
-Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) y cabecera CSRF; cada una pasa por `seguridad.autorizar(rol, accion)` y deja un evento en el audit log. Respuestas JSON con `mensaje_usuario` en los errores.
+Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) y cabecera CSRF; cada una pasa por `seguridad.autorizar(rol, accion)` y deja un evento en el audit log. Respuestas JSON con `mensaje_usuario` en los errores. Todo `POST`, `PUT` y `DELETE` exige `Idempotency-Key`, y toda respuesta bajo `/panel/api` lleva `Cache-Control: no-store`.
 
 | Método y ruta | Compuerta → método | Roles |
 | :--- | :--- | :--- |
@@ -309,6 +326,7 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | `GET /comisiones/estado-cuenta?vendedor=&periodo=` | `comisiones.estado_cuenta` | líder, admin |
 | `POST /comisiones/periodos/{id}/cerrar` `{confirmacion}` | `comisiones.cerrar_periodo` | líder, admin |
 | `GET /comisiones/periodos/{id}/exportar?formato=csv\|json` | `comisiones.exportar` | líder, admin |
+| `POST /dispositivos` `{endpoint, claves}` · `DELETE /dispositivos/{id}` | `panel.registrar_dispositivo` / `revocar_dispositivo` | todos |
 | `POST /jarvis` `{pregunta, conversacion_id}` · `POST /jarvis/confirmar` | `arm.preguntar_jarvis` / `aplicar_cambio_configuracion` | líder, admin |
 | `GET /handoffs` | `panel.handoffs` (filtra zonas de la sesión) | gestor, admin |
 | `POST /handoffs/{id}/tomar` · `POST /handoffs/{id}/responder` `{texto}` · `POST /handoffs/{id}/devolver` | `panel.tomar_handoff` / `responder` / `devolver_al_asistente` → `agente`, `canal` | gestor, admin |
@@ -371,6 +389,7 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | 5 | P-11 usuarios, auditoría, privacidad, salud | — |
 | 6 | P-03, P-04, P-07 (ventas por validar, detalle, Jarvis) | validación «desde la UI del CRM» |
 | 7 | P-05, P-05b, P-06, P-11 reglas, plantillas, conocimiento, propiedades | visualización del tablero «en el CRM o BI» |
+| 8 | P-12 terminal móvil | Navegador sin instalar |
 | 8 (condicional, ADR-0010) | Inbox completo de conversaciones de huéspedes (no solo handoffs) | inbox del proveedor |
 
 `¤frontend-fases/`

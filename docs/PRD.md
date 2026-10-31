@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.5 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.2.6 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -125,7 +125,7 @@ El rol `sistema` no es una persona: lo usan procesos internos del agente, como `
 
 | Capa | Contenido | Contrato |
 | :--- | :--- | :--- |
-| 1. Canales | WhatsApp Cloud API y panel operativo. | `canal_whatsapp`, `panel_operativo`. |
+| 1. Canales | WhatsApp Cloud API, panel operativo y su terminal móvil instalable. | `canal_whatsapp`, `panel_operativo`. |
 | 2. Núcleo propio | Seguridad, agente, conocimiento, ARM, comisiones y observabilidad en FastAPI y Python. | Compuertas `_service.py`, [`modulos/`](modulos/README.md). |
 | 3. Datos | PostgreSQL con pgvector, un esquema por sala y sin claves foráneas entre salas. | [`spec/esquema.sql`](spec/esquema.sql). |
 | 4. Sistemas externos | PMS, CRM y modelo, detrás de conectores. | [`spec/contratos/herramientas.yaml`](spec/contratos/herramientas.yaml). |
@@ -294,6 +294,10 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 - **RF-PAN-08 — Incidencias.** Lista y detalle por zona con prioridad y estado; Resolver con nota. *Criterios:* resolver notifica al huésped (plantilla si aplica) y registra actor y hora. *Árbitro:* `tests/panel_operativo/test_bff_handoff.py`.
 - **RF-PAN-09 — Administración.** Usuarios, roles y bloqueos, propiedades y zonas (gestor principal y respaldo), reglas de comisión (nueva versión, nunca edición en sitio), plantillas de WhatsApp (estado de aprobación), conocimiento (documentos y reindexar), auditoría filtrable y exportable, solicitudes de titulares (RF-PRIV-05), salud del sistema (OP-01..10, alertas, cola del CRM). *Criterios:* (a) solo `administrador`; (b) cada cambio deja evento en el audit log con `usuario_id`; (c) reindexar devuelve el resumen y el resultado del set dorado. *Árbitro:* `tests/panel_operativo/test_bff_admin.py`.
 - **RF-PAN-10 — Calidad de la interfaz.** Móvil primero (360 px), WCAG 2.1 AA, LCP ≤ 2,5 s e INP ≤ 200 ms en 4G con teléfono medio, JS inicial ≤ 200 KB comprimido, español de Ecuador, interfaz purificada. *Criterios:* (a) auditoría de accesibilidad automatizada sin errores críticos; (b) presupuesto de rendimiento medido en CI; (c) 0 rastros ni nombres de proveedor en el build. *Árbitro:* `tests/e2e/test_calidad_ui.py`, `tests/test_interfaz_purificada.py`.
+- **RF-PAN-11 — Terminal móvil instalable.** El panel se instala en Android y iPhone desde el navegador, con icono y pantalla completa, sin tienda de aplicaciones ni código aparte. Es la misma app, con los mismos roles y el mismo backend. *Criterios:* (a) manifiesto y service worker válidos; (b) una versión nueva se aplica al abrir; (c) cerrar sesión revoca el dispositivo. *Árbitro:* `tests/e2e/test_terminal_movil.py`.
+- **RF-PAN-12 — Avisos al teléfono.** Web Push avisa al líder de ventas por validar y al gestor de handoffs e incidencias críticas de su zona. *Criterios:* (a) el permiso se pide con un toque del usuario; (b) el aviso abre la pantalla exacta tras comprobar la sesión; (c) no lleva datos personales (`INV_AVISO_SIN_PII`); (d) un fallo de entrega no afecta el flujo de negocio. *Árbitro:* `tests/panel_operativo/test_avisos.py`.
+- **RF-PAN-13 — Sin red.** Sin conexión, la terminal abre su interfaz y muestra en solo lectura lo que ya tenía en memoria. *Criterios:* (a) nada se guarda en el teléfono (`INV_MOVIL_SIN_PII_EN_DISCO`); (b) ninguna acción se ejecuta ni se encola (`INV_MOVIL_SIN_ESCRITURA_SIN_RED`). *Árbitro:* `tests/e2e/test_terminal_movil.py`.
+- **RF-PAN-14 — Acciones idempotentes.** Toda acción de escritura del panel lleva `Idempotency-Key`. *Criterios:* un doble toque o un reintento con red inestable aplica el efecto una vez (`INV_ACCION_IDEMPOTENTE`). *Árbitro:* `tests/panel_operativo/test_idempotencia.py`.
 
 `¤prd-requisitos/`
 
@@ -750,6 +754,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.6 | 2026-10-31 | Terminal móvil: RF-PAN-11..14, dos tablas, cuatro invariantes, T-801 y T-810. | Pedido del propietario; [ADR-0016](adr/ADR-0016-terminal-movil.md). |
 | 0.2.5 | 2026-10-30 | Desglose de comisión, estado de cuenta por vendedor y conversación en tres columnas en escritorio. | [ADR-0015](adr/ADR-0015-referentes-de-interfaz.md). |
 | 0.2.4 | 2026-10-30 | Cada regla declara `modo_escalon`: `graduado` o `volumen`. | Contraste con productos del mercado y tabla real de comisiones aún sin ver. |
 | 0.2.3 | 2026-10-30 | Escalón marginal: el total del mes depende del volumen y no del orden. Se retiran los ajustes retroactivos de la 0.2.2. | Revisión técnica de D-10 pedida por el propietario. |

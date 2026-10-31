@@ -72,6 +72,7 @@ coordinación (`T-x10`) que enlaza las salas en `app_core` y, si aplica, la de i
 | 5 | 6 ARM | T-501 comisiones · T-502 arm · T-503 canal vendedores · T-504 herramientas ventas · T-505 panel ventas | T-510 pasillo · T-511 integración | TASK-006 |
 | 6 | 7 CRM y producción | T-601 crm real · T-602 arm tablero · T-603 comisiones export · T-604 panel tablero | T-610 producción · T-611 integración (hito producción) | TASK-007 |
 | 7 | 8 (condicional) | T-701 panel inbox | — | TASK-008 |
+| 8 | 8 Terminal móvil | T-801 panel terminal móvil | T-810 despliegue móvil | RF-PAN-11..14 |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`. Las olas 5 y 6 pueden solaparse en el tiempo: no comparten rutas.
 
@@ -799,6 +800,46 @@ propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e
 consume = ["agente_service", "seguridad_service", "canal_whatsapp_service", "observabilidad_service"]
 arbitro = "tests/e2e/test_inbox_huespedes.py; arnés Exit Code 0"
 ```
+
+---
+
+## Ola 8 — Fase 8: Terminal móvil
+
+### T-801 — Panel: terminal móvil instalable, avisos e idempotencia
+`¤panel-operativo`
+```toml
+id = "T-801"
+ola = 8
+fase = 8
+estado = "pendiente"
+sala = "panel_operativo"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-PAN-11", "RF-PAN-12", "RF-PAN-13", "RF-PAN-14", "INV_MOVIL_SIN_PII_EN_DISCO", "INV_MOVIL_SIN_ESCRITURA_SIN_RED", "INV_AVISO_SIN_PII", "INV_ACCION_IDEMPOTENTE"]
+depende_de = ["T-604"]
+bloqueada_por = []
+propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
+consume = ["arm_jarvis_service", "crm_conector_service", "seguridad_service", "observabilidad_service"]
+arbitro = "tests/e2e/test_terminal_movil.py; tests/panel_operativo/test_avisos.py; tests/panel_operativo/test_idempotencia.py; arnés Exit Code 0"
+```
+Entregables: manifiesto, iconos propios y service worker que guarda solo la interfaz; P-12 (`docs/FRONTEND.md` §4); suscripción Web Push con VAPID leído de variables de entorno; `Idempotency-Key` en todas las acciones del BFF.
+
+### T-810 — Despliegue de la terminal móvil: HTTPS, cabeceras y claves de avisos
+`¤infra-hibrida`
+```toml
+id = "T-810"
+ola = 8
+fase = 8
+estado = "pendiente"
+sala = "infraestructura"
+rol = "¤¤devops-engineer"
+requisitos = ["RF-PAN-11", "RF-PAN-12", "INV_SIN_SECRETOS_EN_REPO"]
+depende_de = ["T-801"]
+bloqueada_por = []
+propiedad = ["compose.yaml", "compose.production.yaml", "infra/**", "scripts/arnes_glamping.py", ".github/**", "app_core/**", "tests/app_core/**", "tests/integracion/**"]
+consume = ["panel_operativo_service"]
+arbitro = "tests/integracion/test_terminal_movil_despliegue.py (HTTPS, manifiesto y cabecera no-store); arnés Exit Code 0"
+```
+Entregables: variables VAPID en los archivos de despliegue sin valores, manifiesto y service worker servidos por HTTPS, y `Cache-Control: no-store` conservada por el proxy.
 
 ---
 

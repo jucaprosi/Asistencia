@@ -54,3 +54,11 @@ class EstadoSistema:
     alertas: tuple = field(default_factory=tuple)
     cola_crm: int = 0
     ultima_traza: datetime | None = None
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class AvisoMovil:
+    tipo: str
+    cantidad: int
+    ruta: str
