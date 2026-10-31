@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.0 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario) |
+| Versión | 0.2.1 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -120,6 +120,18 @@ El rol `sistema` no es una persona: lo usan procesos internos del agente, como `
 ## 5. Requisitos funcionales por módulo
 `¤prd-requisitos`
 
+### 5.0 Arquitectura en capas
+`¤arquitectura-salas`
+
+| Capa | Contenido | Contrato |
+| :--- | :--- | :--- |
+| 1. Canales | WhatsApp Cloud API y panel operativo. | `canal_whatsapp`, `panel_operativo`. |
+| 2. Núcleo propio | Seguridad, agente, conocimiento, ARM, comisiones y observabilidad en FastAPI y Python. | Compuertas `_service.py`, [`modulos/`](modulos/README.md). |
+| 3. Datos | PostgreSQL con pgvector, un esquema por sala y sin claves foráneas entre salas. | [`spec/esquema.sql`](spec/esquema.sql). |
+| 4. Sistemas externos | PMS, CRM y modelo, detrás de conectores. | [`spec/contratos/herramientas.yaml`](spec/contratos/herramientas.yaml). |
+
+Las leyes de esas capas son predicados en [`INVARIANTS.md`](../governance/artefactos/INVARIANTS.md#2-predicados-formales-y-mecanismo-obligatorio), con su mecanismo obligatorio de concurrencia. El comportamiento está en [`spec/features/`](spec/features/). Cada tarea se entrega como un prompt atómico generado en [`spec/prompts/`](spec/prompts/).
+
 Formato de cada requisito: **ID — Título.** Descripción. *Criterios de aceptación* (verificables). *Árbitro* (test o verificación). Cabecera del módulo: Construir/Adoptar, sala ADPA, compuerta, rastro, rol.
 
 ### 5.1 `whatsapp-gateway` → sala `canal_whatsapp`
@@ -148,6 +160,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 - **RF-AG-05 — Manejo de errores y degradación.** Ante caída de Claude, del PMS o del RAG, el agente degrada de forma explícita. *Criterios:* (a) timeout de modelo configurable (por defecto 30 s) con un mensaje de disculpa y handoff; (b) si el RAG no responde, el agente no responde preguntas de políticas o precios: ofrece handoff; (c) cada degradación se registra con causa en la traza; (d) antes de la fase 4 el escalamiento entrega el contacto humano configurado. *Árbitro:* `tests/agente/test_degradacion.py` con fallos inyectados.
 - **RF-AG-06 — Memoria de conversación.** Mantiene el historial de la conversación activa (ventana configurable, por defecto los últimos 30 mensajes o 24 h) y lo persiste en PostgreSQL. *Criterios:* (a) un reinicio del contenedor no pierde el contexto de una conversación abierta; (b) el historial se almacena ya redactado de PII. *Árbitro:* `tests/agente/test_memoria.py`.
 - **RF-AG-07 — Enrutamiento de modelos y caché semántico.** Preguntas frecuentes de bajo riesgo (horario, ubicación, wifi) pueden responderse desde caché semántico o con un modelo de menor costo; precios, políticas y acciones siempre con el modelo principal. *Criterios:* (a) el caché nunca sirve respuestas que contengan precios o disponibilidad; (b) la decisión de enrutamiento se registra por conversación para calcular OP-09. *Árbitro:* `tests/agente/test_enrutamiento_modelos.py`.
+- **RF-AG-08 — Planificador idempotente.** Una tarea programada pide las llegadas del día y envía las instrucciones. *Criterios:* (a) un reinicio no repite el envío (`INV_ENVIO_UNICO`); (b) si falla, se reintenta sin duplicar. *Árbitro:* `tests/agente/test_planificador.py`.
 
 ### 5.3 `rag` → sala `conocimiento`
 `¤conocimiento-rag`
@@ -171,6 +184,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 - **RF-PMS-03 — Manejo de errores del PMS.** Errores tipados: `PMSNoDisponible`, `PropiedadInexistente`, `FechasInvalidas`, `SinDisponibilidad`, `EscrituraDeshabilitada`. *Criterios:* (a) timeouts configurables (por defecto 8 s) y reintentos solo en lecturas; (b) ninguna escritura se reintenta automáticamente sin clave de idempotencia; (c) cada error llega al agente como mensaje accionable. *Árbitro:* `tests/pms_conector/test_errores.py`.
 - **RF-PMS-04 — Sincronización con OTAs.** El conector no habla con Airbnb ni Booking: delega en el PMS o channel manager (§4 del informe). *Criterios:* no existe en el repositorio ningún cliente directo de OTAs. *Árbitro:* `tests/test_sin_clientes_ota.py` (búsqueda en manifiestos e imports).
 - **RF-PMS-05 — Ciclo de la reserva.** Estados `preliminar`, `confirmada`, `cancelada`, `expirada` y `completada`. *Criterios:* (a) una preliminar expira a las 24 horas y libera la unidad; (b) la confirmación ocurre en el PMS cuando el gestor verifica el pago; (c) `reservas_con_llegada` alimenta el planificador de check-in; (d) cancelar o cambiar una reserva por chat abre un handoff `fuera_alcance`. *Árbitro:* `tests/pms_conector/test_ciclo_reserva.py`.
+- **RF-PMS-06 — Referencia local de reservas.** `pms.reservas_ref` guarda la referencia mínima de cada reserva. El PMS sigue siendo la fuente de verdad. *Criterios:* (a) permite validar al titular sin llamar al PMS; (b) se actualiza al crear o cambiar una reserva; (c) `reservas_con_llegada` alimenta el planificador de check-in. *Árbitro:* `tests/pms_conector/test_reservas_ref.py`.
 
 ### 5.5 `crm-connector` → sala `crm_conector`
 `¤crm-conector`
@@ -736,6 +750,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.1 | 2026-10-30 | Predicados formales y mecanismos de concurrencia, tablas `huespedes`, `reservas_ref`, `incidencias` y `envios_programados`, RF-AG-08, RF-PMS-06, un escenario por requisito y prompts atómicos por tarea. | Auditoría contra los cuatro pilares del método SDD. |
 | 0.2.0 | 2026-10-30 | Especificación ejecutable, ADR-0014, RF-GW-07 y 08, RF-PMS-05, RF-CRM-06, RF-ARM-10, RF-COM-04, RF-SEC-08, RF-PRIV-01..06, US-13..17, RNF-19. | Auditoría del PRD para Spec-Driven Development. |
 
 **Regla.** Cambiar un contrato, una tabla o un escenario ya implementado sube la versión y agrega una fila aquí. La versión 1.0 se congela cuando el propietario resuelva ADR-0014.

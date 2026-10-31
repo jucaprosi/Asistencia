@@ -76,6 +76,15 @@ CREATE TABLE seguridad.usuarios (
   baja_en          timestamptz
 );
 
+CREATE TABLE seguridad.huespedes (
+  huesped_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  telefono_token   text NOT NULL UNIQUE,
+  nombre_token     text,
+  idioma           text NOT NULL DEFAULT 'es',
+  crm_ref          text,
+  creado_en        timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE TABLE seguridad.bloqueos (
   numero_hash      text PRIMARY KEY,
   motivo           text NOT NULL,
@@ -161,6 +170,16 @@ CREATE TABLE agente.mensajes (
   instante         timestamptz NOT NULL DEFAULT now()
 );
 
+-- Evita repetir un envío programado si el planificador se reinicia
+CREATE TABLE agente.envios_programados (
+  codigo_reserva   text NOT NULL,
+  plantilla        text NOT NULL,
+  fecha            date NOT NULL,
+  mensaje_id       text,
+  creado_en        timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (codigo_reserva, plantilla, fecha)
+);
+
 CREATE TABLE agente.cache_semantico (
   hash_consulta    text PRIMARY KEY,
   embedding        vector(1024) NOT NULL,
@@ -219,6 +238,40 @@ CREATE TABLE pms.unidades (
   piso             text,
   acceso_ref       text,                              -- token de bóveda; nunca el código en claro
   wifi_ref         text
+);
+
+-- Caché declarada: el PMS sigue siendo la fuente de verdad. Permite validar al titular sin llamar al PMS.
+CREATE TABLE pms.reservas_ref (
+  codigo_reserva   text PRIMARY KEY,
+  propiedad_id     text NOT NULL REFERENCES pms.propiedades(propiedad_id),
+  unidad_id        text NOT NULL REFERENCES pms.unidades(unidad_id),
+  huesped_id       uuid NOT NULL,
+  desde            date NOT NULL,
+  hasta            date NOT NULL,
+  estado           text NOT NULL CHECK (estado IN ('preliminar','confirmada','cancelada','expirada','completada')),
+  expira_en        timestamptz,
+  pms_ref          text,
+  actualizada      timestamptz NOT NULL DEFAULT now(),
+  CHECK (hasta > desde)
+);
+CREATE INDEX reservas_por_llegada ON pms.reservas_ref (desde) WHERE estado = 'confirmada';
+
+-- Si ADR-0007 crea la sala operaciones, esta tabla y su secuencia se mueven a ella sin cambiar de forma
+CREATE TABLE pms.incidencias (
+  incidencia_id    text PRIMARY KEY CHECK (incidencia_id ~ '^I-[0-9]{4}-[0-9]{4,}$'),
+  propiedad_id     text NOT NULL REFERENCES pms.propiedades(propiedad_id),
+  unidad_id        text REFERENCES pms.unidades(unidad_id),
+  codigo_reserva   text,
+  categoria        text NOT NULL CHECK (categoria IN ('agua','electricidad','limpieza','acceso','seguridad','ruido','wifi','otra')),
+  prioridad        text NOT NULL CHECK (prioridad IN ('baja','media','alta','critica')),
+  estado           text NOT NULL DEFAULT 'abierta' CHECK (estado IN ('abierta','en_curso','resuelta')),
+  descripcion_token text NOT NULL,
+  gestor_id        uuid,
+  creada           timestamptz NOT NULL DEFAULT now(),
+  resuelta_en      timestamptz,
+  resuelta_por     uuid,
+  nota             text,
+  CHECK (categoria NOT IN ('acceso','seguridad') OR prioridad = 'critica')
 );
 
 CREATE TABLE pms.idempotencia (
@@ -337,7 +390,9 @@ CREATE TABLE arm.transiciones (
   actor_id         text NOT NULL,
   rol              text NOT NULL,
   motivo           text,
-  instante         timestamptz NOT NULL DEFAULT now()
+  instante         timestamptz NOT NULL DEFAULT now(),
+  CHECK (a NOT IN ('rechazada','anulada') OR motivo IS NOT NULL),
+  CHECK (a <> 'anulada' OR rol = 'administrador')
 );
 
 CREATE TABLE arm.configuracion (

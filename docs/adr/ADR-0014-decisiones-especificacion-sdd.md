@@ -39,6 +39,8 @@ Las marcadas con **Negocio** o **Legal** requieren revisión expresa; las técni
 | D-19 | Handoff sin respuesta | 15 minutos sin tomar pasa al respaldo con alerta; 24 horas sin actividad vuelve al asistente con aviso. | Silencio indefinido. | Negocio |
 | D-20 | Métricas | Conversación cerrada tras 24 horas de inactividad; baja confianza significa 2 abstenciones seguidas; la línea base de `ON-01` se mide las dos semanas previas a T0; la fidelidad combina comparación exacta de cifras y juicio de un modelo evaluador. | Dejar los términos a criterio del implementador. | Técnica |
 | D-21 | PII | Teléfono, correo, documento y tarjeta por reglas con recall 100 %. Nombres y direcciones con reconocimiento de entidades y recall mínimo de 95 % en un set sintético de 200 casos. | Prometer 100 % en nombres: no es verificable. | Técnica |
+| D-22 | Concurrencia | Cada invariante activa tiene predicado y mecanismo obligatorio: `FOR UPDATE SKIP LOCKED` en la ingesta, `UPDATE ... RETURNING` en tickets, bloqueo asesor por vendedor y período al validar, y `UPDATE` condicionado por estado en las transiciones. | Dejar el mecanismo a cada implementador: dos salas limpias serían incompatibles. | Técnica |
+| D-23 | Tablas faltantes | Se añaden `seguridad.huespedes`, `pms.reservas_ref` como caché declarada, `pms.incidencias` hasta resolver ADR-0007 y `agente.envios_programados`. El PMS sigue siendo la fuente de verdad. | Consultar el PMS en cada validación de titular. | Técnica |
 
 ## Consecuencias
 

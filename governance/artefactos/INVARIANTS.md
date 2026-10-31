@@ -43,8 +43,53 @@
 | `INV_ESPECIFICACION_VIVA` | Toda historia tiene escenario; todo rastreo de requisito resuelve; roles, estados, allowlist, plantillas y herramientas de las salas coinciden con los contratos; la matriz está al día. | `¤spec-glamping` | `¤¦spec-glamping` | transversal | `tests/test_especificacion.py`. | Fase 0 |
 | `INV_ESQUEMA_VERIFICADO` | `docs/spec/esquema.sql` se aplica en PostgreSQL real y sus pruebas negativas pasan. | `¤spec-glamping` | `¤¦spec-glamping` | transversal | Trabajo `verificar` de `.github/workflows/ci.yml`. | Fase 0 |
 | `INV_CORPUS_FUERA_DEL_REPO` | El repositorio público no contiene corpus real, reglas de comisión reales ni evaluaciones con datos reales. | `¤spec-glamping` | `¤¦spec-glamping` | `conocimiento`, `comisiones` | `tests/test_especificacion.py`. | Fase 0 |
+| `INV_ENVIO_UNICO` | Un envío programado por reserva, plantilla y día sale una sola vez aunque el planificador se reinicie. | `¤agente-enrutador` | `¤¦agente-enrutador` | `agente` | `tests/agente/test_planificador.py`; `docs/spec/verificacion_esquema.sql` en la CI. | Fase 4 |
 
-## 2. Invariantes condicionadas a decisiones pendientes
+## 2. Predicados formales y mecanismo obligatorio
+
+Cada invariante activa se expresa como predicado booleano. El mecanismo no es una sugerencia: dos implementaciones independientes deben usar el mismo, o dejarían de ser compatibles. `tests/test_especificacion.py` exige una fila por invariante activa.
+
+| Código | Predicado | Mecanismo obligatorio |
+| :--- | :--- | :--- |
+| `INV_CANAL_OFICIAL` | `∀ d ∈ dependencias : d ∉ {baileys, whatsapp-web.js, whatsmeow}` | Revisión de manifiestos. |
+| `INV_FIRMA_WEBHOOK_META` | `procesado(m) ⇒ HMAC_SHA256(secreto, cuerpo_crudo(m)) = firma(m)` | Comparación en tiempo constante sobre los bytes crudos, antes de parsear. |
+| `INV_VENTANA_24H` | `enviado(m) ∧ ¬plantilla(m) ⇒ ahora − ultimo_mensaje_usuario < 24 h` | Rechazo tipado en la compuerta. |
+| `INV_WHITELIST_PRIMERO` | `entrega(m, s) ⇒ ¬bloqueado(r(m)) ∧ (s = arm ⇒ rol(r(m)) = vendedor)` | El rol se deriva del remitente verificado, nunca del texto. |
+| `INV_PII_FUERA_DEL_MODELO` | `∀ v ∈ PII(m) : v ∉ payload ∪ logs ∪ trazas ∪ historial` | Tokenización antes de cada llamada; rehidratación solo en la salida. |
+| `INV_RATE_LIMIT_NO_ANULABLE` | `∀ rol, config : contador(r, ventana) > limite ⇒ ¬procesado(m)` | Contador en `seguridad.rate_limit` con `INSERT ... ON CONFLICT DO UPDATE`; ninguna configuración lo apaga. |
+| `INV_ALLOWLIST_POR_ACCION` | `ejecutada(h, rol) ⇒ h ∈ allowlist(rol)` | `seguridad.autorizar` dentro de cada herramienta, no solo al exponerla. |
+| `INV_INYECCION_CERO` | `∣{a ∈ set : exito(a)}∣ = 0` | Suite `inyecciones`. |
+| `INV_AUDIT_APPEND_ONLY` | `rol_app ⊬ UPDATE, DELETE, TRUNCATE sobre audit_log` | `REVOKE` en el DDL. |
+| `INV_PROPIEDAD_RESUELTA` | `requiere_propiedad(h) ∧ invocada(h) ⇒ propiedad_id ≠ ∅` | Validación en el agente antes de llamar. |
+| `INV_SIN_FUGA_ENTRE_PROPIEDADES` | `∀ c ∈ recuperados(A) : propiedad(c) ∈ {A, global}` | RLS con `SET LOCAL app.propiedad_id` dentro de cada transacción. |
+| `INV_NO_LO_SE` | `afirma(precio ∨ politica ∨ disponibilidad) ⇒ ∃ soporte(chunk ∨ herramienta)` | Umbral `umbral_suficiente` y suite `rag`. |
+| `INV_CACHE_SIN_PRECIOS` | `servida_de_cache(r) ⇒ ¬contiene(r, precio ∨ disponibilidad)` | Filtro antes de escribir en el caché. |
+| `INV_SIN_CLIENTES_OTA` | `∀ i ∈ imports : i ∉ clientes_OTA` | Revisión de imports y manifiestos. |
+| `INV_ESCRITURA_PMS_EXPLICITA` | `escritura(op) ⇒ habilitada(op)`; `reintento(op) ⇒ ∃ clave_idempotencia(op)` | Lista por operación en configuración; `pms.idempotencia` con `clave` única. |
+| `INV_VENTA_FIRMADA_IDEMPOTENTE` | `∀ n ≥ 1 : efecto(publicar^n(v)) = efecto(publicar(v))` | Clave primaria `(venta_id, evento)` en `crm.publicaciones`; `INSERT ... ON CONFLICT DO NOTHING`. |
+| `INV_VENTA_NO_SE_PIERDE` | `validada(v) ⇒ ◇ publicada(v) ∨ alerta(v)`; `nunca descartada(v)` | Cola persistente en `crm.publicaciones`. |
+| `INV_ESTADOS_VENTA` | `(e, e') ∈ transicion(v) ⇒ e' ∈ transiciones[e]` | `UPDATE arm.ventas SET estado = $nuevo WHERE venta_id = $id AND estado = $esperado`: 0 filas es conflicto. Disparador `arm.validar_transicion`. |
+| `INV_COMISION_REPRODUCIBLE` | `calcular(v, regla_ver, base) = calcular(v, regla_ver, base)` en cualquier instante | `pg_advisory_xact_lock(hashtext(vendedor_id ∥ periodo))` al validar, leer el acumulado y guardarlo en `base_acumulada`. Aritmética con `Decimal`, nunca `float`. |
+| `INV_COMISION_PROPIA` | `respuesta(q, r) ⇒ vendedor(datos) = vendedor(r)` | `vendedor_id` inyectado por el servidor. |
+| `INV_TICKET_UNICO` | `∀ año : tickets(año) = {1, …, n}` sin repetidos | `UPDATE ... SET ultimo = ultimo + 1 ... RETURNING ultimo` en la misma transacción del `INSERT`; un `ROLLBACK` no deja huecos. Prohibidas las `SEQUENCE`. |
+| `INV_TRAZA_POR_MENSAJE` | `∀ m ∈ entrantes : ∃ traza(m)` | La traza nace al reclamar el evento. |
+| `INV_RED_AISLADA` | `¬alcanza(agent-net, servicios_contables)` | Prueba de conexión negativa. |
+| `INV_SIN_SECRETOS_EN_REPO` | `∣hallazgos(escaner)∣ = 0` | `scripts/verificar_secretos.py`. |
+| `INV_MISMO_COMPOSE` | `stack(beta) = compose.yaml`; `stack(prod) = compose.yaml + compose.production.yaml` | `docker compose config` en la CI. |
+| `INV_INTERFAZ_PURIFICADA` | `∀ t ∈ textos_de_usuario : t ∩ {¤, ¦} = ∅` | Prueba sobre plantillas, mensajes y build. |
+| `INV_SALA_CONFORME` | `∀ s ∈ salas : ∃ compuerta(s) ∧ ∃ config(s)` | `tests/test_estructura_adpa.py`. |
+| `INV_PANEL_POR_ROL` | `ejecutada(accion, sesion) ⇒ accion ∈ allowlist(rol) ∧ zona(dato) ∈ zonas(sesion)` | Autorización en el BFF por endpoint. |
+| `INV_PANEL_SIN_LOGICA` | `∀ c ∈ cálculos_de_negocio : c ∉ panel_operativo` | Prueba por AST. |
+| `INV_INGESTA_DURABLE` | `respondio_200(m) ⇒ persistido(m)` | `INSERT ... ON CONFLICT (mensaje_id) DO NOTHING` antes de responder. El trabajador reclama con `FOR UPDATE SKIP LOCKED` y `pg_try_advisory_xact_lock(hashtext(conversacion_clave))`. |
+| `INV_SECRETO_OPERATIVO` | `∀ s ∈ secretos : s ∉ payload ∪ historial ∧ (enviado(s, r) ⇒ titular(r))` | Marcador `[[SECRETO:id]]` resuelto solo en la salida. |
+| `INV_HANDOFF_UNICO` | `∀ c : ∣{h ∈ handoffs(c) : estado(h) ≠ devuelto}∣ ≤ 1` | Índice único parcial `un_handoff_abierto`. |
+| `INV_CRIPTOBORRADO` | `borrado(t) ⇒ ¬rehidratable(tokens(t)) ∧ audit_log' = audit_log` | `DELETE` en `seguridad.boveda_tokens`. |
+| `INV_ESPECIFICACION_VIVA` | `∀ us, rf : ∃ escenario`; `∀ inv activa : ∃ predicado`; matriz y prompts al día | `tests/test_especificacion.py`. |
+| `INV_ESQUEMA_VERIFICADO` | `aplica(esquema.sql) ∧ ∀ p ∈ negativas : rechazada(p)` | Paso de PostgreSQL en la CI. |
+| `INV_CORPUS_FUERA_DEL_REPO` | `archivos(docs/negocio) = {README.md}` | `tests/test_especificacion.py`. |
+| `INV_ENVIO_UNICO` | `∣envios(reserva, plantilla, dia)∣ ≤ 1` | `INSERT ... ON CONFLICT DO NOTHING` en `agente.envios_programados` antes de enviar. |
+
+## 3. Invariantes condicionadas a decisiones pendientes
 
 | Código | Ley | Depende de | Entra en vigor |
 | :--- | :--- | :--- | :--- |

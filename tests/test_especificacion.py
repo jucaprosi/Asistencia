@@ -83,6 +83,41 @@ def test_las_etiquetas_de_los_escenarios_existen() -> None:
 
 
 # ¤spec-glamping
+def test_cada_requisito_funcional_tiene_escenario() -> None:
+    etiquetas = {e for _, _, grupo in trazabilidad.escenarios() for e in grupo}
+    assert not [i for i in trazabilidad.ids_del_prd() if i.startswith("RF-") and i not in etiquetas]
+
+
+# ¤spec-glamping
+def test_cada_invariante_activa_tiene_predicado_y_mecanismo() -> None:
+    texto = (RAIZ / "governance" / "artefactos" / "INVARIANTS.md").read_text(encoding="utf-8")
+    catalogo, resto = texto.split("## 2. Predicados", 1)
+    predicados, _ = resto.split("## 3.", 1)
+    activas = set(re.findall(r"^\| `(INV_\w+)` \|", catalogo, flags=re.M))
+    filas = re.findall(r"^\| `(INV_\w+)` \| (.+?) \| (.+?) \|$", predicados, flags=re.M)
+    assert activas == {codigo for codigo, _, _ in filas}
+    assert all(predicado.strip() and mecanismo.strip() for _, predicado, mecanismo in filas)
+
+
+# ¤spec-glamping
+def test_cada_tarea_tiene_prompt_al_dia_y_completo() -> None:
+    ruta = RAIZ / "scripts" / "generar_prompts.py"
+    resultado = subprocess.run([sys.executable, str(ruta), "--check"], capture_output=True, text=True, encoding="utf-8")
+    assert resultado.returncode == 0, resultado.stdout
+    tareas = re.findall(r'^id = "(T-\d+)"', trazabilidad.TASKS.read_text(encoding="utf-8"), flags=re.M)
+    prompts = {p.stem: p.read_text(encoding="utf-8") for p in (SPEC / "prompts").glob("T-*.md")}
+    assert set(prompts) == set(tareas)
+    for tarea, texto in prompts.items():
+        assert "## Rutas que puedes escribir" in texto and "## Árbitro" in texto, tarea
+
+
+# ¤spec-glamping
+def test_las_entidades_del_prd_tienen_tabla() -> None:
+    for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados"):
+        assert f"CREATE TABLE {tabla} (" in ESQUEMA, tabla
+
+
+# ¤spec-glamping
 def test_cada_requisito_tiene_tarea() -> None:
     tareas = trazabilidad.tareas_por_id()
     assert not [i for i in trazabilidad.ids_del_prd() if i not in tareas]

@@ -25,6 +25,38 @@ DO $$ BEGIN
   END;
 END $$;
 
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO arm.transiciones (venta_id, de, a, actor_id, rol)
+    VALUES ('00000000-0000-0000-0000-000000000002', 'por_validar', 'rechazada', 'x', 'lider');
+    RAISE EXCEPTION 'AssertionError: rechazar exige motivo' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO arm.transiciones (venta_id, de, a, actor_id, rol, motivo)
+    VALUES ('00000000-0000-0000-0000-000000000002', 'publicada', 'anulada', 'x', 'lider', 'm');
+    RAISE EXCEPTION 'AssertionError: solo el administrador anula' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
+
+INSERT INTO agente.envios_programados (codigo_reserva, plantilla, fecha) VALUES ('R1', 'instrucciones_checkin', '2026-10-30');
+INSERT INTO pms.propiedades (propiedad_id, tipo, nombre, zona_id, direccion, prompt_variante)
+VALUES ('P1', 'glamping', 'Prueba', 'Z1', 'Dir', 'glamping');
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO agente.envios_programados (codigo_reserva, plantilla, fecha) VALUES ('R1', 'instrucciones_checkin', '2026-10-30');
+    RAISE EXCEPTION 'AssertionError: un envío programado no se repite' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN unique_violation THEN NULL;
+  END;
+  BEGIN
+    INSERT INTO pms.incidencias (incidencia_id, propiedad_id, categoria, prioridad, descripcion_token)
+    VALUES ('I-2026-0001', 'P1', 'seguridad', 'baja', 'tok');
+    RAISE EXCEPTION 'AssertionError: seguridad y acceso son críticas' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
+
 INSERT INTO comisiones.reglas (regla_id, version, tipo, valor, vigente_desde, creada_por)
 VALUES ('r1', 1, 'porcentaje', 0.1000, '2026-01-01', 'prueba');
 INSERT INTO comisiones.periodos (periodo_id) VALUES ('2026-10'), ('2026-11');

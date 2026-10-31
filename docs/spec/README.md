@@ -10,6 +10,7 @@ Esta carpeta convierte el PRD en contratos que una persona o un agente puede imp
 | [`esquema.sql`](esquema.sql) | DDL canónico de PostgreSQL por sala, con restricciones y disparadores. | La CI lo aplica en PostgreSQL real y corre [`verificacion_esquema.sql`](verificacion_esquema.sql). |
 | [`features/`](features/) | Comportamiento en Gherkin, un archivo por capacidad. Reemplaza los criterios Given/When/Then del PRD. | `tests/test_especificacion.py`; los tests de cada sala implementan sus escenarios. |
 | [`TRAZABILIDAD.md`](TRAZABILIDAD.md) | Matriz generada: requisito, tareas y escenarios. | `tests/test_especificacion.py` falla si está desactualizada. |
+| [`prompts/`](prompts/) | Un prompt atómico por tarea, generado sin escritura libre desde esta especificación. Se entrega tal cual a un chat o a una persona. | `tests/test_especificacion.py` falla si está desactualizado. |
 
 ## Precedencia
 
@@ -30,6 +31,12 @@ Regenerar la matriz:
 
 ```bash
 python scripts/generar_trazabilidad.py
+```
+
+Regenerar los prompts:
+
+```bash
+python scripts/generar_prompts.py
 ```
 
 `¤spec-glamping/`
