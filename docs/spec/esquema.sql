@@ -20,6 +20,7 @@ CREATE SCHEMA arm;
 CREATE SCHEMA comisiones;
 CREATE SCHEMA observabilidad;
 CREATE SCHEMA panel;
+CREATE SCHEMA web;
 
 -- Sala canal_whatsapp
 CREATE TABLE canal.eventos_entrantes (
@@ -558,3 +559,22 @@ GRANT USAGE ON SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, com
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA canal, seguridad, agente, conocimiento, pms, crm, arm, comisiones, observabilidad, panel TO app_glamping;
 REVOKE UPDATE, DELETE, TRUNCATE ON seguridad.audit_log FROM app_glamping;
 REVOKE UPDATE, DELETE, TRUNCATE ON arm.transiciones FROM app_glamping;
+
+-- Sala web_huespedes: sin datos personales
+CREATE TABLE web.enlaces_contacto (
+  codigo           text PRIMARY KEY CHECK (codigo ~ '^W-[A-Z0-9]{8}$'),
+  propiedad_id     text NOT NULL,
+  desde            date,
+  hasta            date,
+  huespedes        integer CHECK (huespedes >= 1),
+  creado_en        timestamptz NOT NULL DEFAULT now(),
+  expira_en        timestamptz NOT NULL,
+  CHECK (hasta IS NULL OR hasta > desde)
+);
+
+CREATE TABLE web.limites_ip (
+  ip_hash          text NOT NULL,
+  ventana          timestamptz NOT NULL,
+  conteo           integer NOT NULL DEFAULT 1,
+  PRIMARY KEY (ip_hash, ventana)
+);

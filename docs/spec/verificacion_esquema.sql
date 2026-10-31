@@ -51,6 +51,14 @@ DO $$ BEGIN
   END;
 END $$;
 
+DO $$ BEGIN
+  BEGIN
+    INSERT INTO web.enlaces_contacto (codigo, propiedad_id, expira_en) VALUES ('+593999999999', 'P1', now());
+    RAISE EXCEPTION 'AssertionError: el código no admite un teléfono' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN check_violation THEN NULL;
+  END;
+END $$;
+
 INSERT INTO agente.envios_programados (codigo_reserva, plantilla, fecha) VALUES ('R1', 'instrucciones_checkin', '2026-10-30');
 INSERT INTO pms.propiedades (propiedad_id, tipo, nombre, zona_id, direccion, prompt_variante)
 VALUES ('P1', 'glamping', 'Prueba', 'Z1', 'Dir', 'glamping');

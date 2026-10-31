@@ -1,0 +1,11 @@
+# ¤web-huespedes
+url_base: ${WEB_PUBLICA_URL:-http://localhost:8080}
+catalogo: ${WEB_CATALOGO_RUTA:-features/web_huespedes/catalogo_ejemplo.yaml}
+whatsapp_numero: ${WEB_WHATSAPP_NUMERO:-}
+idioma: es
+comparar_max: 3
+enlace_contacto_validez_h: 72
+limites:
+  por_ip_minuto: 30
+  retencion_h: 24
+  ip_hmac_secreto: ${WEB_IP_HMAC_SECRET:-}

@@ -23,6 +23,7 @@ salas:
   - herramientas_glamping
   - agente
   - panel_operativo
+  - web_huespedes
 
 egreso_permitido:
   # Destinos de red salientes autorizados (RNF-10). El arnés de despliegue lo verifica.

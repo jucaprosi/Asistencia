@@ -1,0 +1,11 @@
+# ¤web-huespedes
+# Datos sintéticos. El catálogo real vive en CORPUS_DIR
+propiedades:
+  - propiedad_id: EJ-01
+    tipo: glamping
+    nombre: Domo de ejemplo
+    zona: Zona de ejemplo
+    capacidad: 2
+    resumen: Propiedad sintética para pruebas.
+    comodidades: [desayuno, parqueo]
+    fotos: []

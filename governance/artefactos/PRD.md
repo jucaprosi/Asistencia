@@ -27,6 +27,7 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 | `comisiones` | `features/comisiones` | `comisiones_service.py` (por crear, TASK-006) | `¤comisiones` | `¤¤backend-developer` | RF-COM-01..04 |
 | `observabilidad` | `features/observabilidad`, `scripts/run_evals.py`, `evals/` | `observabilidad_service.py` (por crear, TASK-001) | `¤observabilidad` | `¤¤devops-engineer` | RF-OBS-01..04 |
 | `panel_operativo` (ADR-0013) | `features/panel_operativo` (BFF, `ui/`, `estaticos/`) | `panel_operativo_service.py` (por crear, TASK-004) | `¤panel-operativo` | `¤¤frontend-developer` | RF-PAN-01..10 |
+| `web_huespedes` (ADR-0017) | `features/web_huespedes` | `web_huespedes_service.py` | `¤web-huespedes` | — | — |
 | *pasillo central* | `app_core/` | `main.py`, `contenedor.py` (por crear, TASK-000) | `¤pasillo-central` | `¤¤solutions-architect` | orquestación; sin requisitos propios |
 | *infraestructura* | `compose.yaml`, `compose.production.yaml`, `ejecutar_arnes_glamping.*`, `.env.example` | — | `¤infra-hibrida` | `¤¤devops-engineer` | RNF-10, RNF-14, RNF-15 |
 
@@ -56,6 +57,7 @@ Detalle, criterios de aceptación y árbitros en [`docs/PRD.md` §5](../../docs/
 | RF-OBS | `observabilidad` | Construir |
 | RF-MCP | `herramientas_glamping` | Construir |
 | RF-PAN | `panel_operativo` | Construir (ADR-0013); diseño en `docs/FRONTEND.md` |
+| RF-WEB | `web_huespedes` | Construir (ADR-0017); diseño en `docs/modulos/web_huespedes.md` |
 
 La especificación ejecutable vive en [`docs/spec/`](../../docs/spec/README.md); las decisiones abiertas de la versión 0.2 están en [ADR-0014](../../docs/adr/ADR-0014-decisiones-especificacion-sdd.md).
 

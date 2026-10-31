@@ -94,6 +94,12 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PAN-12 | T-801, T-810 | plataforma.feature: Aviso de venta por validar |
 | RF-PAN-13 | T-801 | plataforma.feature: Sin red |
 | RF-PAN-14 | T-801 | plataforma.feature: Doble toque con red inestable |
+| RF-WEB-01 | T-105 | web_publica.feature: Ver el catálogo sin datos del PMS |
+| RF-WEB-02 | T-205 | web_publica.feature: Buscar por fechas<br>web_publica.feature: El PMS no responde durante la búsqueda |
+| RF-WEB-03 | T-205 | web_publica.feature: Comparar propiedades |
+| RF-WEB-04 | T-105, T-205 | web_publica.feature: Pasar a WhatsApp con contexto<br>web_publica.feature: La web no reserva |
+| RF-WEB-05 | T-105 | web_publica.feature: Exceso de consultas |
+| RF-WEB-06 | T-105 | web_publica.feature: Calidad pública |
 | RNF-01 | T-111 | por árbitro de la tabla del PRD |
 | RNF-02 | T-211 | por árbitro de la tabla del PRD |
 | RNF-03 | T-502 | por árbitro de la tabla del PRD |
@@ -130,5 +136,6 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | US-15 | T-511 | administracion.feature: Pregunta al asistente<br>administracion.feature: Cambio de configuración acotado<br>administracion.feature: Cambio reservado |
 | US-16 | T-611 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
 | US-17 | T-411 | privacidad.feature: Aviso en el primer contacto<br>privacidad.feature: Eliminación por criptoborrado<br>privacidad.feature: Retención automática<br>privacidad.feature: Conservación por obligación legal |
+| US-18 | T-105, T-205 | web_publica.feature: Ver el catálogo sin datos del PMS<br>web_publica.feature: Buscar por fechas<br>web_publica.feature: El PMS no responde durante la búsqueda<br>web_publica.feature: Comparar propiedades<br>web_publica.feature: Pasar a WhatsApp con contexto |
 
 `¤spec-glamping/`

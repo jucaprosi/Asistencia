@@ -11,7 +11,7 @@ DIRECTORIOS_EXCLUIDOS = {".git", "transcriptor_tiktok", "node_modules", ".venv",
 
 SALAS_FASE_0 = (
     "canal_whatsapp", "seguridad", "agente", "conocimiento", "pms_conector", "crm_conector", "arm_jarvis",
-    "comisiones", "observabilidad", "herramientas_glamping", "panel_operativo",
+    "comisiones", "observabilidad", "herramientas_glamping", "panel_operativo", "web_huespedes",
 )
 
 

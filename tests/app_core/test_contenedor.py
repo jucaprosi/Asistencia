@@ -66,4 +66,4 @@ def test_salud_y_health_http() -> None:
 
 def test_main_comprobar_lee_config_app(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["--comprobar"]) == 0
-    assert "11 salas declaradas" in capsys.readouterr().out
+    assert "12 salas declaradas" in capsys.readouterr().out

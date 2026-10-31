@@ -26,5 +26,6 @@ Convenciones comunes a todos los módulos:
 | Comisiones | [`comisiones.md`](comisiones.md) | `¤comisiones` | TASK-006, 007 |
 | Observabilidad | [`observabilidad.md`](observabilidad.md) | `¤observabilidad` | TASK-001, 005 |
 | Panel operativo (frontend + BFF) | [`panel_operativo.md`](panel_operativo.md) · diseño de pantallas en [`../FRONTEND.md`](../FRONTEND.md) | `¤panel-operativo` | TASK-004, 005, 006, 007 |
+| Web pública para huéspedes | [`web_huespedes.md`](web_huespedes.md) | `¤web-huespedes` | — |
 
 `¤modulos-glamping/`

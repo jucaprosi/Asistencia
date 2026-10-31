@@ -38,7 +38,7 @@ def resolver_secretos(config: Mapping[str, Any], entorno: Mapping[str, str]) -> 
 def salud() -> dict[str, str]: ...                    # {"estado": "ok", "entorno": "beta", "version": "..."}
 def crear_app(contenedor: Contenedor | None = None) -> FastAPI: ...
 # Rutas registradas: GET /health · POST /webhook (→ canal) · GET /webhook (verificación Meta)
-#                    POST /crm/eventos (→ crm_conector) · /panel/* (→ panel_operativo, BFF y estáticos)
+#                    POST /crm/eventos (→ crm_conector) · /panel/* (→ panel_operativo, BFF y estáticos) · / y /propiedades/* (→ web_huespedes)
 ```
 
 Orden de construcción (una compuerta solo recibe las ya construidas): `observabilidad → seguridad → conocimiento → pms → crm → comisiones → canal → arm → herramientas → agente → panel`. El canal se construye antes que `arm` y `agente` porque ambos lo usan para enviar; sus receptores se registran al final con `canal.registrar_receptor` (inversión de dependencias).

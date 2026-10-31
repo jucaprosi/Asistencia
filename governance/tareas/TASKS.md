@@ -55,6 +55,7 @@
 | `comisiones` | — | `¤¤backend-developer` |
 | `observabilidad` | `scripts/run_evals.py` | `¤¤devops-engineer` |
 | `panel_operativo` | `tests/e2e/**` | `¤¤frontend-developer` |
+| `web_huespedes` | — | `¤¤frontend-developer` |
 | `operaciones` (condicional) | — | `¤¤backend-developer` |
 | *coordinador* (`pasillo_central`, `infraestructura`) | las rutas reservadas de la regla 5 | `¤¤solutions-architect`, `¤¤devops-engineer` |
 
@@ -65,8 +66,8 @@ coordinación (`T-x10`) que enlaza las salas en `app_core` y, si aplica, la de i
 
 | Ola | Fase | Tareas en paralelo | Cierre de ola | Hito |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | 1 MVP WhatsApp | T-101 canal · T-102 seguridad · T-103 observabilidad · T-104 agente | T-110 pasillo · T-111 integración | TASK-001 |
-| 2 | 2–3 RAG y PMS | T-201 conocimiento · T-202 pms (fake) · T-203 herramientas · T-204 operaciones (cond.) | T-212 pms real (bloq. ADR-0007) · T-210 pasillo · T-211 integración | TASK-002, TASK-003 |
+| 1 | 1 MVP WhatsApp | T-101 canal · T-102 seguridad · T-103 observabilidad · T-104 agente · T-105 web pública | T-110 pasillo · T-111 integración | TASK-001 |
+| 2 | 2–3 RAG y PMS | T-201 conocimiento · T-202 pms (fake) · T-203 herramientas · T-204 operaciones (cond.) · T-205 web búsqueda | T-212 pms real (bloq. ADR-0007) · T-210 pasillo · T-211 integración | TASK-002, TASK-003 |
 | 3 | 4 Multi-propiedad | T-301 agente enrutador · T-302 crm (fake) · T-303 panel handoff · T-304 seguridad RLS | T-310 pasillo · T-311 integración | TASK-004 |
 | 4 | 5 Seguridad y observabilidad | T-401 seguridad · T-402 observabilidad · T-403 agente caché · T-404 panel admin | T-410 infraestructura beta · T-411 integración (salida de beta) | TASK-005 |
 | 5 | 6 ARM | T-501 comisiones · T-502 arm · T-503 canal vendedores · T-504 herramientas ventas · T-505 panel ventas | T-510 pasillo · T-511 integración | TASK-006 |
@@ -151,6 +152,24 @@ consume = ["seguridad_service", "herramientas_glamping_service", "conocimiento_s
 arbitro = "tests/agente/{test_prompts,test_bucle_herramientas,test_degradacion,test_memoria}.py con doble de modelo y dobles de compuertas; arnés Exit Code 0"
 ```
 Entregables: `cliente_modelo_internal.py` (cliente de Claude con timeout y conteo de tokens), `prompts_internal.py` (carga y hash; solo variante `glamping` en esta ola), `bucle_herramientas_internal.py` (tope de iteraciones, errores tipados), `memoria_internal.py` (`esquema agente`), `atender`. `docs/prompts/system-prompt-glamping.md` pasa de borrador a versión 1 con los datos reales inyectados. `evals/enrutador.jsonl` se crea vacío y reservado para T-301. **Hecho cuando** el bucle se detiene al tope y escala, un fallo de herramienta no inventa resultado, y un reinicio simulado conserva la conversación.
+
+### T-105 — Web pública: catálogo, ficha y paso a WhatsApp
+`¤web-huespedes`
+```toml
+id = "T-105"
+ola = 1
+fase = 1
+estado = "pendiente"
+sala = "web_huespedes"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-WEB-01", "RF-WEB-04", "RF-WEB-05", "RF-WEB-06", "US-18", "INV_WEB_SOLO_LECTURA", "INV_WEB_SIN_PII", "INV_WEB_LIMITE_POR_IP"]
+depende_de = []
+bloqueada_por = []
+propiedad = ["features/web_huespedes/**", "tests/web_huespedes/**", "docs/modulos/web_huespedes.md"]
+consume = ["observabilidad_service"]
+arbitro = "tests/web_huespedes/test_catalogo.py; test_contacto.py; test_limites.py; test_calidad.py; arnés Exit Code 0"
+```
+Entregables: rutas `/`, `/propiedades/{id}` y `/contacto` (`docs/modulos/web_huespedes.md`), plantillas Jinja2 con los tokens de `docs/FRONTEND.md` §6, carga del catálogo y límites por IP.
 
 ### T-110 — Pasillo central, fase 1: rutas del webhook, receptores y arranque real
 `¤pasillo-central`
@@ -281,6 +300,24 @@ consume = ["observabilidad_service"]
 arbitro = "tests/pms_conector/test_contrato.py parametrizado con el proveedor real sobre fixtures grabados; reserva preliminar real en el entorno de pruebas del PMS; arnés Exit Code 0"
 ```
 Misma sala que T-202, por eso es secuencial. Entregables: `<proveedor>_internal.py`, fixtures grabados en `tests/pms_conector/fixtures/`, `proveedor` en `config_pms_conector.yaml`. **Hecho cuando** el mismo test de contrato pasa con `FakePMS` y con el real.
+
+### T-205 — Web pública: búsqueda, comparación y contexto para el agente
+`¤web-huespedes`
+```toml
+id = "T-205"
+ola = 2
+fase = 3
+estado = "pendiente"
+sala = "web_huespedes"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-WEB-02", "RF-WEB-03", "RF-WEB-04", "US-18", "INV_WEB_PRECIO_EN_VIVO"]
+depende_de = ["T-105"]
+bloqueada_por = []
+propiedad = ["features/web_huespedes/**", "tests/web_huespedes/**", "docs/modulos/web_huespedes.md"]
+consume = ["pms_conector_service", "observabilidad_service"]
+arbitro = "tests/web_huespedes/test_busqueda.py con FakePMS; tests/web_huespedes/test_contacto.py; arnés Exit Code 0"
+```
+Entregables: rutas `/buscar` y `/comparar`, y `resolver_contacto` para que el agente reciba propiedad, fechas y huéspedes. Corre contra `FakePMS`, así que no espera ADR-0007.
 
 ### T-210 — Pasillo central, fases 2–3: servidor MCP en compose, egreso, semilla del RAG en el arnés
 `¤pasillo-central`

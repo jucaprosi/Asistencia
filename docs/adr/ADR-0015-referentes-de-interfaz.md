@@ -23,7 +23,7 @@ Un informe externo propuso referentes por superficie: PMS, inbox de WhatsApp, co
 | Kits de UI de pago | Rechazar | Los componentes ya están definidos con tokens propios. |
 | Ranking de vendedores | Rechazar por ahora | El tablero ya lista por vendedor. Hacerlos competir es una decisión comercial. |
 | Tablero de limpieza con fotos y pagos | Aplazar | Depende del PMS de ADR-0007. |
-| Motor de reserva directa y grid de tarifas | Aplazar | PRD §11 excluye una web para huéspedes, y tarifas y disponibilidad son del PMS. |
+| Motor de reserva directa y grid de tarifas | Aplazar | Tarifas y disponibilidad son del PMS. La búsqueda y comparación pasaron a [ADR-0017](ADR-0017-web-publica-huespedes.md); reservar sigue en WhatsApp. |
 
 ## Consecuencias
 

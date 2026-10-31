@@ -34,7 +34,7 @@ Este documento fija **cómo se materializa** la arquitectura del informe en un r
 │  features/                                                                         │
 │   canal_whatsapp ─ seguridad ─ agente ─ conocimiento ─ herramientas_glamping        │
 │   pms_conector ─ crm_conector ─ arm_jarvis ─ comisiones ─ observabilidad           │
-│   panel_operativo (frontend + BFF del equipo) · operaciones (condicional, ver §3)   │
+│   panel_operativo · web_huespedes (pública) · operaciones (condicional, ver §3)     │
 │                                                                                    │
 │  tests/  evals/  scripts/  docs/  governance/  compose.yaml  compose.production.yaml│
 └────────────────────────────────────────────────────────────────────────────────────┘

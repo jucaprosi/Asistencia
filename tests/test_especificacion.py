@@ -63,7 +63,7 @@ def _referencias(nodo: Any) -> Iterator[str]:
 def test_toda_historia_tiene_escenario() -> None:
     etiquetas = {e for _, _, grupo in trazabilidad.escenarios() for e in grupo}
     historias = [i for i in trazabilidad.ids_del_prd() if i.startswith("US-")]
-    assert len(historias) == 17
+    assert len(historias) == 18
     assert not [h for h in historias if h not in etiquetas]
 
 

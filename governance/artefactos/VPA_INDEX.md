@@ -19,6 +19,7 @@
 | Comisiones | `¤comisiones` | `¤¤backend-developer` | `comisiones` | Reglas versionadas con vigencia; cálculo reproducible; cierre de período inmutable; exportación. |
 | Observabilidad | `¤observabilidad` | `¤¤devops-engineer` | `observabilidad` | Logs JSON sin PII; traza por mensaje con spans; evaluaciones en CI y arnés; alertas. |
 | Panel operativo | `¤panel-operativo` | `¤¤frontend-developer` | `panel_operativo` | Frontend y BFF del equipo: ventas por validar, tablero, Jarvis, handoff por zona, incidencias, administración (ADR-0013). |
+| Web pública | `¤web-huespedes` | `¤¤frontend-developer` | `web_huespedes` | Búsqueda y comparación para huéspedes, solo lectura. |
 | Pasillo central | `¤pasillo-central` | `¤¤solutions-architect` | `app_core` | Arranque, inyección de dependencias, orquestación de compuertas, tareas programadas. |
 | Infraestructura híbrida | `¤infra-hibrida` | `¤¤devops-engineer` | raíz (`compose*`, arnés) | Nube gestionada para datos; servidor propio para lógica; red aislada; mismo compose beta/producción; secretos fuera del repo. |
 | Ciclo de construcción | `¤bbap-glamping` | `¤¤qa-engineer` | transversal | Boceto → arnés `ejecutar_arnes_glamping` → sellado por tarea. |

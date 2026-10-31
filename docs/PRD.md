@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.6 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.2.7 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -303,6 +303,18 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 
 ---
 
+### 5.12 Web pública para huéspedes → sala `web_huespedes`
+`¤web-huespedes`
+
+- **RF-WEB-01 — Catálogo público.** Inicio y ficha por propiedad con fotos, zona, capacidad y comodidades, leídos de un catálogo del negocio. *Criterios:* (a) funciona aunque el PMS no responda; (b) no muestra precios ni cupos; (c) el catálogo real vive en `CORPUS_DIR`. *Árbitro:* `tests/web_huespedes/test_catalogo.py`.
+- **RF-WEB-02 — Búsqueda.** Por fechas, huéspedes, tipo y zona. *Criterios:* (a) precio y disponibilidad salen del PMS en cada consulta (`INV_WEB_PRECIO_EN_VIVO`); (b) si el PMS falla no se muestran precios y se ofrece WhatsApp. *Árbitro:* `tests/web_huespedes/test_busqueda.py`.
+- **RF-WEB-03 — Comparación.** Hasta tres propiedades propias lado a lado. *Criterios:* (a) muestra capacidad, zona, comodidades y total; (b) no incluye negocios de terceros. *Árbitro:* `tests/web_huespedes/test_busqueda.py`.
+- **RF-WEB-04 — Paso a WhatsApp.** La reserva termina en WhatsApp con un código de contexto. *Criterios:* (a) el enlace no lleva datos personales (`INV_WEB_SIN_PII`); (b) el agente resuelve propiedad, fechas y huéspedes; (c) la web no reserva (`INV_WEB_SOLO_LECTURA`). *Árbitro:* `tests/web_huespedes/test_contacto.py`.
+- **RF-WEB-05 — Protección pública.** Límite por IP (`INV_WEB_LIMITE_POR_IP`), sin cuentas y sin cookies de sesión. *Árbitro:* `tests/web_huespedes/test_limites.py`.
+- **RF-WEB-06 — Calidad pública.** Móvil primero, WCAG 2.1 AA, LCP ≤ 2,5 s en 4G, HTML renderizado en el servidor con títulos y datos estructurados para buscadores, español de Ecuador e interfaz purificada. *Árbitro:* `tests/web_huespedes/test_calidad.py`.
+
+`¤web-huespedes/`
+
 ## 6. Requisitos no funcionales
 `¤prd-rnf`
 
@@ -356,6 +368,7 @@ Cada historia declara el rol, la necesidad y el beneficio. Sus criterios de acep
 | US-15 | CU-05 | Como líder comercial, quiero preguntarle a Jarvis por mis datos y pedir cambios acotados para no depender de soporte. | [`administracion.feature`](spec/features/administracion.feature) |
 | US-16 | CU-09 | Como administrador, quiero gestionar usuarios, reglas y configuración en un solo lugar con auditoría. | [`administracion.feature`](spec/features/administracion.feature) |
 | US-17 | transversal | Como titular de datos, quiero saber qué se guarda de mí y pedir su eliminación para ejercer mis derechos. | [`privacidad.feature`](spec/features/privacidad.feature) |
+| US-18 | transversal | Como huésped potencial, quiero buscar y comparar las propiedades en la web para elegir antes de escribir por WhatsApp. | [`web_publica.feature`](spec/features/web_publica.feature) |
 
 `¤prd-user-stories/`
 
@@ -583,10 +596,11 @@ erDiagram
 ## 11. Fuera de alcance (versión 0.2)
 `¤prd-fuera-alcance`
 
-- Aplicación móvil o web para huéspedes o vendedores (su canal es WhatsApp). El equipo sí tiene interfaz propia: el panel operativo (§5.11, ADR-0013).
+- Aplicación móvil en tiendas para huéspedes (fase futura, §12) y aplicación propia para vendedores: su canal es WhatsApp. Los huéspedes sí tienen la web pública (§5.12, ADR-0017) y el equipo el panel operativo (§5.11, ADR-0013).
 - Integración directa con OTAs (Airbnb, Booking, VRBO): la cubre el PMS/channel manager.
 - Atención multi-idioma más allá de español (el filtro de inyección sí es multilenguaje; las respuestas son en español). El inglés se evaluará tras la beta.
 - Pagos dentro de WhatsApp y pasarela de pagos propia.
+- Reserva y pago dentro de la web pública: la reserva termina en WhatsApp.
 - Facturación electrónica (SRI) y contabilidad: permanecen en el flujo contable existente, que este sistema no toca.
 - Pricing dinámico algorítmico: el agente **lee** las tarifas del PMS/RAG; no las calcula.
 - Voz y llamadas.
@@ -618,6 +632,7 @@ Criterio universal de «fase completada»: `ejecutar_arnes_glamping.bat` (o `.sh
 | **6. ARM «Jarvis»** | RF-ARM-01..07, 09, 10; RF-COM-01, 02, 04; RF-MCP-08..09; set `evals/ventas.jsonl`; bandeja de ventas por validar, detalle y Jarvis en el panel (RF-PAN-02, 03, 06). | `arm_jarvis`, `comisiones`, `canal_whatsapp` (RF-GW-06), `panel_operativo` | Extracción ≥ 95 % en `evals/ventas.jsonl`; OP-08; concurrencia del ticket; S-01 validado o fallback 1:1 activo; US-06 en e2e (validar con un toque). | 2 semanas | **S-01 (lectura del canal de vendedores)**; ADR-0009. |
 | **7. Integración con CRM y tablero** | RF-CRM-01..05, RF-MCP-07 real, RF-ARM-08, RF-COM-03, Inbound Webhook firmado; tablero, cierre de período, exportación y administración de reglas, plantillas, conocimiento y propiedades en el panel (RF-PAN-04, 05, 09 completo). | `crm_conector`, `arm_jarvis`, `comisiones`, `panel_operativo` | RNF-09; publicación idempotente probada; RNF-10 con prueba negativa real; tablero cuadra al centavo con exportación (US-08 en e2e); primer cierre de período de prueba. **Hito de producción:** migración al servidor propio con `compose.production.yaml`. | 1,5 semanas | **ADR-0008 (CRM)**; ADR-0011. |
 | **8. Inbox completo de huéspedes en el panel** | Solo si ADR-0010 decide prescindir del inbox del proveedor: historial completo de conversaciones, búsqueda y etiquetas dentro del panel operativo. | `panel_operativo` | Conversaciones de huéspedes consultables y atendibles sin el inbox del proveedor. | 2 semanas | **ADR-0010**; análisis de costo a 12 meses con datos de volumen. |
+| **Futura. App de huéspedes en tiendas** | Sin fecha. Se decide con el uso medido de la web pública y exige un ADR propio. | — | — | — | — |
 
 Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de negocio no comparten archivos (`arm_jarvis`/`comisiones` vs `crm_conector`); el punto de unión (`publicar_venta`) se acuerda primero como contrato en la compuerta con `FakeCRM`. Las pantallas del panel de cada fase las construye un tercer builder sobre `panel_operativo`, que solo consume compuertas: el reparto de pantallas por fase está en [`FRONTEND.md` §12](FRONTEND.md#12-entrega-por-fases).
 
@@ -754,6 +769,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.7 | 2026-10-31 | Web pública para huéspedes desde la fase 1, sala `web_huespedes`, US-18, RF-WEB-01..06, T-105 y T-205. App en tiendas como fase futura. | Pedido del propietario; [ADR-0017](adr/ADR-0017-web-publica-huespedes.md). |
 | 0.2.6 | 2026-10-31 | Terminal móvil: RF-PAN-11..14, dos tablas, cuatro invariantes, T-801 y T-810. | Pedido del propietario; [ADR-0016](adr/ADR-0016-terminal-movil.md). |
 | 0.2.5 | 2026-10-30 | Desglose de comisión, estado de cuenta por vendedor y conversación en tres columnas en escritorio. | [ADR-0015](adr/ADR-0015-referentes-de-interfaz.md). |
 | 0.2.4 | 2026-10-30 | Cada regla declara `modo_escalon`: `graduado` o `volumen`. | Contraste con productos del mercado y tabla real de comisiones aún sin ver. |

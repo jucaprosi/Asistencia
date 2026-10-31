@@ -33,6 +33,8 @@ from features.observabilidad.observabilidad_service import ObservabilidadService
 from features.observabilidad.observabilidad_service import cargar_config as cargar_config_observabilidad
 from features.panel_operativo.panel_operativo_service import PanelOperativoService
 from features.panel_operativo.panel_operativo_service import cargar_config as cargar_config_panel
+from features.web_huespedes.web_huespedes_service import WebHuespedesService
+from features.web_huespedes.web_huespedes_service import cargar_config as cargar_config_web
 from features.pms_conector.pms_conector_service import PMSConectorService
 from features.pms_conector.pms_conector_service import cargar_config as cargar_config_pms
 from features.seguridad.seguridad_service import SeguridadService
@@ -64,6 +66,7 @@ class Contenedor:
     herramientas: HerramientasGlampingService
     agente: AgenteService
     panel: PanelOperativoService
+    web: WebHuespedesService
 
 
 # ¤pasillo-central
@@ -138,4 +141,5 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
         config_app=config_app, observabilidad=observabilidad, seguridad=seguridad, conocimiento=conocimiento,
         pms=pms, crm=crm, comisiones=comisiones, canal=canal, arm=arm, herramientas=herramientas, agente=agente,
         panel=panel,
+        web=WebHuespedesService(_config(cargar_config_web), pms=pms, observabilidad=observabilidad),
     )
