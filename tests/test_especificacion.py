@@ -124,20 +124,24 @@ def test_el_escalon_marginal_no_depende_del_orden() -> None:
     ejemplo = yaml.safe_load((SPEC / "contratos" / "dominio.yaml").read_text(encoding="utf-8"))["comision"]["ejemplo_escalon"]
     tramos = [(Decimal(e["desde"]), Decimal(e["porcentaje"]) / 100) for e in ejemplo["escalones"]]
 
-    def acumulada(volumen: Decimal) -> Decimal:
+    def acumulada(volumen: Decimal, modo: str) -> Decimal:
+        if modo == "volumen":
+            tasa = [t for desde, t in tramos if volumen >= desde][-1]
+            return (volumen * tasa).quantize(Decimal("0.01"), ROUND_HALF_UP)
         total = Decimal(0)
         for (desde, tasa), (hasta, _) in zip(tramos, [*tramos[1:], (volumen, 0)]):
             total += max(min(volumen, hasta) - desde, Decimal(0)) * tasa
         return total.quantize(Decimal("0.01"), ROUND_HALF_UP)
 
     ventas = [Decimal(v) for v in ejemplo["ventas"]]
-    for orden in permutations(ventas):
-        base, total = Decimal(0), Decimal(0)
-        for monto in orden:
-            total += acumulada(base + monto) - acumulada(base)
-            base += monto
-        assert total == Decimal(ejemplo["total_mes"])
-    assert acumulada(sum(ventas) - ventas[1]) == Decimal(ejemplo["total_tras_anular_segunda"])
+    for modo in DOMINIO["comision"]["modos_escalon"]:
+        for orden in permutations(ventas):
+            base, total = Decimal(0), Decimal(0)
+            for monto in orden:
+                total += acumulada(base + monto, modo) - acumulada(base, modo)
+                base += monto
+            assert total == Decimal(ejemplo["total_mes"][modo])
+        assert acumulada(sum(ventas) - ventas[1], modo) == Decimal(ejemplo["total_tras_anular_segunda"][modo])
 
 
 # ¤spec-glamping
@@ -168,6 +172,7 @@ def test_tipos_de_las_salas_coinciden_con_el_dominio() -> None:
     assert _valores_enum("arm_jarvis", "EstadoVenta") == set(DOMINIO["venta"]["estados"])
     assert _valores_enum("comisiones", "EstadoComision") == set(DOMINIO["comision"]["estados"])
     assert _valores_enum("comisiones", "TipoRegla") == set(DOMINIO["comision"]["tipos_regla"])
+    assert _valores_enum("comisiones", "ModoEscalon") == set(DOMINIO["comision"]["modos_escalon"])
 
 
 # ¤spec-glamping

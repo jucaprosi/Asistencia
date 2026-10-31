@@ -10,10 +10,10 @@ from typing import Any, Literal, Mapping
 
 import yaml
 
-from features.comisiones.tipos import Comision, Escalon, EstadoComision, Periodo, ReglaComision, TipoRegla
+from features.comisiones.tipos import Comision, Escalon, EstadoComision, ModoEscalon, Periodo, ReglaComision, TipoRegla
 
 __all__ = [
-    "Comision", "Escalon", "EstadoComision", "Periodo", "ReglaComision", "TipoRegla",
+    "Comision", "Escalon", "EstadoComision", "ModoEscalon", "Periodo", "ReglaComision", "TipoRegla",
     "ErrorComisiones", "ComisionesService", "cargar_config",
 ]
 

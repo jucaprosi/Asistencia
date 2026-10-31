@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.3 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.2.4 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -219,7 +219,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 
 **Construir** (recomendación §14.3; sistema de registro `[DECISIÓN PENDIENTE]`, ADR-0009). Compuerta `features/comisiones/comisiones_service.py`. Rol `¤¤backend-developer`.
 
-- **RF-COM-01 — Reglas versionadas.** Reglas de comisión por vendedor, producto/propiedad y período, con porcentaje o monto fijo, escalones por volumen y vigencia. *Criterios:* (a) cada regla tiene `version`, `vigente_desde`, `vigente_hasta`; (b) `calcular(venta, vendedor, fecha)` elige la regla vigente a la fecha de la venta, no a la fecha del cálculo; (c) el escalón es marginal: cada venta recibe `F(base + monto) − F(base)`, donde `F` es la comisión acumulada redondeada y `base` el acumulado por vendedor, regla y mes de `fecha_venta`, guardado en `base_acumulada`; el total del mes no depende del orden de validación; (d) sin regla aplicable falla con `SinReglaVigente` y la venta sigue `por_validar`; (e) USD, dos decimales, `ROUND_HALF_UP`. *Árbitro:* `tests/comisiones/test_reglas.py`.
+- **RF-COM-01 — Reglas versionadas.** Reglas de comisión por vendedor, producto/propiedad y período, con porcentaje o monto fijo, escalones por volumen y vigencia. *Criterios:* (a) cada regla tiene `version`, `vigente_desde`, `vigente_hasta`; (b) `calcular(venta, vendedor, fecha)` elige la regla vigente a la fecha de la venta, no a la fecha del cálculo; (c) cada regla declara `modo_escalon`, `graduado` por defecto o `volumen`; cada venta recibe `F(base + monto) − F(base)`, donde `F` es la comisión acumulada redondeada y `base` el acumulado por vendedor, regla y mes de `fecha_venta`, guardado en `base_acumulada`; el total del mes no depende del orden de validación; (d) sin regla aplicable falla con `SinReglaVigente` y la venta sigue `por_validar`; (e) USD, dos decimales, `ROUND_HALF_UP`. *Árbitro:* `tests/comisiones/test_reglas.py`.
 - **RF-COM-02 — Cierre de período.** Un período (mes por defecto) se cierra y queda inmutable; las correcciones posteriores generan ajustes en el período siguiente. *Criterios:* (a) no se puede modificar una comisión de un período cerrado; (b) el cierre produce un resumen por vendedor con total, número de ventas y ajustes; (c) el período es el mes de `fecha_venta` en `America/Guayaquil`, y si ya cerró la comisión entra al período abierto más antiguo con `periodo_origen`. *Árbitro:* `tests/comisiones/test_cierre_periodo.py`.
 - **RF-COM-03 — Exportación.** Exporta el período en CSV y JSON con esquema documentado. *Criterios:* el archivo exportado valida contra `features/comisiones/esquema_exportacion.json`. *Árbitro:* `tests/comisiones/test_exportacion.py`.
 - **RF-COM-04 — Efectos de la anulación.** Anular una venta con comisión crea un ajuste negativo en el período abierto. *Criterios:* (a) la comisión original no se altera y el ajuste resta el monto de la base, sin tocar otras comisiones; (b) si la venta se publicó, sale el evento `venta_anulada`; (c) una reserva cancelada no anula sola: lo decide el administrador. *Árbitro:* `tests/comisiones/test_anulacion.py`.
@@ -531,7 +531,7 @@ erDiagram
 | **Vendedor** | `arm_jarvis` | `vendedor_id`, `telefono_token`, `nombre`, `activo`, `regla_comision_default_id` | Vinculado a un usuario activo con rol de vendedor. |
 | **Venta** | `arm_jarvis` | `venta_id` (uuid), `ticket` (V-AAAA-NNNN), `vendedor_id`, `cliente_token`, `telefono_cliente_token`, `producto`, `propiedad_id?`, `noches?`, `monto`, `moneda`, `fecha_venta`, `fecha_llegada?`, `texto_original_token`, `mensaje_id`, `indice_en_mensaje`, `confianza`, `confianza_campos`, `huella_duplicado`, `posible_duplicado_de?`, `estado`, `reserva_ref?` | Su publicación vive en `crm.publicaciones`. |
 | **TransiciónVenta** | `arm_jarvis` | `venta_id`, `de`, `a`, `actor_id`, `rol`, `motivo`, `timestamp` | Auditoría de la máquina de estados. |
-| **ReglaComisión** | `comisiones` | `regla_id`, `version`, `vendedor_id?`, `propiedad_id?`, `producto_patron?`, `tipo` (porcentaje/fijo/escalonada), `valor`, `escalones[]`, `vigente_desde`, `vigente_hasta` | Inmutable por versión. |
+| **ReglaComisión** | `comisiones` | `regla_id`, `version`, `vendedor_id?`, `propiedad_id?`, `producto_patron?`, `tipo` (porcentaje/fijo/escalonada), `valor`, `escalones[]`, `modo_escalon` (graduado/volumen), `vigente_desde`, `vigente_hasta` | Inmutable por versión. |
 | **Comisión** | `comisiones` | `comision_id`, `venta_id`, `regla_id`, `regla_version`, `monto`, `base_acumulada`, `periodo_id`, `periodo_origen`, `estado` (estimada/fijada/pagada/ajustada), `ajuste_de?` | Fijada al validar la venta. |
 | **Período** | `comisiones` | `periodo_id` (AAAA-MM), `cerrado_en`, `cerrado_por`, `resumen_json` | Cerrado = inmutable. |
 | **Conversación** | `agente` | `conversacion_id`, `huesped_id` o `vendedor_id`, `canal` (huespedes/vendedores), `propiedad_id?`, `estado` (activa/handoff/cerrada), `modo` (activo/silencio), `resultado?`, `abstenciones_seguidas`, `ventana_24h_hasta` | Contexto del enrutador. |
@@ -750,6 +750,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.4 | 2026-10-30 | Cada regla declara `modo_escalon`: `graduado` o `volumen`. | Contraste con productos del mercado y tabla real de comisiones aún sin ver. |
 | 0.2.3 | 2026-10-30 | Escalón marginal: el total del mes depende del volumen y no del orden. Se retiran los ajustes retroactivos de la 0.2.2. | Revisión técnica de D-10 pedida por el propietario. |
 | 0.2.2 | 2026-10-30 | Escalones de comisión por fecha de venta, con ajustes si el orden de validación difiere. | Decisión D-10 del propietario. |
 | 0.2.1 | 2026-10-30 | Predicados formales y mecanismos de concurrencia, tablas `huespedes`, `reservas_ref`, `incidencias` y `envios_programados`, RF-AG-08, RF-PMS-06, un escenario por requisito y prompts atómicos por tarea. | Auditoría contra los cuatro pilares del método SDD. |

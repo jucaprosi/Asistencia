@@ -69,3 +69,10 @@
 Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad se reverifican en ADR-0007, ADR-0008 y ADR-0011 con fecha, versión y licencia antes de que su código entre en una sala.
 
 `¤fuentes-glamping/`
+
+## Modos de escalón (`¤spec-glamping`)
+
+| Fuente | Función | Nota |
+| :--- | :--- | :--- |
+| [Stripe: precios por tramos](https://docs.stripe.com/subscriptions/pricing-models/tiered-pricing) | D-10 | Separa graduado y volumen como modos explícitos. |
+| [Qobra: comisión escalonada](https://www.qobra.co/glossary/tiered-commission) | D-10 | Marginal y retroactivo. Es fuente de proveedor. |

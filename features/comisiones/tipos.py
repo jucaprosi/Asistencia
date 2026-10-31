@@ -18,6 +18,12 @@ class TipoRegla(str, Enum):
 
 
 # ¤comisiones
+class ModoEscalon(str, Enum):
+    GRADUADO = "graduado"
+    VOLUMEN = "volumen"
+
+
+# ¤comisiones
 class EstadoComision(str, Enum):
     ESTIMADA = "estimada"
     FIJADA = "fijada"
@@ -45,6 +51,7 @@ class ReglaComision:
     propiedad_id: str | None = None
     producto_patron: str | None = None
     escalones: tuple[Escalon, ...] = field(default_factory=tuple)
+    modo_escalon: ModoEscalon = ModoEscalon.GRADUADO
 
 
 # ¤comisiones

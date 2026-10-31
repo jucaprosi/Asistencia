@@ -19,10 +19,11 @@ Calcular comisiones de forma reproducible con reglas versionadas vigentes a la f
 
 ```python
 class TipoRegla(str, Enum): PORCENTAJE, FIJO, ESCALONADA
+class ModoEscalon(str, Enum): GRADUADO, VOLUMEN
 @dataclass(frozen=True)
 class Escalon: desde_monto: Decimal; porcentaje: Decimal
 @dataclass(frozen=True)
-class ReglaComision: regla_id: str; version: int; vendedor_id: str | None; propiedad_id: str | None; producto_patron: str | None; tipo: TipoRegla; valor: Decimal; escalones: tuple[Escalon, ...]; vigente_desde: date; vigente_hasta: date | None
+class ReglaComision: regla_id: str; version: int; vendedor_id: str | None; propiedad_id: str | None; producto_patron: str | None; tipo: TipoRegla; valor: Decimal; escalones: tuple[Escalon, ...]; modo_escalon: ModoEscalon; vigente_desde: date; vigente_hasta: date | None
 class EstadoComision(str, Enum): ESTIMADA, FIJADA, PAGADA, AJUSTADA
 @dataclass(frozen=True)
 class Comision: comision_id: str; venta_id: str; regla_id: str; regla_version: int; monto: Decimal; periodo_id: str; estado: EstadoComision; ajuste_de: str | None

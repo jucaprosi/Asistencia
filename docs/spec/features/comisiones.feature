@@ -46,6 +46,18 @@ Característica: Comisiones, tablero y cierre
     Entonces el total del mes es el mismo al centavo
     Y ninguna comisión fijada se recalcula
 
+  @US-14 @RF-COM-01 @INV_COMISION_REPRODUCIBLE
+  Escenario: Modo graduado
+    Dado ventas por 333.33, 700.10 y 566.57 con escalones de 5 % y 10 % desde 1000
+    Cuando la regla usa el modo graduado
+    Entonces el total del mes es 110.00 en cualquier orden de validación
+
+  @US-14 @RF-COM-01 @INV_COMISION_REPRODUCIBLE
+  Escenario: Modo volumen
+    Dado ventas por 333.33, 700.10 y 566.57 con escalones de 5 % y 10 % desde 1000
+    Cuando la regla usa el modo volumen
+    Entonces el total del mes es 160.00 en cualquier orden de validación
+
   @US-14 @RF-COM-04 @INV_COMISION_REPRODUCIBLE
   Escenario: Anular una venta no toca a las demás
     Dado ventas por 333.33, 700.10 y 566.57 con escalones de 5 % y 10 % desde 1000
