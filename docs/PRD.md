@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.7 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.2.8 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -577,7 +577,7 @@ erDiagram
 | WhatsApp Business Platform — Cloud API de Meta | Canal de huéspedes y vendedores. | **Decidido** (única opción; sin librerías no oficiales). Requiere cuenta de WhatsApp Business verificada, número dedicado y plantillas aprobadas. | ADR-0003 |
 | Claude (Anthropic) con *tool use* | Motor del agente y extracción del ARM. | **Decidido.** Modelo concreto por tarea (frontera vs. económico) se fija en configuración, no en código (RF-AG-07). | ADR-0001 |
 | Protocolo MCP | Herramientas del agente y conectores. | **Decidido.** | ADR-0001 |
-| PostgreSQL + pgvector en nube gestionada (Neon o Render) | RAG, historial, ARM, comisiones, auditoría. | **Decidido** pgvector gestionado; proveedor concreto Neon vs Render `[DECISIÓN PENDIENTE]` (se fija en la fase 0 por costo y región, sujeto a ADR-0012). | ADR-0002 |
+| PostgreSQL + pgvector en nube gestionada (Neon) | RAG, historial, ARM, comisiones, auditoría. | **Decidido** pgvector gestionado en Neon, plan Launch como mínimo, con ventana de restauración de 7 días. Revisable por ADR-0012. | ADR-0002 |
 | Almacenamiento de archivos S3-compatible gestionado (beta) | Medios de WhatsApp, exportaciones. | **Decidido para beta**; MinIO en producción `[DECISIÓN PENDIENTE]` menor (§5.2 informe). | ADR-0004 |
 | Docker Compose con sobrescritura | Portabilidad beta → producción. | **Decidido.** | ADR-0004 |
 | PMS / channel manager (Kamra, Repull MCP, Hospitable) | Disponibilidad, reservas, check-in, housekeeping. | `[DECISIÓN PENDIENTE]` §14.1. Bloquea la fase 3. | ADR-0007 |
@@ -623,7 +623,7 @@ Criterio universal de «fase completada»: `ejecutar_arnes_glamping.bat` (o `.sh
 
 | Fase | Entregable del PRD | Salas | Criterios de fase completada (además del universal) | Duración | Bloqueada por |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **0. Esqueleto** | Estructura ADPA (`app_core/`, `features/<sala>/` con compuertas vacías y `config_*.yaml`), especificación ejecutable, `compose.yaml` + `compose.production.yaml`, arnés `.bat/.sh`, CI, `tests/test_canal_oficial.py`, escáner de secretos, backups externos probados. | todas (vacías) | `docker compose config` válido para ambos archivos; DDL aplicado y verificado en PostgreSQL real; CI en verde; arnés en Exit Code 0 con tests de estructura y de especificación; primera restauración de backup documentada. | 1 día | Proveedor Neon/Render (menor). |
+| **0. Esqueleto** | Estructura ADPA (`app_core/`, `features/<sala>/` con compuertas vacías y `config_*.yaml`), especificación ejecutable, `compose.yaml` + `compose.production.yaml`, arnés `.bat/.sh`, CI, `tests/test_canal_oficial.py`, escáner de secretos, backups externos probados. | todas (vacías) | `docker compose config` válido para ambos archivos; DDL aplicado y verificado en PostgreSQL real; CI en verde; arnés en Exit Code 0 con tests de estructura y de especificación; primera restauración de backup documentada. | 1 día | Crear el proyecto en Neon y fijar su ventana de 7 días. |
 | **1. MVP WhatsApp** | RF-GW-01..05, 07, 08, RF-AG-02 (prompt glamping), RF-AG-04..06 básicos, RF-SEC-01..03, RF-SEC-04 base, RF-SEC-05, RF-SEC-06, RF-PRIV-01, RF-PRIV-02, RF-OBS-01..02, `FakePMS`. | `canal_whatsapp`, `agente`, `seguridad`, `observabilidad` | Conversación real de extremo a extremo con el número de pruebas; RNF-01 medido; 0 PII en *payloads*; `tests/test_interfaz_purificada.py` en verde. | 3–5 días | Cuenta Meta verificada; S-02. |
 | **2. RAG** | RF-RAG-01..06, corpus completo en `CORPUS_DIR`, set dorado ≥ 100 preguntas. | `conocimiento` | OP-04 ≥ 95 %, OP-05 ≥ 90 %, RNF-04. | 1 semana | Corpus entregado por el negocio (S-03); ADR-0012. |
 | **3. PMS vía MCP** | RF-PMS-01..05, RF-MCP-01..05, RF-MCP-06 y 07 con contrato, incidencias. | `pms_conector`, `herramientas_glamping`, (`operaciones` si aplica) | Reserva preliminar real creada en el PMS de pruebas; RNF-02; contrato en verde contra `FakePMS` y real. | 1–2 semanas | **ADR-0007 (PMS)**. |
@@ -729,9 +729,8 @@ Las referencias completas (repositorios, guías, benchmarks, productos evaluados
 | 14.3 | Sistema de registro de comisiones (propio vs CRM). | [ADR-0009](adr/ADR-0009-registro-comisiones.md) | Tablero (fase 7). El cálculo (fase 6) es propio en ambos casos. | Antes de empezar la fase 6. |
 | 14.4 | ¿Inbox del proveedor o inbox completo de huéspedes en el panel operativo? (reformulado por ADR-0013). El handoff no depende de esto (RF-CRM-06). | [ADR-0010](adr/ADR-0010-inbox-proveedor.md) | Existencia de la fase 8. | Al cerrar la fase 7, con datos de volumen de handoff. |
 | 14.5 | Madurez de MCP de comunidad. | [ADR-0011](adr/ADR-0011-mcp-comunidad.md) | Implementaciones internas de `pms_conector` y `crm_conector` (pueden empezar con API directa). | Antes de la fase 3 (PMS) y 7 (CRM). |
-| 14.6 | Residencia de datos en Ecuador. | [ADR-0012](adr/ADR-0012-residencia-datos.md) | Elección Neon vs Render (fase 0/2). | Antes de indexar datos reales (fase 2). |
+| 14.6 | Residencia de datos en Ecuador. | [ADR-0012](adr/ADR-0012-residencia-datos.md) | Confirmar o revisar Neon (fase 2). | Antes de indexar datos reales (fase 2). |
 | 14.7 | Build vs buy del ARM tras el video. | [ADR-0005](adr/ADR-0005-arm-construido-en-casa.md) (aceptado: construir; reevaluable). | Nada: construir es la decisión por defecto. | Solo si aparece el repositorio verificable. |
-| — | Neon vs Render para pgvector. | ADR-0002 (pendiente de proveedor). | Fase 0. | Fase 0. |
 | — | Transcripción de audio en el canal (RF-GW-05 b). | Se fija en TASK-001. | Nada. | Fase 1. |
 | — | 21 decisiones de la especificación 0.2. | [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) | Congelar la especificación 1.0. | Antes de la fase 1. |
 
@@ -769,6 +768,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.8 | 2026-10-31 | PostgreSQL gestionado en Neon con ventana de 7 días; `jinja2` entra en dependencias; T-110 monta las rutas de la web pública. | Decisión del propietario y revisión previa al arranque. |
 | 0.2.7 | 2026-10-31 | Web pública para huéspedes desde la fase 1, sala `web_huespedes`, US-18, RF-WEB-01..06, T-105 y T-205. App en tiendas como fase futura. | Pedido del propietario; [ADR-0017](adr/ADR-0017-web-publica-huespedes.md). |
 | 0.2.6 | 2026-10-31 | Terminal móvil: RF-PAN-11..14, dos tablas, cuatro invariantes, T-801 y T-810. | Pedido del propietario; [ADR-0016](adr/ADR-0016-terminal-movil.md). |
 | 0.2.5 | 2026-10-30 | Desglose de comisión, estado de cuenta por vendedor y conversación en tres columnas en escritorio. | [ADR-0015](adr/ADR-0015-referentes-de-interfaz.md). |

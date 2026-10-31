@@ -25,7 +25,7 @@ Materializar la estructura de [`ARQUITECTURA.md` §3.1](../../docs/ARQUITECTURA.
 4. `ejecutar_arnes_glamping.bat` y `.sh`: `adpa_linter` → `huellas_linter` → UTF-8 → escáner de secretos → `pytest` → `scripts/run_evals.py` (vacío por ahora) → escribe `governance/artefactos/data/.test_verdict.json` con Exit Code.
 5. `tests/test_estructura_adpa.py`, `tests/test_canal_oficial.py`, `tests/test_sin_clientes_ota.py`.
 6. CI que ejecuta el arnés y `docker compose -f compose.yaml -f compose.production.yaml config`.
-7. Proveedor de PostgreSQL gestionado elegido (Neon o Render; menor, revisable por ADR-0012) y PITR documentado en `INVARIANTS.md` (`INV_PITR_MINIMO`).
+7. Proveedor de PostgreSQL gestionado elegido (Neon, revisable por ADR-0012) y PITR documentado en `INVARIANTS.md` (`INV_PITR_MINIMO`).
 8. Primer backup externo del repositorio y `governance/` restaurado y documentado (RNF-15).
 
 ## Criterios de fase completada
@@ -46,5 +46,5 @@ La fase sigue en `boceto`: faltan los dos pendientes del propietario de abajo. U
 - `docker compose config` se omite en local cuando docker no está en el PATH, queda declarado en el certificado y lo ejecuta la CI en cada push, junto con el DDL en PostgreSQL real.
 
 ## Pendientes del propietario (fuera del alcance de la IA)
-7. Elegir el proveedor de PostgreSQL gestionado (Neon o Render; sujeto a ADR-0012) y documentar su PITR en `INVARIANTS.md` (`INV_PITR_MINIMO`).
+7. Crear el proyecto en Neon con plan Launch o superior, región elegida (recomendada: São Paulo, `aws-sa-east-1`) y ventana de restauración de 7 días. Guardar la captura de esa configuración y confirmar que `CREATE EXTENSION vector` funciona. Proveedor elegido el 2026-10-31.
 8. Ejecutar y documentar la primera restauración de backup externo del repositorio y de `governance/` (RNF-15).

@@ -3,11 +3,11 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Estado | Aceptado. Proveedor concreto (Neon vs Render) **pendiente**, se fija en la fase 0 y queda sujeto a [ADR-0012](ADR-0012-residencia-datos.md) |
+| Estado | Aceptado. Proveedor: Neon, elegido por el propietario el 2026-10-31, revisable por [ADR-0012](ADR-0012-residencia-datos.md) |
 | Fecha | 2026-10-30 |
 | Decisores | Propietario del proyecto |
 | Fuente | [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §5.1, §9.1 |
-| Bloquea | Fase 0 (elección del proveedor) |
+| Bloquea | — |
 
 ## Contexto
 El RAG indexa documentos del negocio (políticas, precios, check-in, atractivos) con filtro por propiedad. El volumen esperado es de miles a decenas de miles de chunks, no millones. El sistema ya necesita PostgreSQL para historial, ARM, comisiones y auditoría.

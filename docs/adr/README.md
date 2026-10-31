@@ -8,7 +8,7 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 | ADR | Título | Estado | Rastro | Bloquea |
 | :--- | :--- | :--- | :--- | :--- |
 | [ADR-0001](ADR-0001-construir-vs-adoptar.md) | Construir el núcleo diferencial, adoptar la capa commodity detrás de interfaces abstractas | Aceptado | `¤adr-construir-adoptar` | — |
-| [ADR-0002](ADR-0002-pgvector-sobre-postgres-gestionado.md) | pgvector sobre PostgreSQL gestionado como base vectorial | Aceptado (proveedor Neon/Render pendiente) | `¤conocimiento-rag` | Fase 0 (proveedor) |
+| [ADR-0002](ADR-0002-pgvector-sobre-postgres-gestionado.md) | pgvector sobre PostgreSQL gestionado como base vectorial | Aceptado (proveedor: Neon) | `¤conocimiento-rag` | — |
 | [ADR-0003](ADR-0003-api-oficial-whatsapp-cloud.md) | API oficial de WhatsApp Cloud; prohibición de librerías no oficiales | Aceptado | `¤canal-whatsapp` | — |
 | [ADR-0004](ADR-0004-infraestructura-hibrida-aislada.md) | Infraestructura híbrida y aislamiento del flujo contable | Aceptado | `¤infra-hibrida` | — |
 | [ADR-0005](ADR-0005-arm-construido-en-casa.md) | Construir el ARM «Jarvis» en casa | Aceptado (reevaluable) | `¤arm-jarvis` | — |

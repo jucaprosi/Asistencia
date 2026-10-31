@@ -7,7 +7,7 @@
 | Fecha | 2026-10-30 |
 | Decisores | Propietario del proyecto con asesoría legal |
 | Fuente | [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §9.1, §14.6 |
-| Bloquea | Elección Neon vs Render (fase 0); indexación de datos reales (fase 2); ubicación de reservas y datos de huéspedes |
+| Bloquea | Confirmar o revisar Neon; indexación de datos reales (fase 2); ubicación de reservas y datos de huéspedes |
 
 ## Contexto
 El modelo híbrido (ADR-0004) lleva pgvector, historial, ventas y auditoría a una nube gestionada fuera de Ecuador. El sistema trata datos personales de huéspedes y vendedores (teléfonos, nombres, documentos en algún caso). Ecuador cuenta con legislación de protección de datos personales; hay que confirmar si impone condiciones a la transferencia internacional o a la ubicación de algún dato, y qué exige en cuanto a consentimiento e información al titular.

@@ -83,6 +83,13 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | :--- | :--- | :--- |
 | [wacrm, README](https://raw.githubusercontent.com/ArnasDon/wacrm/main/README.md) | ADR-0015 | Next.js, Supabase y licencia MIT según su README. Solo patrón de inbox. |
 
+## Proveedor de PostgreSQL (`¤infra-hibrida`)
+
+| Fuente | Función | Nota |
+| :--- | :--- | :--- |
+| [Neon: planes](https://neon.com/docs/introduction/plans) | `INV_PITR_MINIMO` | Consultada el 2026-10-31: Free 6 horas, Launch hasta 7 días, Scale hasta 30. Por defecto, 1 día en planes de pago. |
+| [Neon: regiones](https://neon.com/docs/introduction/regions) | ADR-0002 | Consultada el 2026-10-31: São Paulo es `aws-sa-east-1`. La región no cambia tras crear el proyecto. |
+
 ## Terminal móvil (`¤panel-operativo`)
 
 | Fuente | Función | Nota |

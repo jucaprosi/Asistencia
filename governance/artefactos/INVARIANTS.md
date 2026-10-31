@@ -111,6 +111,6 @@ Cada invariante activa se expresa como predicado booleano. El mecanismo no es un
 | :--- | :--- | :--- | :--- |
 | `INV_RLS_MULTI_INQUILINO` | Con datos de más de una propiedad en la misma base, RLS por `propiedad_id` con rol `NOBYPASSRLS`. | Siempre que haya ≥ 2 propiedades (fase 4). | `tests/seguridad/test_rls.py` contra PostgreSQL real. |
 | `INV_RESIDENCIA_DATOS` | Los datos que ADR-0012 clasifique como restringidos no salen de la ubicación aprobada. | [ADR-0012](../../docs/adr/ADR-0012-residencia-datos.md). | Al aceptar el ADR; inventario referenciado aquí. |
-| `INV_PITR_MINIMO` | PostgreSQL gestionado con PITR ≥ 7 días. | Proveedor (ADR-0002). | Fase 0, documentado con captura de configuración. |
+| `INV_PITR_MINIMO` | Neon con ventana de restauración ≥ 7 días. El plan Free no alcanza y los planes de pago traen 1 día por defecto: hay que configurarla. | Proveedor Neon (ADR-0002). | Fase 0, documentado con captura de configuración. |
 
 `¤invariantes-glamping/`

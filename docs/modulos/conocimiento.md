@@ -10,7 +10,7 @@
 | Rol | `¤¤data-engineer` |
 | Requisitos | RF-RAG-01..06 · RNF-04 · INV_SIN_FUGA_ENTRE_PROPIEDADES, INV_NO_LO_SE |
 | Tarea | TASK-002 |
-| Decisión | Construir; pgvector gestionado (ADR-0002); proveedor Neon/Render pendiente |
+| Decisión | Construir; pgvector gestionado (ADR-0002); proveedor Neon |
 
 ## Propósito
 Indexar el corpus del negocio y recuperar fragmentos con filtro obligatorio por propiedad, devolviendo puntuación y fuente para que el agente cite en la traza y se abstenga sin soporte.

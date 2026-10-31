@@ -181,13 +181,13 @@ estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤solutions-architect"
 requisitos = ["RF-GW-01 (ruta)", "RNF-08", "RNF-11", "RNF-12", "RNF-14", "RNF-19"]
-depende_de = ["T-101", "T-102", "T-103", "T-104"]
+depende_de = ["T-101", "T-102", "T-103", "T-104", "T-105"]
 bloqueada_por = []
 propiedad = ["app_core/**", "tests/app_core/**", "compose.yaml", "compose.production.yaml", ".env.example"]
 consume = ["todas las compuertas"]
 arbitro = "tests/app_core/**; docker compose config en CI; arnés Exit Code 0"
 ```
-Entregables: rutas `GET/POST /webhook` → `canal.verificar_webhook` / `canal.recibir` → receptor; cola asíncrona de procesamiento (responder 200 en < 2 s); `--worker` real si hace falta para el procesamiento; variables nuevas en `.env.example`. **Hecho cuando** el contenedor construye con las cuatro salas reales y los tests de `app_core` cubren la ruta del webhook con firma válida e inválida.
+Entregables: rutas `GET/POST /webhook` → `canal.verificar_webhook` / `canal.recibir` → receptor; rutas públicas de `web_huespedes` montadas en la app; cola asíncrona de procesamiento (responder 200 en < 2 s); `--worker` real si hace falta para el procesamiento; variables nuevas en `.env.example`. **Hecho cuando** el contenedor construye con las cinco salas reales y los tests de `app_core` cubren la ruta del webhook con firma válida e inválida y `GET /` de la web pública.
 
 ### T-111 — Integración fase 1: conversación real, RNF-01, S-01 y decisión de audio
 `¤bbap-glamping`

@@ -173,7 +173,7 @@ Eventos externos adicionales: `POST /crm/eventos` (firmado) para validaciones de
 
 | Almacén | Contenido | Dueño | Ubicación | Notas |
 | :--- | :--- | :--- | :--- | :--- |
-| PostgreSQL gestionado (`glamping`) | esquemas por sala: `agente`, `conocimiento` (pgvector + tsvector), `arm`, `comisiones`, `seguridad` (bóveda de tokens y audit log), `observabilidad` (trazas) | cada sala su esquema | Neon o Render (ADR-0002, ADR-0012) | Un rol de base de datos por sala con permisos solo sobre su esquema; `seguridad.audit_log` con rol `INSERT`-only; RLS por `propiedad_id` donde aplique (RF-SEC-07). |
+| PostgreSQL gestionado (`glamping`) | esquemas por sala: `agente`, `conocimiento` (pgvector + tsvector), `arm`, `comisiones`, `seguridad` (bóveda de tokens y audit log), `observabilidad` (trazas) | cada sala su esquema | Neon (ADR-0002, revisable por ADR-0012) | Un rol de base de datos por sala con permisos solo sobre su esquema; `seguridad.audit_log` con rol `INSERT`-only; RLS por `propiedad_id` donde aplique (RF-SEC-07). |
 | PostgreSQL local beta (`glamping_beta`) | mismo esquema, datos sintéticos | — | contenedor en `glamping-beta-net`, puerto no estándar | Solo para desarrollo; nunca datos reales. |
 | S3-compatible gestionado | medios de WhatsApp, exportaciones CSV/JSON | `canal_whatsapp`, `comisiones` | Backblaze B2 / Wasabi / Render (beta) → MinIO 3-2-1 opcional en producción | Versionado activado; retención configurable. |
 | Sistemas de registro externos | reservas y calendarios (PMS); contactos y oportunidades (CRM) | externos | SaaS u on-prem según ADR-0007/0008 | El repositorio guarda `pms_ref` / `crm_ref`; no copia. |
