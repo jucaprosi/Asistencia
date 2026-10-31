@@ -13,6 +13,7 @@ prompts:
   enrutador: docs/prompts/system-prompt-enrutador.md
   glamping: docs/prompts/system-prompt-glamping.md
   departamentos: docs/prompts/system-prompt-departamentos.md
+  hospedaje: docs/prompts/system-prompt-hospedaje.md
 cache_semantico:
   activo: true
   umbral_similitud: 0.92

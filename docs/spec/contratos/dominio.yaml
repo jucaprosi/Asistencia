@@ -58,6 +58,11 @@ comision:
     total_mes: {graduado: "110.00", volumen: "160.00"}
     total_tras_anular_segunda: {graduado: "45.00", volumen: "45.00"}
 
+hospedaje:
+  tipos: [glamping, cabana, casa, departamento, habitacion, hostal, hosteria, hotel, hacienda, otro]
+  variantes_prompt: [glamping, departamentos, hospedaje]
+  variante_por_tipo: {glamping: glamping, departamento: departamentos}   # el resto usa hospedaje
+
 reserva:
   estados: [preliminar, confirmada, cancelada, expirada, completada]
   expiracion_preliminar_horas: 24

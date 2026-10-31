@@ -8,7 +8,7 @@ rastro = ["¤agente-enrutador", "¤crm-conector"]
 rol = "¤¤machine-learning-engineer"
 depende_de = ["TASK-002", "TASK-003"]
 bloqueada_por = []
-propiedad = ["features/agente/**", "features/crm_conector/**", "docs/prompts/system-prompt-enrutador.md", "docs/prompts/system-prompt-departamentos.md", "evals/enrutador.jsonl", "tests/agente/**", "tests/crm_conector/**"]
+propiedad = ["features/agente/**", "features/crm_conector/**", "docs/prompts/system-prompt-enrutador.md", "docs/prompts/system-prompt-departamentos.md", "docs/prompts/system-prompt-hospedaje.md", "evals/enrutador.jsonl", "tests/agente/**", "tests/crm_conector/**"]
 arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); tests/agente/test_enrutador.py 20/20; scripts/run_evals.py --suite enrutador con 0 fugas entre propiedades; US-03, US-09, US-10 en verde con FakeCRM"
 ```
 
@@ -23,7 +23,7 @@ RF-AG-01, RF-AG-03, RF-MCP-04 (completo), RF-MCP-06, RF-CRM-01 (interfaz) y `asi
 
 ## Entregables
 1. `enrutador_internal.py` con resolución por código de reserva, nombre, dirección, contexto o pregunta con lista de opciones.
-2. `docs/prompts/system-prompt-enrutador.md` y `system-prompt-departamentos.md` con datos inyectados por propiedad.
+2. `docs/prompts/system-prompt-enrutador.md` y `system-prompt-departamentos.md` y `system-prompt-hospedaje.md` con datos inyectados por propiedad.
 3. Planificador de check-in del día en `app_core` invocando `agente_service`.
 4. `evals/enrutador.jsonl` con 20 conversaciones etiquetadas (incluidas ambiguas).
 5. RLS por `propiedad_id` activa en PostgreSQL con rol `NOBYPASSRLS`.

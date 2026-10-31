@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.3.1 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.3.2 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -156,7 +156,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 **Construir.** Compuerta `features/agente/agente_service.py`. Rol `¤¤machine-learning-engineer`. Orquesta Claude, el enrutador multi-propiedad y las herramientas MCP.
 
 - **RF-AG-01 — Identificación de la propiedad.** Antes de ejecutar cualquier herramienta, el agente determina la propiedad (glamping o departamento concreto) por código de reserva, nombre, dirección, contexto de la conversación o preguntando. *Criterios:* (a) ninguna herramienta que requiera `propiedad_id` se invoca con el campo vacío; (b) ante ambigüedad entre dos o más propiedades, el agente pregunta con una lista de opciones (RF-GW-02) en lugar de asumir; (c) la propiedad resuelta se persiste en el contexto de la conversación. *Árbitro:* `tests/agente/test_enrutador.py` con 20 conversaciones sintéticas etiquetadas.
-- **RF-AG-02 — Carga de prompts por propiedad.** Carga `docs/prompts/system-prompt-enrutador.md` al inicio y, resuelta la propiedad, el prompt de `glamping` o `departamentos` con los datos de la propiedad inyectados. *Criterios:* (a) los prompts se leen de disco en el arranque y se versionan con hash en cada traza; (b) el prompt de departamentos nunca contiene datos de otro departamento distinto del resuelto. *Árbitro:* `tests/agente/test_prompts.py`.
+- **RF-AG-02 — Carga de prompts por propiedad.** Carga `docs/prompts/system-prompt-enrutador.md` al inicio y, resuelta la propiedad, el prompt de `glamping`, `departamentos` u `hospedaje`, según el tipo, con los datos de la propiedad inyectados. *Criterios:* (a) los prompts se leen de disco en el arranque y se versionan con hash en cada traza; (b) el prompt de departamentos nunca contiene datos de otro departamento distinto del resuelto. *Árbitro:* `tests/agente/test_prompts.py`.
 - **RF-AG-03 — Exposición selectiva de herramientas.** Expone a Claude solo las herramientas pertinentes a la propiedad y al rol del interlocutor (allowlist por acción, §3 de este PRD). *Criterios:* (a) un huésped nunca ve herramientas de ventas; (b) un vendedor nunca ve herramientas de reservas; (c) el conjunto expuesto queda registrado en la traza de la llamada. *Árbitro:* `tests/agente/test_allowlist_herramientas.py`.
 - **RF-AG-04 — Orquestación de herramientas.** Ejecuta el bucle de *tool use* (llamada → resultado → nueva llamada) con un máximo configurable de iteraciones. *Criterios:* (a) tope por defecto 6 iteraciones; al superarlo el agente responde con un mensaje de escalamiento (CU-08); (b) cada resultado de herramienta pasa por la redacción de PII (RF-SEC-05) antes de volver al modelo; (c) una herramienta que falla devuelve un error tipado y el agente lo comunica sin inventar el resultado. *Árbitro:* `tests/agente/test_bucle_herramientas.py`.
 - **RF-AG-05 — Manejo de errores y degradación.** Ante caída de Claude, del PMS o del RAG, el agente degrada de forma explícita. *Criterios:* (a) timeout de modelo configurable (por defecto 30 s) con un mensaje de disculpa y handoff; (b) si el RAG no responde, el agente no responde preguntas de políticas o precios: ofrece handoff; (c) cada degradación se registra con causa en la traza; (d) antes de la fase 4 el escalamiento entrega el contacto humano configurado. *Árbitro:* `tests/agente/test_degradacion.py` con fallos inyectados.
@@ -560,7 +560,7 @@ erDiagram
 
 | Entidad | Sala dueña | Atributos clave | Notas |
 | :--- | :--- | :--- | :--- |
-| **Propiedad** | `pms_conector` | `propiedad_id`, `tipo` (glamping/departamento), `nombre`, `zona_id`, `direccion`, `pms_ref`, `prompt_variante`, `activa` | Unidad de enrutamiento y de filtro RAG/RLS. `conocimiento` solo guarda su identificador. |
+| **Propiedad** | `pms_conector` | `propiedad_id`, `tipo` (`hospedaje.tipos` en `dominio.yaml`), `nombre`, `zona_id`, `direccion`, `pms_ref`, `prompt_variante`, `activa` | Unidad de enrutamiento y de filtro RAG/RLS. `conocimiento` solo guarda su identificador. |
 | **Unidad** | `pms_conector` | `unidad_id`, `propiedad_id`, `nombre`, `capacidad`, `edificio`, `piso`, `acceso_ref`, `wifi_ref` | Los códigos son secretos operativos en la bóveda (RF-SEC-08). |
 | **Zona** | `crm_conector` (asignación) | `zona_id`, `nombre`, `gestor_principal_id`, `gestor_respaldo_id` | Base del handoff por zona. |
 | **Huésped** | `seguridad` (identidad tokenizada) | `huesped_id`, `telefono_token`, `nombre_token`, `idioma`, `crm_ref` | PII solo en la bóveda de tokens de `seguridad`. |
@@ -790,6 +790,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.3.2 | 2026-10-31 | Diez tipos de hospedaje y prompt general `hospedaje` para los tipos sin prompt propio. | Pedido del propietario; plataforma de ADR-0018. |
 | 0.3.1 | 2026-10-31 | Calendario propio en lugar de un PMS externo: RF-PMS-07 y 08, dos tablas, `INV_SIN_DOBLE_RESERVA` y `actualizar_calendario`. Se retira T-204. | Decisión del propietario; [ADR-0007](adr/ADR-0007-pms-definitivo.md). |
 | 0.3.0 | 2026-10-31 | Sala `anfitriones`, rol `anfitrion`, US-19 y 20, RF-ANF-01..08, cuatro herramientas, cuatro invariantes, T-305, T-306, T-405 y T-506. | Modelo de comisión con pago directo tras comparar plataformas; [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md). |
 | 0.2.9 | 2026-10-31 | El producto pasa a ser una plataforma local de hospedajes. Los datos de Glamping Imbabura dejan de ser requisito de la fase 1. | Decisión del propietario; [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md). |

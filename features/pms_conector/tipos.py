@@ -12,7 +12,15 @@ from enum import Enum
 # ¤pms-conector
 class TipoPropiedad(str, Enum):
     GLAMPING = "glamping"
+    CABANA = "cabana"
+    CASA = "casa"
     DEPARTAMENTO = "departamento"
+    HABITACION = "habitacion"
+    HOSTAL = "hostal"
+    HOSTERIA = "hosteria"
+    HOTEL = "hotel"
+    HACIENDA = "hacienda"
+    OTRO = "otro"
 
 
 # ¤pms-conector

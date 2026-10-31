@@ -342,7 +342,7 @@ arbitro = "tests/integracion/test_fase3.py (agente + herramientas + FakePMS + RA
 
 ## Ola 3 — Fase 4: Multi-propiedad
 
-### T-301 — Agente: enrutador multi-propiedad, herramientas por rol, prompts de enrutador y departamentos
+### T-301 — Agente: enrutador multi-propiedad, herramientas por rol, prompts de enrutador, departamentos y hospedaje general
 `¤agente-enrutador`
 ```toml
 id = "T-301"

@@ -18,7 +18,7 @@ Dar disponibilidad, tarifas y reservas detrás de tipos del dominio, para que el
 ## Tipos del dominio
 
 ```python
-class TipoPropiedad(str, Enum): GLAMPING, DEPARTAMENTO
+class TipoPropiedad(str, Enum): GLAMPING, CABANA, CASA, DEPARTAMENTO, HABITACION, HOSTAL, HOSTERIA, HOTEL, HACIENDA, OTRO
 @dataclass(frozen=True)
 class Propiedad: propiedad_id: str; tipo: TipoPropiedad; nombre: str; zona_id: str; direccion: str; activa: bool; pms_ref: str
 @dataclass(frozen=True)

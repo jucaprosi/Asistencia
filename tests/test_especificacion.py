@@ -173,8 +173,20 @@ def test_tipos_de_las_salas_coinciden_con_el_dominio() -> None:
     assert _valores_enum("comisiones", "EstadoComision") == set(DOMINIO["comision"]["estados"])
     assert _valores_enum("comisiones", "TipoRegla") == set(DOMINIO["comision"]["tipos_regla"])
     assert _valores_enum("comisiones", "ModoEscalon") == set(DOMINIO["comision"]["modos_escalon"])
+    assert _valores_enum("pms_conector", "TipoPropiedad") == set(DOMINIO["hospedaje"]["tipos"])
     assert _valores_enum("anfitriones", "EstadoSolicitud") == set(DOMINIO["anfitriones"]["solicitud"]["estados"])
     assert _valores_enum("anfitriones", "EstadoCuenta") == set(DOMINIO["anfitriones"]["estado_cuenta"]["estados"])
+
+
+# ¤spec-glamping
+def test_tipos_de_hospedaje_y_prompts_coinciden() -> None:
+    hospedaje = DOMINIO["hospedaje"]
+    tipos = re.search(r"CREATE TABLE pms\.propiedades \(.*?tipo\s+text NOT NULL CHECK \(tipo IN \(([^)]*)\)", ESQUEMA, flags=re.S)
+    assert tipos and set(re.findall(r"'(\w+)'", tipos.group(1))) == set(hospedaje["tipos"])
+    variantes = re.search(r"prompt_variante IN \(([^)]*)\)", ESQUEMA)
+    assert variantes and set(re.findall(r"'(\w+)'", variantes.group(1))) == set(hospedaje["variantes_prompt"])
+    for variante in hospedaje["variantes_prompt"]:
+        assert (RAIZ / "docs" / "prompts" / f"system-prompt-{variante}.md").is_file(), variante
 
 
 # ¤spec-glamping

@@ -222,12 +222,12 @@ CREATE POLICY chunks_por_propiedad ON conocimiento.chunks
 -- Sala pms_conector: catálogo local y referencias; la fuente de verdad de reservas es el PMS
 CREATE TABLE pms.propiedades (
   propiedad_id     text PRIMARY KEY,
-  tipo             text NOT NULL CHECK (tipo IN ('glamping','departamento')),
+  tipo             text NOT NULL CHECK (tipo IN ('glamping','cabana','casa','departamento','habitacion','hostal','hosteria','hotel','hacienda','otro')),
   nombre           text NOT NULL,
   zona_id          text NOT NULL,
   direccion        text NOT NULL,
   pms_ref          text,
-  prompt_variante  text NOT NULL CHECK (prompt_variante IN ('glamping','departamentos')),
+  prompt_variante  text NOT NULL CHECK (prompt_variante IN ('glamping','departamentos','hospedaje')),
   activa           boolean NOT NULL DEFAULT true
 );
 
