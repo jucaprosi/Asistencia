@@ -10,10 +10,17 @@ reintentos:
   backoff_s: [1, 4, 10]
 ventana_servicio_horas: 24
 plantillas:
-  - {nombre: instrucciones_checkin, idioma: es, variables: [nombre, propiedad, hora], aprobada: false}
-  - {nombre: recordatorio_llegada, idioma: es, variables: [nombre, propiedad, fecha], aprobada: false}
-  - {nombre: comision_validada, idioma: es, variables: [nombre, ticket, comision], aprobada: false}
-  - {nombre: incidencia_actualizada, idioma: es, variables: [nombre, incidencia, estado], aprobada: false}
+  - {nombre: instrucciones_checkin, idioma: es, categoria: utility, variables: [nombre, propiedad, hora], aprobada: false}
+  - {nombre: recordatorio_llegada, idioma: es, categoria: utility, variables: [nombre, propiedad, fecha], aprobada: false}
+  - {nombre: comision_validada, idioma: es, categoria: utility, variables: [nombre, ticket, comision], aprobada: false}
+  - {nombre: venta_rechazada, idioma: es, categoria: utility, variables: [nombre, ticket, motivo], aprobada: false}
+  - {nombre: incidencia_actualizada, idioma: es, categoria: utility, variables: [nombre, incidencia, estado], aprobada: false}
+  - {nombre: handoff_asignado, idioma: es, categoria: utility, variables: [gestor, propiedad, motivo], aprobada: false}
+  - {nombre: seguimiento_atencion, idioma: es, categoria: utility, variables: [nombre, propiedad], aprobada: false}
+  - {nombre: codigo_acceso_panel, idioma: es, categoria: authentication, variables: [codigo], aprobada: false}
+ingesta:
+  reintentos_evento: 5
+  agrupacion_segundos: 3
 canal_vendedores:
   modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (se fija al validar S-01 en TASK-001)
   grupo_id: ${CANAL_VENDEDORES_GRUPO_ID:-}

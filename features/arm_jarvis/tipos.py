@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Mapping
 
 
 # ¤arm-jarvis
@@ -42,6 +43,9 @@ class VentaExtraida:
     confianza: float
     campos_faltantes: tuple[str, ...] = ()
     es_venta: bool = True
+    noches: int | None = None
+    fecha_llegada: date | None = None
+    confianza_campos: Mapping[str, float] = field(default_factory=dict)
 
 
 # ¤arm-jarvis

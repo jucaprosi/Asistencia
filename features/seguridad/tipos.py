@@ -9,11 +9,13 @@ from enum import Enum
 
 # ¤seguridad-canal
 class Rol(str, Enum):
-    HUESPED = "huesped"
+    HUESPED_POTENCIAL = "huesped_potencial"
+    HUESPED_ACTIVO = "huesped_activo"
     VENDEDOR = "vendedor"
     LIDER = "lider"
     GESTOR = "gestor"
     ADMINISTRADOR = "administrador"
+    SISTEMA = "sistema"
     DESCONOCIDO = "desconocido"
 
 

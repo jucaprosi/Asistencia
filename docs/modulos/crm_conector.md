@@ -13,7 +13,7 @@
 | Decisión | Interfaz propia; CRM adoptado `[DECISIÓN PENDIENTE]` ADR-0008. Con ADR-0013 el CRM queda como sistema de registro de contactos y oportunidades (y opcionalmente inbox); la UI operativa es el panel propio. |
 
 ## Propósito
-Publicar ventas y contactos al CRM de forma firmada e idempotente, recibir sus eventos, y asignar conversaciones a su inbox si ADR-0010 lo mantiene. Aísla al proveedor: `agente`, `arm_jarvis` y `panel_operativo` solo ven esta compuerta.
+Publicar ventas y contactos al CRM de forma firmada e idempotente, recibir sus eventos, y ser dueña de zonas y handoffs (RF-CRM-06). La bandeja es el panel; el inbox del proveedor es un espejo opcional sujeto a ADR-0010. Aísla al proveedor: `agente`, `arm_jarvis` y `panel_operativo` solo ven esta compuerta.
 
 ## Tipos del dominio
 
@@ -38,7 +38,7 @@ class CRMConectorService:
     def actualizar_oportunidad(self, oportunidad_id: str, datos: Mapping[str, Any]) -> Oportunidad: ...
     def publicar_venta(self, venta: Mapping[str, Any]) -> PublicacionVenta: ...                  # HMAC-SHA256 + venta_id (RF-CRM-03)
     def procesar_cola(self) -> int: ...                                                           # reintentos hasta 24 h (RF-CRM-04)
-    def asignar_conversacion(self, conversacion_id: str, zona_id: str, resumen: str) -> str: ...  # inbox del proveedor o panel (ADR-0010)
+    def solicitar_handoff(self, conversacion_id: str, zona_id: str, resumen: str) -> str: ...  # crea el handoff en crm.handoffs y lo refleja en el inbox si ADR-0010 lo mantiene
     def enviar_mensaje(self, conversacion_id: str, texto: str) -> str: ...
     def recibir_evento(self, cuerpo: bytes, firma: str) -> EventoCRM: ...                         # POST /crm/eventos
     def registrar_receptor(self, tipo: str, receptor: Callable[[EventoCRM], None]) -> None: ...    # app_core enlaza arm/agente/panel
@@ -48,7 +48,7 @@ class CRMConectorService:
 `proveedor: fake|ghl|chatwoot_attio`, `credenciales {url: ${CRM_URL}, token: ${CRM_TOKEN}, location_id}`, `webhook_ventas {url: ${CRM_INBOUND_WEBHOOK_URL}, secreto_hmac: ${CRM_HMAC_SECRET}, cabecera_firma: X-Glamping-Signature}`, `eventos_entrantes {secreto: ${CRM_EVENTS_SECRET}}`, `cola {backoff_s: [30, 120, 600, 3600], max_horas: 24}`, `mapeo_pipeline {etapa_por_validar, etapa_validada, etapa_rechazada}`, `inbox {usar_proveedor: true}`.
 
 ## Compuertas que consume
-`observabilidad`. Si `inbox.usar_proveedor` es falso, `asignar_conversacion` delega en `panel_operativo` (a través de `app_core`, que enlaza el receptor; la sala no importa al panel).
+`observabilidad`. El panel lee y actúa sobre los handoffs por esta compuerta y, al devolver, `app_core` enlaza `agente.reanudar`.
 
 ## Errores
 `CRMNoDisponible`, `ContactoDuplicado`, `WebhookRechazado` (→ cola), `LimiteDeTasa` (→ cola con backoff), `FirmaEventoInvalida` (401).

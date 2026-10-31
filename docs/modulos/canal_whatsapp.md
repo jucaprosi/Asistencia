@@ -62,7 +62,7 @@ class CanalWhatsappService:
 `numero_id`, `cuenta_negocio_id`, `token_acceso: ${META_ACCESS_TOKEN}`, `verify_token: ${META_VERIFY_TOKEN}`, `secreto_app: ${META_APP_SECRET}`, `version_api`, `reintentos {max: 3, backoff_s: [1, 4, 10]}`, `ventana_servicio_horas: 24`, `plantillas: [{nombre, idioma, variables, aprobada}]`, `canal_vendedores {modo: grupo|uno_a_uno, grupo_id}`, `medios {bucket, prefijo, max_mb}`, `audio {transcribir: false}`.
 
 ## Compuertas que consume
-`observabilidad` (traza, logs), `seguridad` (solo para `descargar_medio`: no descarga medios de remitentes fuera de whitelist). No consume `agente` ni `arm_jarvis`: les entrega mensajes por el receptor registrado (inversión de dependencias).
+`observabilidad` (traza, logs), `seguridad` (solo para `descargar_medio`: no descarga medios de números bloqueados ni de remitentes descartados). No consume `agente` ni `arm_jarvis`: les entrega mensajes por el receptor registrado (inversión de dependencias).
 
 ## Errores
 `FirmaInvalida` (401), `MensajeDuplicado` (descartado silencioso), `FueraDeVentana`, `PlantillaNoAprobada`, `VariablesPlantillaInvalidas`, `ApiMetaNoDisponible` (tras reintentos), `MedioNoPermitido`.

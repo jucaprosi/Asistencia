@@ -26,7 +26,7 @@
 5. **Rutas reservadas al coordinador** (solo tareas `T-x10`, `T-x11` y de infraestructura): `app_core/**`, `compose.yaml`,
    `compose.production.yaml`, `Dockerfile`, `infra/**`, `.env.example`, `pyproject.toml`, `.github/**`, `scripts/arnes_glamping.py`,
    `scripts/verificar_secretos.py`, `tests/conftest.py`, `tests/test_*.py` (raíz), `tests/integracion/**`, `tests/app_core/**`,
-   `governance/**`, `docs/PRD.md`, `docs/ARQUITECTURA.md`, `docs/FRONTEND.md`, `docs/adr/**`, `README.md`, `CLAUDE.md`.
+   `governance/**`, `docs/PRD.md`, `docs/spec/**`, `docs/ARQUITECTURA.md`, `docs/FRONTEND.md`, `docs/adr/**`, `README.md`, `CLAUDE.md`.
 6. **Una tarea abierta por sala a la vez.** Las tareas sobre la misma sala en olas distintas son secuenciales por `depende_de`.
 7. **Sellado individual.** Cada tarea termina con `ejecutar_arnes_glamping` en Exit Code 0 sobre todo el repositorio (no solo
    su sala), huellas `¦` consolidadas a `¤` y su bloque de este archivo en `estado = "sellada"`.
@@ -35,15 +35,19 @@
 9. **Evaluaciones.** Cada sala con suite expone `evaluar(...)` en su compuerta y es dueña de su archivo de casos en `evals/`.
    `scripts/run_evals.py` (sala `observabilidad`) solo despacha a esas compuertas y aplica los umbrales de
    `config_observabilidad.yaml`.
+10. **Toda tarea traduce la especificación.** Una tarea implementa los contratos de `docs/spec/contratos/`, las tablas de su
+    esquema en `docs/spec/esquema.sql` y los escenarios de `docs/spec/features/` con las etiquetas de sus `requisitos`. No
+    interpreta: si la especificación no alcanza, se detiene y el coordinador la corrige primero. La matriz está en
+    `docs/spec/TRAZABILIDAD.md`.
 
 ## 2. Matriz de propiedad por sala (constante en todas las olas)
 
 | Sala | Rutas propias además de `features/<sala>/**`, `tests/<sala>/**`, `docs/modulos/<sala>.md` | Rol |
 | :--- | :--- | :--- |
 | `canal_whatsapp` | — | `¤¤integration-engineer` |
-| `seguridad` | `evals/inyecciones.jsonl` | `¤¤security-engineer` |
+| `seguridad` | `evals/inyecciones.jsonl`, `evals/pii.jsonl`, `docs/privacidad/**` | `¤¤security-engineer` |
 | `agente` | `docs/prompts/**`, `evals/enrutador.jsonl` | `¤¤machine-learning-engineer` |
-| `conocimiento` | `scripts/seed_knowledge.py`, `evals/set_dorado.jsonl`, `docs/negocio/README.md` (checklist; el contenido del corpus lo entrega el negocio) | `¤¤data-engineer` |
+| `conocimiento` | `scripts/seed_knowledge.py`, `evals/set_dorado.jsonl`, `docs/negocio/README.md` (checklist; el corpus lo entrega el negocio en `CORPUS_DIR`, fuera del repositorio) | `¤¤data-engineer` |
 | `pms_conector` | — | `¤¤integration-engineer` |
 | `herramientas_glamping` | — | `¤¤backend-developer` |
 | `crm_conector` | — | `¤¤integration-engineer` |
@@ -84,7 +88,7 @@ fase = 1
 estado = "pendiente"
 sala = "canal_whatsapp"
 rol = "¤¤integration-engineer"
-requisitos = ["RF-GW-01", "RF-GW-02", "RF-GW-03", "RF-GW-04", "RF-GW-05"]
+requisitos = ["RF-GW-01", "RF-GW-02", "RF-GW-03", "RF-GW-04", "RF-GW-05", "RF-GW-07", "RF-GW-08"]
 depende_de = ["TASK-000"]
 bloqueada_por = []
 propiedad = ["features/canal_whatsapp/**", "tests/canal_whatsapp/**", "docs/modulos/canal_whatsapp.md"]
@@ -93,7 +97,7 @@ arbitro = "tests/canal_whatsapp/{test_webhook,test_envio,test_ventana_24h,test_p
 ```
 Entregables: `webhook_internal.py` (verificación, firma, dedup), `envio_internal.py` (texto, botones, listas, estados, reintentos), `plantillas_internal.py`, `medios_internal.py`, persistencia `esquema canal`. Dobles propios de `seguridad` y `observabilidad` en `tests/canal_whatsapp/dobles.py`. **Hecho cuando** los cinco tests existen y pasan, `INV_FIRMA_WEBHOOK_META` e `INV_VENTANA_24H` tienen prueba que falla si se quita la validación. La prueba con el número real es de T-111.
 
-### T-102 — Seguridad básica: whitelist, rate limit, bóveda de PII
+### T-102 — Seguridad base: identidad, allowlist, rate limit, inyección, PII, audit log y consentimiento
 `¤seguridad-canal`
 ```toml
 id = "T-102"
@@ -102,14 +106,14 @@ fase = 1
 estado = "pendiente"
 sala = "seguridad"
 rol = "¤¤security-engineer"
-requisitos = ["RF-SEC-01", "RF-SEC-03", "RF-SEC-05"]
+requisitos = ["RF-SEC-01", "RF-SEC-02", "RF-SEC-03", "RF-SEC-04 (base)", "RF-SEC-05", "RF-SEC-06", "RF-PRIV-01", "RF-PRIV-02", "RNF-18"]
 depende_de = ["TASK-000"]
 bloqueada_por = []
-propiedad = ["features/seguridad/**", "tests/seguridad/**", "docs/modulos/seguridad.md", "evals/inyecciones.jsonl"]
+propiedad = ["features/seguridad/**", "tests/seguridad/**", "docs/modulos/seguridad.md", "evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/**"]
 consume = ["observabilidad_service"]
-arbitro = "tests/seguridad/{test_whitelist,test_rate_limit,test_pii}.py; arnés Exit Code 0"
+arbitro = "tests/seguridad/{test_identidad,test_allowlist,test_rate_limit,test_pii,test_audit_log,test_consentimiento,test_inventario_datos}.py; arnés Exit Code 0"
 ```
-Entregables: `whitelist_internal.py`, `rate_limit_internal.py`, `pii_internal.py` (tokenizar/rehidratar con bóveda cifrada), `identificar`, `filtrar_entrada` (sin filtro de inyección aún: deja el punto de extensión), `filtrar_salida`. `evals/inyecciones.jsonl` queda creado vacío y reservado para T-401. **Hecho cuando** `test_rate_limit.py` intenta desactivar el límite con cada rol y falla, y `test_pii.py` captura el cliente HTTP de un doble de modelo sin ningún teléfono en claro.
+Entregables: `identidad_internal.py`, `allowlist_internal.py`, `audit_internal.py` (`INSERT`-only), `consentimiento_internal.py`, `rate_limit_internal.py`, `pii_internal.py` (tokenizar/rehidratar con bóveda cifrada), `identificar`, `filtrar_entrada` con los patrones base de inyección, `filtrar_salida`, inventario en `docs/privacidad/INVENTARIO.md`. `evals/inyecciones.jsonl` queda creado vacío y reservado para T-401. **Hecho cuando** `test_rate_limit.py` intenta desactivar el límite con cada rol y falla, y `test_pii.py` captura el cliente HTTP de un doble de modelo sin ningún teléfono en claro.
 
 ### T-103 — Observabilidad básica: logs JSON sin PII y traza por mensaje
 `¤observabilidad`
@@ -156,7 +160,7 @@ fase = 1
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤solutions-architect"
-requisitos = ["RF-GW-01 (ruta)", "RNF-14"]
+requisitos = ["RF-GW-01 (ruta)", "RNF-08", "RNF-11", "RNF-12", "RNF-14", "RNF-19"]
 depende_de = ["T-101", "T-102", "T-103", "T-104"]
 bloqueada_por = []
 propiedad = ["app_core/**", "tests/app_core/**", "compose.yaml", "compose.production.yaml", ".env.example"]
@@ -214,7 +218,7 @@ fase = 3
 estado = "pendiente"
 sala = "pms_conector"
 rol = "¤¤integration-engineer"
-requisitos = ["RF-PMS-01", "RF-PMS-02 (fake)", "RF-PMS-03", "RF-PMS-04"]
+requisitos = ["RF-PMS-01", "RF-PMS-02 (fake)", "RF-PMS-03", "RF-PMS-04", "RF-PMS-05"]
 depende_de = ["TASK-000"]
 bloqueada_por = []
 propiedad = ["features/pms_conector/**", "tests/pms_conector/**", "docs/modulos/pms_conector.md"]
@@ -304,7 +308,7 @@ fase = 3
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
-requisitos = ["US-01", "US-02", "US-04", "RNF-02"]
+requisitos = ["US-01", "US-02", "US-04", "US-12", "RNF-02"]
 depende_de = ["T-210"]
 bloqueada_por = []
 propiedad = ["tests/integracion/**", "governance/tareas/TASK-002-rag.md", "governance/tareas/TASK-003-pms-mcp.md"]
@@ -344,7 +348,7 @@ fase = 4
 estado = "pendiente"
 sala = "crm_conector"
 rol = "¤¤integration-engineer"
-requisitos = ["RF-CRM-01", "RF-CRM-02 (fake)", "RF-MCP-06 (respaldo)"]
+requisitos = ["RF-CRM-01", "RF-CRM-02 (fake)", "RF-CRM-06", "RF-MCP-06 (real)"]
 depende_de = ["TASK-000"]
 bloqueada_por = []
 propiedad = ["features/crm_conector/**", "tests/crm_conector/**", "docs/modulos/crm_conector.md"]
@@ -380,7 +384,7 @@ fase = 4
 estado = "pendiente"
 sala = "seguridad"
 rol = "¤¤security-engineer"
-requisitos = ["RF-SEC-07", "INV_RLS_MULTI_INQUILINO"]
+requisitos = ["RF-SEC-07", "RF-SEC-08", "INV_RLS_MULTI_INQUILINO", "INV_SECRETO_OPERATIVO"]
 depende_de = ["T-102"]
 bloqueada_por = []
 propiedad = ["features/seguridad/**", "tests/seguridad/**", "docs/modulos/seguridad.md", "evals/inyecciones.jsonl"]
@@ -416,7 +420,7 @@ fase = 4
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
-requisitos = ["US-03", "US-09", "US-10"]
+requisitos = ["US-03", "US-09", "US-10", "US-13"]
 depende_de = ["T-310"]
 bloqueada_por = []
 propiedad = ["tests/integracion/**", "governance/tareas/TASK-004-multipropiedad.md"]
@@ -438,14 +442,14 @@ fase = 5
 estado = "pendiente"
 sala = "seguridad"
 rol = "¤¤security-engineer"
-requisitos = ["RF-SEC-02", "RF-SEC-04", "RF-SEC-06", "OP-10"]
+requisitos = ["RF-SEC-04", "RF-PRIV-03", "RF-PRIV-04", "RF-PRIV-05", "RF-PRIV-06", "OP-10", "RNF-07", "RNF-17"]
 depende_de = ["T-304"]
 bloqueada_por = []
 propiedad = ["features/seguridad/**", "tests/seguridad/**", "docs/modulos/seguridad.md", "evals/inyecciones.jsonl"]
 consume = ["observabilidad_service"]
-arbitro = "tests/seguridad/{test_allowlist,test_audit_log}.py; SeguridadService.evaluar(inyecciones) = 0 éxitos y ≤ 2 % falsos positivos; arnés Exit Code 0"
+arbitro = "tests/seguridad/{test_retencion,test_criptoborrado,test_solicitudes_titular,test_inventario_datos}.py; SeguridadService.evaluar(inyecciones) = 0 éxitos y ≤ 2 % falsos positivos; suite pii sobre umbral; arnés Exit Code 0"
 ```
-Entregables: `allowlist_internal.py`, `injection_internal.py` + `patrones_inyeccion.yaml` (≥ 40 patrones, es/en/pt/fr, heurísticas), `audit_internal.py` (`INSERT`-only), `informe_semanal`, `administrar_whitelist`, `evals/inyecciones.jsonl` completo. **Hecho cuando** `test_allowlist.py` enumera cada rol y `test_audit_log.py` demuestra que `UPDATE`/`DELETE` fallan con el rol de aplicación.
+Entregables: `injection_internal.py` + `patrones_inyeccion.yaml` (≥ 40 patrones, es/en/pt/fr, heurísticas), `retencion_internal.py`, `titulares_internal.py` (solicitudes y criptoborrado), `informe_semanal`, `administrar_usuarios`, `evals/inyecciones.jsonl` completo. **Hecho cuando** las suites `inyecciones` y `pii` superan su umbral y el criptoborrado no altera el audit log.
 
 ### T-402 — Observabilidad completa: despacho de evaluaciones, métricas del PRD, alertas
 `¤observabilidad`
@@ -492,14 +496,14 @@ fase = 5
 estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
-requisitos = ["RF-PAN-09 (whitelist, auditoría, salud)", "RF-PAN-10"]
+requisitos = ["RF-PAN-09 (usuarios, auditoría, privacidad, salud)", "RF-PAN-10"]
 depende_de = ["T-303"]
 bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
 consume = ["seguridad_service", "observabilidad_service"]
 arbitro = "tests/panel_operativo/test_bff_admin.py (cada rol); tests/e2e/test_calidad_ui.py (accesibilidad AA, LCP ≤ 2,5 s, 0 rastros en el build); arnés Exit Code 0"
 ```
-Entregables: P-11 whitelist y roles, auditoría, salud del sistema; auditoría de accesibilidad y presupuesto de rendimiento en CI; `tests/test_interfaz_purificada.py` extendido al build (coordinado con T-410, que es dueño de ese archivo: el panel entrega la función de comprobación en su sala y el coordinador la invoca).
+Entregables: P-11 usuarios, roles y bloqueos, auditoría, solicitudes de titulares, salud del sistema; auditoría de accesibilidad y presupuesto de rendimiento en CI; `tests/test_interfaz_purificada.py` extendido al build (coordinado con T-410, que es dueño de ese archivo: el panel entrega la función de comprobación en su sala y el coordinador la invoca).
 
 ### T-410 — Infraestructura beta: prueba de carga, aislamiento de red, alertas de despliegue
 `¤infra-hibrida`
@@ -528,7 +532,7 @@ fase = 5
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
-requisitos = ["OP-10", "RNF-06", "RNF-10", "RNF-13"]
+requisitos = ["OP-10", "RNF-06", "RNF-10", "RNF-13", "US-11", "US-17"]
 depende_de = ["T-410"]
 bloqueada_por = []
 propiedad = ["governance/tareas/TASK-005-seguridad-observabilidad.md"]
@@ -550,7 +554,7 @@ fase = 6
 estado = "pendiente"
 sala = "comisiones"
 rol = "¤¤backend-developer"
-requisitos = ["RF-COM-01", "RF-COM-02", "INV_COMISION_REPRODUCIBLE"]
+requisitos = ["RF-COM-01", "RF-COM-02", "RF-COM-04", "INV_COMISION_REPRODUCIBLE"]
 depende_de = ["TASK-000"]
 bloqueada_por = ["ADR-0009 (solo si decide que el CRM es la fuente de verdad)"]
 propiedad = ["features/comisiones/**", "tests/comisiones/**", "docs/modulos/comisiones.md"]
@@ -568,7 +572,7 @@ fase = 6
 estado = "pendiente"
 sala = "arm_jarvis"
 rol = "¤¤backend-developer"
-requisitos = ["RF-ARM-01", "RF-ARM-02", "RF-ARM-03", "RF-ARM-04", "RF-ARM-05", "RF-ARM-06", "RF-ARM-07", "RF-ARM-09", "OP-07", "OP-08"]
+requisitos = ["RF-ARM-01", "RF-ARM-02", "RF-ARM-03", "RF-ARM-04", "RF-ARM-05", "RF-ARM-06", "RF-ARM-07", "RF-ARM-09", "RF-ARM-10", "OP-07", "OP-08", "RNF-03"]
 depende_de = ["TASK-000"]
 bloqueada_por = ["S-01 (define canal.modo; la lógica no cambia)"]
 propiedad = ["features/arm_jarvis/**", "tests/arm_jarvis/**", "docs/modulos/arm_jarvis.md", "evals/ventas.jsonl"]
@@ -657,7 +661,7 @@ fase = 6
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
-requisitos = ["US-05", "US-06", "US-07", "OP-07", "OP-08"]
+requisitos = ["US-05", "US-06", "US-07", "US-15", "OP-07", "OP-08"]
 depende_de = ["T-510"]
 bloqueada_por = []
 propiedad = ["tests/integracion/**", "governance/tareas/TASK-006-arm-jarvis.md"]
@@ -766,7 +770,7 @@ fase = 7
 estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
-requisitos = ["RNF-09", "US-08", "ON-03"]
+requisitos = ["RNF-09", "RNF-10", "US-08", "US-14", "US-16", "ON-03"]
 depende_de = ["T-610"]
 bloqueada_por = []
 propiedad = ["governance/tareas/TASK-007-integracion-crm.md"]

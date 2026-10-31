@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 db_url: ${DATABASE_URL:-}
+corpus_dir: ${CORPUS_DIR:-datos_privados/corpus}   # fuera del repositorio público
 embeddings:
   proveedor: ${EMBEDDINGS_PROVEEDOR:-por_definir}
   modelo: ${EMBEDDINGS_MODELO:-por_definir}

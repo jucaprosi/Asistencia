@@ -3,7 +3,7 @@
 """Ejecuta las suites de evaluación (RF-OBS-03) y falla bajo umbral.
 
 Fase 0: declara las suites y sus archivos; una suite sin archivo se reporta OMITIDA. El evaluador real de cada
-suite llega con su tarea (rag: TASK-002, enrutador: TASK-004, inyecciones: TASK-005, ventas: TASK-006).
+suite llega con su tarea (pii: T-102, rag: T-201, enrutador: T-301, inyecciones: T-401, ventas: T-502).
 Uso: ``python scripts/run_evals.py [--suite nombre]``.
 """
 from __future__ import annotations
@@ -17,6 +17,7 @@ SUITES = {
     "enrutador": RAIZ / "evals" / "enrutador.jsonl",
     "inyecciones": RAIZ / "evals" / "inyecciones.jsonl",
     "ventas": RAIZ / "evals" / "ventas.jsonl",
+    "pii": RAIZ / "evals" / "pii.jsonl",
 }
 
 
@@ -27,6 +28,8 @@ def evaluar_suite(nombre: str) -> tuple[str, int]:
     if not archivo.is_file():
         return f"OMITIDA (falta {archivo.relative_to(RAIZ)})", 0
     casos = [linea for linea in archivo.read_text(encoding="utf-8").splitlines() if linea.strip()]
+    if not casos:
+        return f"OMITIDA ({archivo.relative_to(RAIZ)} sin casos todavía)", 0
     return f"PENDIENTE DE EVALUADOR ({len(casos)} casos; evaluador llega con su tarea)", 1
 
 

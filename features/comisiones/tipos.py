@@ -58,6 +58,8 @@ class Comision:
     periodo_id: str
     estado: EstadoComision
     ajuste_de: str | None = None
+    base_acumulada: Decimal = Decimal("0")
+    periodo_origen: str | None = None
 
 
 # ¤comisiones

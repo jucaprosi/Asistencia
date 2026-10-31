@@ -7,6 +7,17 @@ on:
 jobs:
   arnes:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -20,8 +31,10 @@ jobs:
       - name: Arnés físico (UTF-8, secretos, pytest, evaluaciones, compose)
         run: bash ejecutar_arnes_glamping.sh
 
-      - name: Validar compose con docker
-        run: cp .env.example .env && docker compose -f compose.yaml -f compose.production.yaml config -q
+      - name: Aplicar y verificar el esquema canónico en PostgreSQL real
+        run: |
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/esquema.sql
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/verificacion_esquema.sql
 
       - name: Publicar certificado
         if: always()

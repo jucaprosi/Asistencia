@@ -29,6 +29,7 @@ Este proyecto construye **lo que diferencia al negocio** (motor conversacional c
 | [`docs/adr/`](docs/adr/README.md) | Decisiones aceptadas (0001–0006, 0013) y pendientes (0007–0012). |
 | [`docs/prompts/`](docs/prompts/system-prompt-enrutador.md) | Borradores de los system prompts (enrutador, glamping, departamentos). |
 | [`docs/negocio/`](docs/negocio/README.md) | Checklist del corpus que el negocio debe entregar para el RAG. |
+| [`docs/spec/`](docs/spec/README.md) | Especificación ejecutable: contratos, DDL, escenarios Gherkin y trazabilidad. |
 | [`governance/artefactos/`](governance/artefactos/PRD.md) | Catálogo de salas, invariantes con árbitro, fuentes, índice de rastros, problemas. |
 | [`governance/tareas/`](governance/tareas/README.md) | Una tarea por fase con sala, archivos propios, dependencias y árbitro. |
 
@@ -55,12 +56,12 @@ El sistema es un submarino de salas estancas bajo `features/`; cada sala expone 
 | Sala | Qué hace | Compuerta |
 | :--- | :--- | :--- |
 | `canal_whatsapp` | Cloud API oficial de Meta: webhook, envío, ventana de 24 h, plantillas, medios. | `canal_whatsapp_service.py` |
-| `seguridad` | Whitelist, allowlist por acción, rate limit, filtro de inyección, redacción de PII, audit log. | `seguridad_service.py` |
+| `seguridad` | Identidad y bloqueos, allowlist por acción, rate limit, filtro de inyección, redacción de PII, audit log. | `seguridad_service.py` |
 | `agente` | Claude con tool use, enrutador multi-propiedad, prompts, memoria, caché y enrutamiento de modelos. | `agente_service.py` |
-| `conocimiento` | RAG en pgvector sobre `docs/negocio/`, con «no lo sé» explícito. | `conocimiento_service.py` |
+| `conocimiento` | RAG en pgvector sobre el corpus privado de `CORPUS_DIR`, con «no lo sé» explícito. | `conocimiento_service.py` |
 | `pms_conector` | Interfaz al PMS (proveedor pendiente, ADR-0007). | `pms_conector_service.py` |
 | `herramientas_glamping` | Servidor MCP: disponibilidad, cotización, reserva, check-in, incidencias, handoff, venta, comisión. | `herramientas_glamping_service.py` (ejecutable: `server.py`) |
-| `crm_conector` | Interfaz al CRM e inbox (proveedor pendiente, ADR-0008); Inbound Webhook firmado. | `crm_conector_service.py` |
+| `crm_conector` | Interfaz al CRM (proveedor pendiente, ADR-0008), Inbound Webhook firmado y handoff por zona. | `crm_conector_service.py` |
 | `arm_jarvis` | Lee las ventas de los vendedores, las estructura, gestiona estados, ticket, notificaciones, tablero. | `arm_jarvis_service.py` |
 | `comisiones` | Reglas versionadas, cálculo reproducible, cierre de período, exportación. | `comisiones_service.py` |
 | `observabilidad` | Logs sin PII, trazas por mensaje, evaluaciones en CI, alertas. | `observabilidad_service.py` |

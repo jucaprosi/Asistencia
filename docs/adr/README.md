@@ -20,6 +20,7 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 | [ADR-0011](ADR-0011-mcp-comunidad.md) | Verificación de MCP de comunidad antes de usarlos | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤pms-conector` `¤crm-conector` | Implementaciones internas |
 | [ADR-0012](ADR-0012-residencia-datos.md) | Residencia de datos en Ecuador | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤infra-hibrida` | Fase 2 (datos reales) |
 | [ADR-0013](ADR-0013-panel-operativo-propio.md) | Panel operativo propio: frontend del equipo (ventas, comisiones, Jarvis, handoff, administración) | Aceptado (2026-10-30) | `¤panel-operativo` | — (habilita RF-PAN en fases 4–7) |
+| [ADR-0014](ADR-0014-decisiones-especificacion-sdd.md) | Decisiones de la especificación 0.2 para Spec-Driven Development | **Propuesto** | `¤spec-glamping` | Congelar la especificación 1.0 |
 
 ## Plantilla
 

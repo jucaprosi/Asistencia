@@ -18,9 +18,9 @@ El panel es la **única interfaz propia del equipo**. Huéspedes y vendedores no
 | :--- | :--- | :--- | :--- |
 | **Líder comercial** | Validar ventas en el momento, revisar el tablero, preguntar a Jarvis, cerrar el período. | Teléfono (validación), portátil (cierre). | Administración de seguridad; conversaciones de huéspedes salvo que también sea gestor. |
 | **Gestor de propiedad** | Atender handoffs e incidencias de **su zona**, devolver conversaciones al asistente. | Teléfono. | Ventas, comisiones, otras zonas. |
-| **Administrador** | Whitelist y roles, propiedades y zonas, reglas de comisión, plantillas, conocimiento, auditoría, salud. | Portátil. | Nada: ve todo, y todo lo que hace queda en el audit log. |
+| **Administrador** | Usuarios, roles y bloqueos, propiedades y zonas, reglas de comisión, plantillas, conocimiento, auditoría, salud. | Portátil. | Nada: ve todo, y todo lo que hace queda en el audit log. |
 
-Fuera del panel (v0.1): app nativa, modo sin conexión, multi-idioma, edición de documentos de `docs/negocio/` (se editan en el repositorio y se reindexan desde el panel).
+Fuera del panel (v0.1): app nativa, modo sin conexión, multi-idioma, edición del corpus (se edita en `CORPUS_DIR` y se reindexa desde el panel).
 
 `¤frontend-alcance/`
 
@@ -58,7 +58,7 @@ flowchart LR
     H1 --> H2[Detalle de conversación]
     H --> H3[Incidencias]
     I --> ADM[Administración]
-    ADM --> A1[Whitelist y roles]
+    ADM --> A1[Usuarios y roles]
     ADM --> A2[Propiedades y zonas]
     ADM --> A3[Reglas de comisión]
     ADM --> A4[Plantillas WhatsApp]
@@ -77,7 +77,7 @@ Visibilidad por rol: Líder → Ventas, Comisiones, Jarvis. Gestor → Conversac
 Convención de wireframes: ancho móvil 360 px; `[ ]` botón, `( )` chip de estado, `▤` lista, `…` menú secundario.
 
 ### P-01 Acceso
-Correo → el BFF busca el número en la whitelist del rol y envía un código de 6 dígitos por WhatsApp (plantilla) → código → sesión. Sin contraseñas que recordar; sin creación de cuentas desde la UI (las crea el administrador).
+Correo → el BFF busca el usuario activo y envía un código de 6 dígitos por WhatsApp (plantilla) → código → sesión. Sin contraseñas que recordar; sin creación de cuentas desde la UI (las crea el administrador).
 
 ```
 ┌──────────────────────────────┐
@@ -202,7 +202,7 @@ Lista por zona con prioridad y estado; detalle con número, descripción, propie
 
 | Subpantalla | Contenido | Acción principal | Compuerta |
 | :--- | :--- | :--- | :--- |
-| Whitelist y roles | Números (enmascarados), rol, sujeto, fecha, quién dio de alta. | Alta/baja con confirmación. | `seguridad` |
+| Usuarios y bloqueos | Números (enmascarados), rol, sujeto, fecha, quién dio de alta. | Alta/baja con confirmación. | `seguridad` |
 | Propiedades y zonas | Propiedades del PMS, zona, gestor principal y respaldo, variante de prompt, activa. | Asignar zona/gestor. | `pms_conector`, `crm_conector` |
 | Reglas de comisión | Reglas vigentes e históricas con versión y vigencia. | Nueva versión (nunca edición en sitio). | `comisiones` |
 | Plantillas WhatsApp | Nombre, idioma, variables, estado de aprobación en Meta. | Marcar aprobada / solicitar. | `canal_whatsapp` |
@@ -222,7 +222,7 @@ Lista por zona con prioridad y estado; detalle con número, descripción, propie
 | `HojaCorreccion` | Corrección de campos dudosos. | Un campo a la vez; muestra el fragmento del texto original que lo originó. |
 | `DialogoMotivo` | Rechazar, anular, resolver. | Motivos predefinidos + texto libre; obligatorio. |
 | `ChipEstado` | Estados de venta, incidencia, publicación, handoff. | Color semántico + texto; nunca solo color. |
-| `TablaDensa` | Historial, por vendedor, auditoría, whitelist. | Ordenable, paginada (25), columnas fijas en móvil con desplazamiento horizontal. |
+| `TablaDensa` | Historial, por vendedor, auditoría, usuarios. | Ordenable, paginada (25), columnas fijas en móvil con desplazamiento horizontal. |
 | `TarjetaMetrica` | Tablero, salud. | Valor grande, etiqueta, variación vs período anterior. |
 | `GraficoBarras` | Ventas por mes, por vendedor, por propiedad. | Un color; valores al pasar o tocar; accesible por tabla alternativa. |
 | `ChatJarvis` | P-07. | Burbujas, confirmación explícita para cambios, sin historial persistente más allá de la sesión. |
@@ -290,7 +290,7 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | `GET /handoffs` | `panel.handoffs` (filtra zonas de la sesión) | gestor, admin |
 | `POST /handoffs/{id}/tomar` · `POST /handoffs/{id}/responder` `{texto}` · `POST /handoffs/{id}/devolver` | `panel.tomar_handoff` / `responder` / `devolver_al_asistente` → `agente`, `canal` | gestor, admin |
 | `GET /incidencias` · `POST /incidencias/{id}/resolver` `{nota}` | `pms` u `operaciones` | gestor, admin |
-| `GET/POST/DELETE /admin/whitelist` | `seguridad.administrar_whitelist` | admin |
+| `GET/POST/DELETE /admin/usuarios` | `seguridad.administrar_usuarios` | admin |
 | `GET /admin/propiedades` · `PUT /admin/propiedades/{id}/zona` | `pms.listar_propiedades`, `crm` | admin |
 | `GET/POST /admin/reglas-comision` | `comisiones.reglas` / `crear_regla` | admin |
 | `GET /admin/plantillas` · `PUT /admin/plantillas/{nombre}` | `canal` | admin |
@@ -303,9 +303,9 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 ## 9. Seguridad del panel
 `¤frontend-seguridad`
 
-- Acceso solo para números en la whitelist con rol `lider`, `gestor` o `administrador`; código de un solo uso por WhatsApp con 5 intentos y 10 minutos de validez; sesión de 12 h renovable.
+- Acceso solo para usuarios activos con rol `lider`, `gestor` o `administrador`; código de un solo uso por WhatsApp con 5 intentos y 10 minutos de validez; sesión de 12 h renovable.
 - Autorización en el servidor, nunca en el cliente: la UI oculta lo que el rol no puede hacer, pero el BFF rechaza igual con 403.
-- PII rehidratada solo en P-09 (atención de huésped) y P-11 whitelist (enmascarada); el resto trabaja con nombres de vendedores y clientes tal como los registró la venta.
+- PII rehidratada solo en P-09 (atención de huésped) y P-11 usuarios (enmascarada); el resto trabaja con nombres de vendedores y clientes tal como los registró la venta.
 - Cabeceras: CSP estricta (sin scripts externos), `X-Frame-Options: DENY`, HSTS en producción.
 - Todo `POST`/`PUT`/`DELETE` deja un evento en el audit log con el `usuario_id`.
 - Las pruebas e2e verifican que ningún texto renderizado contenga rastros ni nombres de proveedor (`tests/test_interfaz_purificada.py` sobre el build).
@@ -344,8 +344,8 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 
 | Fase | Pantallas | Sustituye |
 | :--- | :--- | :--- |
-| 4 | P-01, P-02, P-08, P-09, P-10 (bandeja de handoff e incidencias por zona) | `FakeCRM` como inbox de la fase 4 |
-| 5 | P-11 whitelist, auditoría, salud | — |
+| 4 | P-01, P-02, P-08, P-09, P-10 (bandeja de handoff e incidencias por zona) | `FakeCRM` y `crm.handoffs` |
+| 5 | P-11 usuarios, auditoría, privacidad, salud | — |
 | 6 | P-03, P-04, P-07 (ventas por validar, detalle, Jarvis) | validación «desde la UI del CRM» |
 | 7 | P-05, P-06, P-11 reglas, plantillas, conocimiento, propiedades | visualización del tablero «en el CRM o BI» |
 | 8 (condicional, ADR-0010) | Inbox completo de conversaciones de huéspedes (no solo handoffs) | inbox del proveedor |
@@ -356,4 +356,4 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 
 `¤frontend-glamping/`
 
-© 2026 Glamping Imbabura. Diseño original; metodología BBAP de Zero-Regression AI Governance BIAS, © 2026 Juan Carlos Proaño.
+© 2026 Juan Carlos Proaño. Todos los derechos reservados. Ver [`COPYRIGHT`](../COPYRIGHT).

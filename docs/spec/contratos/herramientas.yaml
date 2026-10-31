@@ -1,0 +1,284 @@
+# ¤spec-glamping
+# Contrato canónico de herramientas MCP. "contexto_servidor" lo inyecta el agente desde la identidad verificada:
+# el modelo nunca lo envía, y un valor enviado por el modelo se ignora.
+version: "0.2.0"
+definiciones:
+  fecha: {type: string, format: date}
+  dinero: {type: string, pattern: "^-?[0-9]+\\.[0-9]{2}$"}
+  uuid: {type: string, format: uuid}
+  periodo: {type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$"}
+  ticket: {type: string, pattern: "^V-[0-9]{4}-[0-9]{4,}$"}
+  incidencia_id: {type: string, pattern: "^I-[0-9]{4}-[0-9]{4,}$"}
+
+herramientas:
+  consultar_disponibilidad:
+    requisito: RF-MCP-01
+    sala_destino: pms_conector
+    roles: [huesped_potencial, huesped_activo]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [propiedad_id, desde, hasta, huespedes]
+      properties:
+        propiedad_id: {type: string}
+        desde: {$ref: "#/definiciones/fecha"}
+        hasta: {$ref: "#/definiciones/fecha"}
+        huespedes: {type: integer, minimum: 1}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [disponible, unidades, alternativas]
+      properties:
+        disponible: {type: boolean}
+        motivo: {type: string}
+        unidades:
+          type: array
+          items:
+            type: object
+            required: [unidad_id, nombre, capacidad]
+            properties: {unidad_id: {type: string}, nombre: {type: string}, capacidad: {type: integer}}
+        alternativas:
+          type: array
+          maxItems: 3
+          items:
+            type: object
+            required: [unidad_id, desde, hasta]
+            properties: {unidad_id: {type: string}, desde: {$ref: "#/definiciones/fecha"}, hasta: {$ref: "#/definiciones/fecha"}}
+  cotizar:
+    requisito: RF-MCP-02
+    sala_destino: pms_conector
+    roles: [huesped_potencial, huesped_activo]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [propiedad_id, unidad_id, desde, hasta, huespedes]
+      properties:
+        propiedad_id: {type: string}
+        unidad_id: {type: string}
+        desde: {$ref: "#/definiciones/fecha"}
+        hasta: {$ref: "#/definiciones/fecha"}
+        huespedes: {type: integer, minimum: 1}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [total, moneda, desglose, politica_cancelacion_id]
+      properties:
+        total: {$ref: "#/definiciones/dinero"}
+        moneda: {const: USD}
+        desglose:
+          type: array
+          items:
+            type: object
+            required: [concepto, monto]
+            properties: {concepto: {type: string}, monto: {$ref: "#/definiciones/dinero"}}
+        politica_cancelacion_id: {type: string}
+  crear_reserva_preliminar:
+    requisito: RF-MCP-03
+    sala_destino: pms_conector
+    roles: [huesped_potencial, huesped_activo]
+    contexto_servidor: [identidad, huesped_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [propiedad_id, unidad_id, desde, hasta, huespedes, nombre_token, clave_idempotencia]
+      properties:
+        propiedad_id: {type: string}
+        unidad_id: {type: string}
+        desde: {$ref: "#/definiciones/fecha"}
+        hasta: {$ref: "#/definiciones/fecha"}
+        huespedes: {type: integer, minimum: 1}
+        nombre_token: {type: string}
+        clave_idempotencia: {$ref: "#/definiciones/uuid"}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [codigo_reserva, estado, expira_en]
+      properties:
+        codigo_reserva: {type: string}
+        estado: {const: preliminar}
+        expira_en: {type: string, format: date-time}
+  obtener_instrucciones_checkin:
+    requisito: RF-MCP-04
+    sala_destino: pms_conector
+    roles: [huesped_activo]
+    contexto_servidor: [identidad, huesped_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [codigo_reserva]
+      properties:
+        codigo_reserva: {type: string}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [propiedad, direccion, hora_checkin, acceso, wifi, normas, contacto_emergencia]
+      properties:
+        propiedad: {type: string}
+        direccion: {type: string}
+        hora_checkin: {type: string}
+        acceso:
+          type: array
+          description: "Cada paso sensible llega como marcador de secreto operativo, nunca en claro."
+          items: {type: string}
+        wifi:
+          type: object
+          required: [red, clave_ref]
+          properties: {red: {type: string}, clave_ref: {type: string, pattern: "^\\[\\[SECRETO:[a-z0-9_-]+\\]\\]$"}}
+        normas: {type: array, items: {type: string}}
+        contacto_emergencia: {type: string}
+  reportar_incidencia:
+    requisito: RF-MCP-05
+    sala_destino: pms_conector
+    roles: [huesped_activo]
+    contexto_servidor: [identidad, huesped_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [propiedad_id, descripcion, categoria]
+      properties:
+        codigo_reserva: {type: string}
+        propiedad_id: {type: string}
+        descripcion: {type: string, minLength: 3}
+        categoria: {enum: [agua, electricidad, limpieza, acceso, seguridad, ruido, wifi, otra]}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [incidencia_id, prioridad, gestor_asignado, eta_respuesta_horas]
+      properties:
+        incidencia_id: {$ref: "#/definiciones/incidencia_id"}
+        prioridad: {enum: [baja, media, alta, critica]}
+        gestor_asignado: {type: string}
+        eta_respuesta_horas: {type: number}
+  solicitar_humano:
+    requisito: RF-MCP-06
+    sala_destino: crm_conector
+    roles: [huesped_potencial, huesped_activo, vendedor]
+    contexto_servidor: [identidad, conversacion_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [motivo, resumen]
+      properties:
+        propiedad_id: {type: string}
+        motivo: {enum: [peticion_explicita, baja_confianza, fuera_alcance, incidencia_critica, inyeccion_repetida, degradacion, limite_iteraciones]}
+        resumen: {type: string, minLength: 3}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [handoff_id, asignado_a, canal, minutos_estimados]
+      properties:
+        handoff_id: {type: string}
+        asignado_a: {type: string}
+        canal: {const: panel}
+        minutos_estimados: {type: integer}
+  buscar_contacto_crm:
+    requisito: RF-MCP-07
+    sala_destino: crm_conector
+    roles: [sistema]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      properties: {telefono_token: {type: string}, email_token: {type: string}}
+      anyOf: [{required: [telefono_token]}, {required: [email_token]}]
+    salida:
+      type: object
+      required: [encontrado]
+      properties: {encontrado: {type: boolean}, contacto_id: {type: string}}
+  crear_oportunidad_crm:
+    requisito: RF-MCP-07
+    sala_destino: crm_conector
+    roles: [sistema]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [contacto_id, propiedad_id, etapa]
+      properties:
+        contacto_id: {type: string}
+        propiedad_id: {type: string}
+        etapa: {type: string}
+        monto: {$ref: "#/definiciones/dinero"}
+    salida:
+      type: object
+      required: [oportunidad_id]
+      properties: {oportunidad_id: {type: string}}
+  registrar_venta:
+    requisito: RF-MCP-08
+    sala_destino: arm_jarvis
+    roles: [vendedor]
+    contexto_servidor: [identidad, vendedor_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [texto_original, venta]
+      properties:
+        texto_original: {type: string}
+        venta: {$ref: "#/modelos/venta_extraida"}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [ticket, estado, posible_duplicado]
+      properties:
+        ticket: {$ref: "#/definiciones/ticket"}
+        estado: {const: por_validar}
+        comision_estimada: {$ref: "#/definiciones/dinero"}
+        posible_duplicado: {type: boolean}
+  consultar_comision_propia:
+    requisito: RF-MCP-09
+    sala_destino: arm_jarvis
+    roles: [vendedor]
+    contexto_servidor: [identidad, vendedor_id]
+    entrada:
+      type: object
+      additionalProperties: false
+      properties:
+        periodo: {$ref: "#/definiciones/periodo"}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [validada, pendiente, ventas, periodo]
+      properties:
+        validada: {$ref: "#/definiciones/dinero"}
+        pendiente: {$ref: "#/definiciones/dinero"}
+        ventas: {type: integer}
+        periodo: {$ref: "#/definiciones/periodo"}
+
+modelos:
+  venta_extraida:
+    type: object
+    additionalProperties: false
+    required: [es_venta, moneda, confianza, confianza_campos, campos_faltantes]
+    properties:
+      es_venta: {type: boolean}
+      cliente_token: {type: [string, "null"]}
+      telefono_cliente_token: {type: [string, "null"]}
+      producto: {type: [string, "null"]}
+      propiedad_id: {type: [string, "null"]}
+      noches: {type: [integer, "null"], minimum: 1}
+      monto: {oneOf: [{$ref: "#/definiciones/dinero"}, {type: "null"}]}
+      moneda: {const: USD}
+      fecha_venta: {type: [string, "null"], format: date}
+      fecha_llegada: {type: [string, "null"], format: date}
+      confianza: {type: number, minimum: 0, maximum: 1}
+      confianza_campos: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 1}}
+      campos_faltantes: {type: array, items: {type: string}}
+  publicacion_venta:
+    description: "Cuerpo del POST al Inbound Webhook. La firma HMAC-SHA256 va en la cabecera X-Glamping-Signature, sobre X-Glamping-Date + '.' + cuerpo canónico (JSON ordenado por clave, sin espacios, UTF-8)."
+    type: object
+    additionalProperties: false
+    required: [venta_id, evento, ticket, vendedor, cliente, telefono_cliente, monto, moneda, producto, fecha_venta, comision]
+    properties:
+      venta_id: {$ref: "#/definiciones/uuid"}
+      evento: {enum: [venta_validada, venta_anulada]}
+      ticket: {$ref: "#/definiciones/ticket"}
+      vendedor: {type: string}
+      cliente: {type: string}
+      telefono_cliente: {type: [string, "null"]}
+      monto: {$ref: "#/definiciones/dinero"}
+      moneda: {const: USD}
+      producto: {type: string}
+      fecha_venta: {$ref: "#/definiciones/fecha"}
+      comision: {$ref: "#/definiciones/dinero"}

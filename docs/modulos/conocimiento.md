@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Sala | `features/conocimiento/` (+ `docs/negocio/` como datos, `scripts/seed_knowledge.py` como CLI de la sala) |
+| Sala | `features/conocimiento/` (+ `CORPUS_DIR` como datos fuera del repositorio, `scripts/seed_knowledge.py` como CLI de la sala) |
 | Compuerta | `conocimiento_service.py` → `ConocimientoService` |
 | Privados | `chunker_internal.py`, `indexador_internal.py`, `recuperador_internal.py`, `evaluador_internal.py`, `embeddings_internal.py`, `tipos.py` |
 | Config | `config_conocimiento.yaml` |
@@ -32,7 +32,7 @@ class ResumenIndexacion: documentos: int; chunks_nuevos: int; chunks_reemplazado
 
 ```python
 class ConocimientoService:
-    def indexar(self, raiz: Path = Path("docs/negocio")) -> ResumenIndexacion: ...             # idempotente (RF-RAG-01)
+    def indexar(self, raiz: Path | None = None) -> ResumenIndexacion: ...             # idempotente (RF-RAG-01)
     def recuperar(self, consulta: str, propiedad_id: str | None, k: int | None = None) -> ResultadoRecuperacion: ...  # híbrida (RF-RAG-03)
     def documentos(self, propiedad_id: str | None = None) -> tuple[Documento, ...]: ...
     def evaluar(self, set_dorado: Path) -> dict[str, float]: ...                               # fidelidad, abstención, alucinaciones

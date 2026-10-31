@@ -112,7 +112,7 @@ class PanelOperativoService:
     def whitelist(self, sesion: Sesion) -> tuple[Mapping[str, Any], ...]:
         raise NotImplementedError("TASK-005 RF-PAN-09")
 
-    def editar_whitelist(self, sesion: Sesion, numero: str, rol: str, alta: bool) -> None:
+    def editar_usuario(self, sesion: Sesion, numero: str, rol: str, alta: bool) -> None:
         raise NotImplementedError("TASK-005 RF-PAN-09")
 
     def propiedades(self, sesion: Sesion) -> tuple[Any, ...]:

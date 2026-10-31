@@ -51,7 +51,7 @@ class ArmJarvisService:
     def aplicar_cambio_configuracion(self, actor: Identidad, cambio: Mapping[str, Any], confirmado: bool) -> None: ...
 ```
 
-## Configuración (`config_arm_jarvis.yaml`)
+## Configuración (`config_arm_jarvis.yaml`, valores por defecto; los cambios de Jarvis se guardan en `arm.configuracion`)
 `modelo_extractor: ${MODELO_PRINCIPAL}`, `clave_api: ${ANTHROPIC_API_KEY}`, `canal {modo: grupo|uno_a_uno}`, `ticket {prefijo: V, reinicio: anual}`, `confianza_minima: 0.80`, `campos_obligatorios: [monto, producto]`, `notificaciones {al_validar: true, al_rechazar: true, plantilla: comision_validada}`, `asistente_lider {cambios_permitidos: [notificaciones.al_validar, notificaciones.al_rechazar], requiere_confirmacion: true}`, `evals: evals/ventas.jsonl`.
 
 ## Compuertas que consume

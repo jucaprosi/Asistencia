@@ -1,7 +1,7 @@
 # Corpus del negocio para el RAG — checklist de entrega
 `¤negocio-glamping` `¤conocimiento-rag`
 
-Esta carpeta es la **fuente del conocimiento** que indexa `scripts/seed_knowledge.py` (TASK-002). Cada archivo es Markdown con secciones claras (encabezados `##`), porque el chunking se hace por sección. Cada documento declara en su cabecera la propiedad a la que aplica (`global`, `glamping` o el identificador del departamento), el dueño y la fecha de la última revisión: lo que no esté aquí, el asistente **no lo afirma** (invariante `INV_NO_LO_SE`).
+El repositorio es público, así que esta carpeta solo guarda esta lista. El corpus real vive en `CORPUS_DIR`, fuera del repositorio, y es la **fuente del conocimiento** que indexa `scripts/seed_knowledge.py` (TASK-002). Cada archivo es Markdown con secciones claras (encabezados `##`), porque el chunking se hace por sección. Cada documento declara en su cabecera la propiedad a la que aplica (`global`, `glamping` o el identificador del departamento), el dueño y la fecha de la última revisión: lo que no esté aquí, el asistente **no lo afirma** (invariante `INV_NO_LO_SE`).
 
 El supuesto S-03 del PRD se considera cumplido cuando toda fila obligatoria está en estado `entregado`.
 

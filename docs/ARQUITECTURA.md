@@ -76,7 +76,7 @@ La estructura de §11 del informe (`apps/`, `packages/`, `mcp-servers/`) se cons
 | Componente (informe §11) | Sala | Compuerta pública | Config | Rastro | Rol `¤¤` | Decisión |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `apps/whatsapp-gateway` | `features/canal_whatsapp/` | `canal_whatsapp_service.py` | `config_canal_whatsapp.yaml` (plantillas, ventana, reintentos) | `¤canal-whatsapp` | `¤¤integration-engineer` | Construir |
-| `packages/security` | `features/seguridad/` | `seguridad_service.py` | `config_seguridad.yaml` (whitelist por rol, allowlist, límites, patrones) | `¤seguridad-canal` | `¤¤security-engineer` | Construir |
+| `packages/security` | `features/seguridad/` | `seguridad_service.py` | `config_seguridad.yaml` (identidad, allowlist, límites, patrones) | `¤seguridad-canal` | `¤¤security-engineer` | Construir |
 | `packages/agent-core` | `features/agente/` | `agente_service.py` | `config_agente.yaml` (modelos, tope de iteraciones, ventana de memoria, caché) | `¤agente-enrutador` | `¤¤machine-learning-engineer` | Construir |
 | `packages/rag` | `features/conocimiento/` | `conocimiento_service.py` | `config_conocimiento.yaml` (chunking, top-k, umbral «no lo sé») | `¤conocimiento-rag` | `¤¤data-engineer` | Construir |
 | `packages/pms-connector` | `features/pms_conector/` | `pms_conector_service.py` | `config_pms_conector.yaml` (proveedor activo, escrituras habilitadas) | `¤pms-conector` | `¤¤integration-engineer` | Construir sobre MCP; proveedor ADR-0007 |
@@ -89,7 +89,7 @@ La estructura de §11 del informe (`apps/`, `packages/`, `mcp-servers/`) se cons
 | *(nuevo, ADR-0013)* | `features/panel_operativo/` — frontend del equipo y BFF | `panel_operativo_service.py` | `config_panel_operativo.yaml` (sesión, acceso por código, paginación) | `¤panel-operativo` | `¤¤frontend-developer` | Construir; diseño en [`FRONTEND.md`](FRONTEND.md) |
 | *(pasillo central)* | `app_core/` | `main.py` (arranque), `contenedor.py` (inyección de dependencias) | `config_app.yaml` + `.env` | `¤pasillo-central` | `¤¤solutions-architect` | — |
 | `compose.yaml`, `compose.production.yaml` | zona `infraestructura/` (raíz) | — | archivos compose | `¤infra-hibrida` | `¤¤devops-engineer` | ADR-0004 |
-| `docs/negocio/`, `docs/prompts/` | zona de conocimiento (datos, no código) | leídos por `conocimiento` y `agente` | — | `¤conocimiento-rag`, `¤agente-enrutador` | — | — |
+| `CORPUS_DIR` (fuera del repositorio), `docs/prompts/` | zona de conocimiento (datos, no código) | leídos por `conocimiento` y `agente` | — | `¤conocimiento-rag`, `¤agente-enrutador` | — | — |
 
 ### 3.1 Estructura física resultante
 
@@ -105,7 +105,7 @@ glamping-imbabura-agent/
 │   └── config_app.yaml
 ├── features/
 │   ├── canal_whatsapp/   canal_whatsapp_service.py · config_canal_whatsapp.yaml · webhook_internal.py · envio_internal.py · plantillas_internal.py · medios_internal.py
-│   ├── seguridad/        seguridad_service.py · config_seguridad.yaml · whitelist_internal.py · allowlist_internal.py · rate_limit_internal.py · injection_internal.py · pii_internal.py · audit_internal.py
+│   ├── seguridad/        seguridad_service.py · config_seguridad.yaml · identidad_internal.py · allowlist_internal.py · rate_limit_internal.py · injection_internal.py · pii_internal.py · audit_internal.py
 │   ├── agente/           agente_service.py · config_agente.yaml · enrutador_internal.py · prompts_internal.py · bucle_herramientas_internal.py · memoria_internal.py · cache_internal.py
 │   ├── conocimiento/     conocimiento_service.py · config_conocimiento.yaml · chunker_internal.py · indexador_internal.py · recuperador_internal.py · evaluador_internal.py
 │   ├── pms_conector/     pms_conector_service.py · config_pms_conector.yaml · base_internal.py · fake_internal.py · kamra_internal.py | repull_internal.py | hospitable_internal.py
@@ -146,7 +146,7 @@ Meta ──POST /webhook──► canal_whatsapp_service.recibir()
                             │  verifica firma · dedup · clasifica canal (huéspedes | vendedores)
                             ▼
                        seguridad_service.filtrar_entrada(mensaje, canal)
-                            │  whitelist → rol · rate limit · injection · PII→tokens · audit
+                            │  bloqueos → rol · rate limit · injection · PII→tokens · audit
                             ├── canal=huéspedes ──► agente_service.atender(mensaje_limpio, rol)
                             │                          │ resuelve propiedad · prompt · herramientas por rol
                             │                          │ bucle Claude ⇄ herramientas_glamping (MCP)
@@ -176,7 +176,7 @@ Eventos externos adicionales: `POST /crm/eventos` (firmado) para validaciones de
 | PostgreSQL gestionado (`glamping`) | esquemas por sala: `agente`, `conocimiento` (pgvector + tsvector), `arm`, `comisiones`, `seguridad` (bóveda de tokens y audit log), `observabilidad` (trazas) | cada sala su esquema | Neon o Render (ADR-0002, ADR-0012) | Un rol de base de datos por sala con permisos solo sobre su esquema; `seguridad.audit_log` con rol `INSERT`-only; RLS por `propiedad_id` donde aplique (RF-SEC-07). |
 | PostgreSQL local beta (`glamping_beta`) | mismo esquema, datos sintéticos | — | contenedor en `glamping-beta-net`, puerto no estándar | Solo para desarrollo; nunca datos reales. |
 | S3-compatible gestionado | medios de WhatsApp, exportaciones CSV/JSON | `canal_whatsapp`, `comisiones` | Backblaze B2 / Wasabi / Render (beta) → MinIO 3-2-1 opcional en producción | Versionado activado; retención configurable. |
-| Sistemas de registro externos | reservas y calendarios (PMS); contactos, oportunidades, conversaciones del inbox (CRM) | externos | SaaS u on-prem según ADR-0007/0008 | El repositorio guarda `pms_ref` / `crm_ref`; no copia. |
+| Sistemas de registro externos | reservas y calendarios (PMS); contactos y oportunidades (CRM) | externos | SaaS u on-prem según ADR-0007/0008 | El repositorio guarda `pms_ref` / `crm_ref`; no copia. |
 | Disco del contenedor | nada persistente | — | — | Los contenedores son reconstruibles. |
 
 Modelo de entidades y propiedad por sala: [`PRD.md` §9](PRD.md#9-modelo-de-datos-de-alto-nivel).
@@ -226,7 +226,7 @@ Mismo compose con `compose.production.yaml`; el proxy publica solo `443`; `agent
 | Capa | Dónde | Mecanismo | Requisito |
 | :--- | :--- | :--- | :--- |
 | Transporte | `proxy`, `canal_whatsapp` | TLS; verificación `X-Hub-Signature-256`; *verify token* | RF-GW-01 |
-| Identidad | `seguridad` | whitelist por número → rol; vendedores y gestores registrados; huéspedes por reserva o conversación iniciada | RF-SEC-01 |
+| Identidad | `seguridad` | canal de huéspedes abierto con permisos mínimos y lista de bloqueo; usuarios privilegiados registrados; rol por remitente, nunca por texto | RF-SEC-01 |
 | Autorización | `seguridad` + `herramientas_glamping` | allowlist rol → herramienta; el servidor MCP pregunta a `seguridad` antes de ejecutar | RF-SEC-02, RF-AG-03 |
 | Abuso | `seguridad` | rate limit por remitente y global, no anulable | RF-SEC-03 |
 | Contenido | `seguridad` | filtro de inyección ≥ 40 patrones / 4 idiomas; escalamiento al tercer intento | RF-SEC-04 |
@@ -278,4 +278,4 @@ ADR obligatorio solo si se fusionan o dividen salas, se altera `app_core`, cambi
 
 `¤arquitectura-glamping/`
 
-© 2026 Glamping Imbabura. Metodología de gobernanza: Zero-Regression AI Governance BIAS, © 2026 Juan Carlos Proaño.
+© 2026 Juan Carlos Proaño. Todos los derechos reservados. Ver [`COPYRIGHT`](../COPYRIGHT).

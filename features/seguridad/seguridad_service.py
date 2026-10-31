@@ -71,5 +71,5 @@ class SeguridadService:
     def informe_semanal(self, desde: date, hasta: date) -> bytes:
         raise NotImplementedError("TASK-005 RF-SEC-06")
 
-    def administrar_whitelist(self, actor: Identidad, numero: str, rol: Rol, alta: bool) -> None:
+    def administrar_usuarios(self, actor: Identidad, numero: str, rol: Rol, alta: bool) -> None:
         raise NotImplementedError("TASK-005 RF-SEC-01")

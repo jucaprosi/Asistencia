@@ -32,9 +32,9 @@ arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0) + tests/evals listados"
 
 | Hito | Fase | Título | Sala(s) | Estado | Bloqueada por |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [TASK-000](TASK-000-esqueleto-adpa.md) | 0 | Esqueleto ADPA, compose, arnés, CI, backups | todas (vacías), `app_core`, infraestructura | **sellada** (2026-10-30; quedan 2 pendientes del propietario: proveedor PostgreSQL y restauración de backup) | — |
+| [TASK-000](TASK-000-esqueleto-adpa.md) | 0 | Esqueleto ADPA, compose, arnés, CI, backups | todas (vacías), `app_core`, infraestructura | boceto (faltan 2 pendientes del propietario) | proveedor de PostgreSQL, restauración de backup |
 | [TASK-001](TASK-001-mvp-whatsapp.md) | 1 | MVP WhatsApp con Claude y `FakePMS` | `canal_whatsapp`, `agente`, `seguridad`, `observabilidad` | pendiente | S-02 |
-| [TASK-002](TASK-002-rag.md) | 2 | RAG sobre `docs/negocio/` con set dorado | `conocimiento` | pendiente | S-03, ADR-0012 |
+| [TASK-002](TASK-002-rag.md) | 2 | RAG sobre `CORPUS_DIR` con set dorado | `conocimiento` | pendiente | S-03, ADR-0012 |
 | [TASK-003](TASK-003-pms-mcp.md) | 3 | Conector PMS y herramientas MCP de reservas e incidencias | `pms_conector`, `herramientas_glamping`, (`operaciones`) | pendiente | ADR-0007 |
 | [TASK-004](TASK-004-multipropiedad.md) | 4 | Enrutador multi-propiedad, check-in autónomo, handoff por zona en el panel | `agente`, `crm_conector` (mínimo), `panel_operativo` (P-01, P-02, P-08..P-10) | pendiente | — |
 | [TASK-005](TASK-005-seguridad-observabilidad.md) | 5 | Seguridad completa, evaluaciones, alertas, carga, aislamiento; administración y salud en el panel | `seguridad`, `observabilidad`, `agente`, `panel_operativo` (P-11 parcial) | pendiente | — |

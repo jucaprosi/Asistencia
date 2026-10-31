@@ -15,16 +15,16 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 
 | Sala | Ubicación | Compuerta | Rastro | Rol | Requisitos |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `canal_whatsapp` | `features/canal_whatsapp` | `canal_whatsapp_service.py` (por crear, TASK-001) | `¤canal-whatsapp` | `¤¤integration-engineer` | RF-GW-01..06 |
-| `seguridad` | `features/seguridad` | `seguridad_service.py` (por crear, TASK-001) | `¤seguridad-canal` | `¤¤security-engineer` | RF-SEC-01..07 |
+| `canal_whatsapp` | `features/canal_whatsapp` | `canal_whatsapp_service.py` (por crear, TASK-001) | `¤canal-whatsapp` | `¤¤integration-engineer` | RF-GW-01..08 |
+| `seguridad` | `features/seguridad` | `seguridad_service.py` (por crear, TASK-001) | `¤seguridad-canal` | `¤¤security-engineer` | RF-SEC-01..08, RF-PRIV-01..06 |
 | `agente` | `features/agente` | `agente_service.py` (por crear, TASK-001) | `¤agente-enrutador` | `¤¤machine-learning-engineer` | RF-AG-01..07 |
-| `conocimiento` | `features/conocimiento`, `docs/negocio` (datos), `scripts/seed_knowledge.py` | `conocimiento_service.py` (por crear, TASK-002) | `¤conocimiento-rag` | `¤¤data-engineer` | RF-RAG-01..06 |
-| `pms_conector` | `features/pms_conector` | `pms_conector_service.py` (por crear, TASK-003) | `¤pms-conector` | `¤¤integration-engineer` | RF-PMS-01..04 |
+| `conocimiento` | `features/conocimiento`, `CORPUS_DIR` (datos fuera del repositorio), `scripts/seed_knowledge.py` | `conocimiento_service.py` (por crear, TASK-002) | `¤conocimiento-rag` | `¤¤data-engineer` | RF-RAG-01..06 |
+| `pms_conector` | `features/pms_conector` | `pms_conector_service.py` (por crear, TASK-003) | `¤pms-conector` | `¤¤integration-engineer` | RF-PMS-01..05 |
 | `herramientas_glamping` | `features/herramientas_glamping` | `herramientas_glamping_service.py` (TASK-000); `server.py` es el ejecutable MCP (TASK-003) | `¤herramientas-mcp` | `¤¤backend-developer` | RF-MCP-01..09 |
 | `operaciones` (condicional, ADR-0007) | `features/operaciones` | `operaciones_service.py` (por definir) | `¤operaciones-incidencias` | `¤¤backend-developer` | RF-MCP-05 (registro de Incidencia) |
-| `crm_conector` | `features/crm_conector` | `crm_conector_service.py` (por crear, TASK-004 mínimo; TASK-007 completo) | `¤crm-conector` | `¤¤integration-engineer` | RF-CRM-01..05 |
-| `arm_jarvis` | `features/arm_jarvis` | `arm_jarvis_service.py` (por crear, TASK-006) | `¤arm-jarvis` | `¤¤backend-developer` | RF-ARM-01..09 |
-| `comisiones` | `features/comisiones` | `comisiones_service.py` (por crear, TASK-006) | `¤comisiones` | `¤¤backend-developer` | RF-COM-01..03 |
+| `crm_conector` | `features/crm_conector` | `crm_conector_service.py` (por crear, TASK-004 mínimo; TASK-007 completo) | `¤crm-conector` | `¤¤integration-engineer` | RF-CRM-01..06 |
+| `arm_jarvis` | `features/arm_jarvis` | `arm_jarvis_service.py` (por crear, TASK-006) | `¤arm-jarvis` | `¤¤backend-developer` | RF-ARM-01..10 |
+| `comisiones` | `features/comisiones` | `comisiones_service.py` (por crear, TASK-006) | `¤comisiones` | `¤¤backend-developer` | RF-COM-01..04 |
 | `observabilidad` | `features/observabilidad`, `scripts/run_evals.py`, `evals/` | `observabilidad_service.py` (por crear, TASK-001) | `¤observabilidad` | `¤¤devops-engineer` | RF-OBS-01..04 |
 | `panel_operativo` (ADR-0013) | `features/panel_operativo` (BFF, `ui/`, `estaticos/`) | `panel_operativo_service.py` (por crear, TASK-004) | `¤panel-operativo` | `¤¤frontend-developer` | RF-PAN-01..10 |
 | *pasillo central* | `app_core/` | `main.py`, `contenedor.py` (por crear, TASK-000) | `¤pasillo-central` | `¤¤solutions-architect` | orquestación; sin requisitos propios |
@@ -52,10 +52,12 @@ Detalle, criterios de aceptación y árbitros en [`docs/PRD.md` §5](../../docs/
 | RF-CRM | `crm_conector` | Interfaz propia; CRM adoptado `[DECISIÓN PENDIENTE]` ADR-0008 |
 | RF-ARM | `arm_jarvis` | Construir (ADR-0005) |
 | RF-COM | `comisiones` | Construir; registro `[DECISIÓN PENDIENTE]` ADR-0009 |
-| RF-SEC | `seguridad` | Construir |
+| RF-SEC, RF-PRIV | `seguridad` | Construir |
 | RF-OBS | `observabilidad` | Construir |
 | RF-MCP | `herramientas_glamping` | Construir |
 | RF-PAN | `panel_operativo` | Construir (ADR-0013); diseño en `docs/FRONTEND.md` |
+
+La especificación ejecutable vive en [`docs/spec/`](../../docs/spec/README.md); las decisiones abiertas de la versión 0.2 están en [ADR-0014](../../docs/adr/ADR-0014-decisiones-especificacion-sdd.md).
 
 ## 4. Matriz de invariantes y leyes de negocio
 `¤invariantes-glamping`
@@ -65,6 +67,6 @@ Catálogo en [`INVARIANTS.md`](INVARIANTS.md).
 ## 5. Fuera de alcance
 `¤prd-fuera-alcance`
 
-[`docs/PRD.md` §11](../../docs/PRD.md#11-fuera-de-alcance-versión-01).
+[`docs/PRD.md` §11](../../docs/PRD.md#11-fuera-de-alcance-versión-02).
 
 `¤prd-glamping/`

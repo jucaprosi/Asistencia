@@ -66,7 +66,7 @@ class CRMConectorService:
     def procesar_cola(self) -> int:
         raise NotImplementedError("TASK-007 RF-CRM-04")
 
-    def asignar_conversacion(self, conversacion_id: str, zona_id: str, resumen: str) -> str:
+    def solicitar_handoff(self, conversacion_id: str, zona_id: str, resumen: str) -> str:
         raise NotImplementedError("TASK-004 RF-MCP-06 / ADR-0010")
 
     def enviar_mensaje(self, conversacion_id: str, texto: str) -> str:

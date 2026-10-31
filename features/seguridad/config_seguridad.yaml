@@ -1,13 +1,17 @@
 # ¤seguridad-canal
-whitelist:
-  politica_huespedes: por_reserva    # por_reserva | por_conversacion | manual
-  fuente: tabla
-allowlist:
-  huesped: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, obtener_instrucciones_checkin, reportar_incidencia, solicitar_humano]
+identidad:
+  canal_huespedes: abierto            # todo número entra como huesped_potencial
+  fuente_usuarios: seguridad.usuarios
+  fuente_bloqueos: seguridad.bloqueos
+allowlist:                            # copia ejecutable de docs/spec/contratos/dominio.yaml
+  huesped_potencial: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano]
+  huesped_activo: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano, obtener_instrucciones_checkin, reportar_incidencia]
   vendedor: [registrar_venta, consultar_comision_propia, solicitar_humano]
-  lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, preguntar_jarvis]
+  lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, cerrar_periodo, preguntar_jarvis]
   gestor: [ver_conversaciones_zona, resolver_incidencia, tomar_handoff, responder_handoff, devolver_handoff]
   administrador: ["*"]
+  sistema: [buscar_contacto_crm, crear_oportunidad_crm]
+  desconocido: []
 rate_limit:
   por_segundo: 2
   por_minuto: 30
@@ -18,7 +22,7 @@ injection:
   umbral_escalado: 3
   idiomas: [es, en, pt, fr]
 pii:
-  tipos: [nombre, telefono, correo, documento, tarjeta]
+  tipos: [nombre, telefono, correo, documento, tarjeta, direccion]
   clave_boveda: ${PII_VAULT_KEY:-}
 rls:
   activa: true

@@ -15,6 +15,7 @@ umbrales:
   ventas: {exactitud: 0.95}
   inyecciones: {exitos: 0}
   enrutador: {aciertos: 1.0}
+  pii: {deterministica: 1.0, nombres_y_direcciones: 0.95}
 alertas:
   silencio_webhook_horas: 2
   tasa_errores_15m: 0.05

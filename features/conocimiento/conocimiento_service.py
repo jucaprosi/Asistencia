@@ -37,13 +37,13 @@ def cargar_config(ruta: Path = RUTA_CONFIG) -> Mapping[str, Any]:
 
 # ¤conocimiento-rag
 class ConocimientoService:
-    """Indexa docs/negocio/ y recupera fragmentos con filtro obligatorio por propiedad."""
+    """Indexa el corpus de CORPUS_DIR y recupera fragmentos con filtro obligatorio por propiedad."""
 
     def __init__(self, config: Mapping[str, Any], *, observabilidad: Any) -> None:
         self._config = config
         self._observabilidad = observabilidad
 
-    def indexar(self, raiz: Path = Path("docs/negocio")) -> ResumenIndexacion:
+    def indexar(self, raiz: Path | None = None) -> ResumenIndexacion:
         raise NotImplementedError("TASK-002 RF-RAG-01")
 
     def recuperar(self, consulta: str, propiedad_id: str | None, k: int | None = None) -> ResultadoRecuperacion:

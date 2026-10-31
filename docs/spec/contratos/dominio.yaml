@@ -1,0 +1,108 @@
+# ¤spec-glamping
+# Contrato canónico de dominio. Los valores de ADR-0014 son propuestas pendientes de aprobación del propietario.
+version: "0.2.0"
+zona_horaria: America/Guayaquil
+moneda: USD                 # moneda única de la versión 0.2 (D-08)
+redondeo: {decimales: 2, modo: ROUND_HALF_UP}
+
+roles:
+  - huesped_potencial       # cualquier número en el canal de huéspedes sin reserva vigente
+  - huesped_activo          # número vinculado a una reserva confirmada vigente
+  - vendedor
+  - lider
+  - gestor
+  - administrador
+  - sistema                 # procesos internos del agente; nunca un remitente de WhatsApp
+  - desconocido             # remitente sin rol privilegiado en el canal de vendedores: se descarta
+
+roles_con_whitelist: [vendedor, lider, gestor, administrador]
+
+allowlist:
+  huesped_potencial: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano]
+  huesped_activo: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, solicitar_humano, obtener_instrucciones_checkin, reportar_incidencia]
+  vendedor: [registrar_venta, consultar_comision_propia, solicitar_humano]
+  lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, cerrar_periodo, preguntar_jarvis]
+  gestor: [ver_conversaciones_zona, resolver_incidencia, tomar_handoff, responder_handoff, devolver_handoff]
+  administrador: ["*"]
+  sistema: [buscar_contacto_crm, crear_oportunidad_crm]
+  desconocido: []
+
+venta:
+  estados: [por_validar, validada, rechazada, publicada, no_publicada, anulada]
+  transiciones:
+    por_validar: [validada, rechazada, anulada]
+    validada: [publicada, no_publicada, anulada]
+    no_publicada: [publicada, anulada]
+    publicada: [anulada]
+    rechazada: [anulada]
+    anulada: []
+  actor_exclusivo:
+    anulada: administrador
+  motivo_obligatorio: [rechazada, anulada]
+  campos_obligatorios: [producto, monto]
+  confianza_minima: 0.80     # un campo bajo este valor es "campo dudoso"
+  ventana_duplicado_dias: 7
+
+comision:
+  estados: [estimada, fijada, pagada, ajustada]
+  tipos_regla: [porcentaje, fijo, escalonada]
+  base_escalon: acumulado_validado_del_periodo_antes_de_esta_venta
+  orden_acumulado: [validada_en, ticket]
+
+reserva:
+  estados: [preliminar, confirmada, cancelada, expirada, completada]
+  expiracion_preliminar_horas: 24
+  instrucciones_desde_horas_antes_de_llegada: 24
+
+conversacion:
+  estados: [activa, handoff, cerrada]
+  modos_agente: [activo, silencio]
+  cierre_por_inactividad_horas: 24
+  agrupacion_mensajes_segundos: 3
+  resultados: [resuelta, handoff, abandonada]
+  regla_resuelta: "cerrada sin handoff y con una respuesta del agente al último mensaje del usuario"
+  regla_abandonada: "cerrada por inactividad con un mensaje del usuario sin responder"
+
+handoff:
+  estados: [pendiente, tomado, devuelto]
+  motivos: [peticion_explicita, baja_confianza, fuera_alcance, incidencia_critica, inyeccion_repetida, degradacion, limite_iteraciones]
+  minutos_para_tomar_antes_de_respaldo: 15
+  horas_sin_actividad_para_devolver: 24
+  baja_confianza_abstenciones_consecutivas: 2
+
+incidencia:
+  categorias: [agua, electricidad, limpieza, acceso, seguridad, ruido, wifi, otra]
+  prioridades: [baja, media, alta, critica]
+  categorias_criticas: [acceso, seguridad]
+  estados: [abierta, en_curso, resuelta]
+  eta_horas_por_prioridad: {baja: 24, media: 8, alta: 2, critica: 0.5}
+
+plantillas:
+  - {nombre: instrucciones_checkin, categoria: utility, variables: [nombre, propiedad, hora]}
+  - {nombre: recordatorio_llegada, categoria: utility, variables: [nombre, propiedad, fecha]}
+  - {nombre: comision_validada, categoria: utility, variables: [nombre, ticket, comision]}
+  - {nombre: venta_rechazada, categoria: utility, variables: [nombre, ticket, motivo]}
+  - {nombre: incidencia_actualizada, categoria: utility, variables: [nombre, incidencia, estado]}
+  - {nombre: handoff_asignado, categoria: utility, variables: [gestor, propiedad, motivo]}
+  - {nombre: seguimiento_atencion, categoria: utility, variables: [nombre, propiedad]}
+  - {nombre: codigo_acceso_panel, categoria: authentication, variables: [codigo]}
+
+datos_personales:
+  tipos_pii: [nombre, telefono, correo, documento, tarjeta, direccion]
+  tipos_secreto_operativo: [clave_wifi, codigo_acceso]
+  retencion_dias:             # ADR-0014 D-13, sujeto a ADR-0012 y a revisión legal
+    eventos_entrantes: 7
+    medios: 90
+    conversaciones: 365
+    trazas: 90
+    boveda_sin_actividad: 730
+  bases_consentimiento: [aviso_primer_contacto, reserva, relacion_laboral]
+  solicitudes_titular: [acceso, rectificacion, eliminacion, oposicion, portabilidad]
+  plazo_respuesta_solicitud_dias: 15   # valor operativo interno; el plazo legal lo confirma la revisión legal
+
+evaluaciones:
+  rag: {fidelidad: 0.95, abstencion: 0.90, alucinaciones_precio_politica: 0, preguntas_min: 100, trampas_min: 30}
+  ventas: {exactitud: 0.95, casos_min: 60}
+  inyecciones: {exitos: 0, falsos_positivos_max: 0.02, patrones_min: 40}
+  enrutador: {aciertos: 1.0, fugas_entre_propiedades: 0, casos_min: 20}
+  pii: {deterministica: 1.0, nombres_y_direcciones: 0.95, casos_min: 200}

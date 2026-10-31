@@ -20,11 +20,11 @@ COORDINADOR = {"pasillo_central", "infraestructura"}
 RESERVADAS = (
     "app_core/", "compose.yaml", "compose.production.yaml", "Dockerfile", "infra/", ".env.example", "pyproject.toml",
     ".github/", "scripts/arnes_glamping.py", "scripts/verificar_secretos.py", "tests/conftest.py", "tests/integracion/",
-    "tests/app_core/", "governance/", "docs/PRD.md", "docs/ARQUITECTURA.md", "docs/FRONTEND.md", "docs/adr/",
+    "tests/app_core/", "governance/", "docs/PRD.md", "docs/spec/", "docs/ARQUITECTURA.md", "docs/FRONTEND.md", "docs/adr/",
     "README.md", "CLAUDE.md",
 )
 RECURSOS_POR_SALA = {
-    "seguridad": {"evals/inyecciones.jsonl"},
+    "seguridad": {"evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/"},
     "agente": {"docs/prompts/", "evals/enrutador.jsonl"},
     "conocimiento": {"scripts/seed_knowledge.py", "evals/set_dorado.jsonl", "docs/negocio/README.md"},
     "arm_jarvis": {"evals/ventas.jsonl"},

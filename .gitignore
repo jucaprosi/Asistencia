@@ -17,6 +17,10 @@ venv/
 # Certificados y registros del arnés (se regeneran en cada corrida)
 governance/artefactos/data/
 
+# Datos reales del negocio: nunca en este repositorio público (ADR-0014 D-16)
+datos_privados/
+evals/privado/
+
 # Frontend (TASK-004+)
 node_modules/
 features/panel_operativo/estaticos/

@@ -39,7 +39,7 @@ class HerramientasGlampingService:
 | :--- | :--- | :--- |
 | `consultar_disponibilidad`, `cotizar`, `crear_reserva_preliminar`, `obtener_instrucciones_checkin` | `pms_conector` (+ `conocimiento` para política y normas) | huésped |
 | `reportar_incidencia` | `pms_conector` u `operaciones`; notifica por `crm_conector` | huésped activo |
-| `solicitar_humano` | `crm_conector` (inbox) o `panel_operativo` (bandeja) según ADR-0010 | huésped, vendedor |
+| `solicitar_humano` | `crm_conector` | huésped potencial y activo, vendedor |
 | `buscar_contacto_crm`, `crear_oportunidad_crm` | `crm_conector` | agente (interno) |
 | `registrar_venta`, `consultar_comision_propia` | `arm_jarvis` (+ `comisiones`) | vendedor |
 
