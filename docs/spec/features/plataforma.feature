@@ -141,7 +141,7 @@ Característica: Comportamiento técnico de canal, agente, conectores y observab
   Escenario: Validaciones concurrentes del mismo vendedor
     Dado dos ventas del mismo vendedor con regla escalonada
     Cuando se validan a la vez
-    Entonces cada una guarda una base acumulada distinta y coherente con el orden de validación
+    Entonces cada una guarda la base que corresponde a su fecha de venta y número de ticket
 
   @RF-ARM-05 @INV_TICKET_UNICO
   Escenario: Tickets bajo concurrencia

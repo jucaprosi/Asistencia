@@ -60,8 +60,8 @@ END $$;
 INSERT INTO comisiones.reglas (regla_id, version, tipo, valor, vigente_desde, creada_por)
 VALUES ('r1', 1, 'porcentaje', 0.1000, '2026-01-01', 'prueba');
 INSERT INTO comisiones.periodos (periodo_id) VALUES ('2026-10'), ('2026-11');
-INSERT INTO comisiones.comisiones (comision_id, venta_id, regla_id, regla_version, monto, periodo_id, periodo_origen, estado)
-VALUES ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', 'r1', 1, 10.00, '2026-10', '2026-10', 'fijada');
+INSERT INTO comisiones.comisiones (comision_id, venta_id, vendedor_id, fecha_venta, ticket, monto_venta, regla_id, regla_version, monto, periodo_id, periodo_origen, estado)
+VALUES ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', '2026-10-15', 'V-2026-0001', 100.00, 'r1', 1, 10.00, '2026-10', '2026-10', 'fijada');
 UPDATE comisiones.periodos SET cerrado_en = now(), cerrado_por = 'prueba' WHERE periodo_id = '2026-10';
 
 DO $$ BEGIN
@@ -76,14 +76,14 @@ DO $$ BEGIN
   EXCEPTION WHEN check_violation THEN NULL;
   END;
   BEGIN
-    INSERT INTO comisiones.comisiones (venta_id, regla_id, regla_version, monto, periodo_id, periodo_origen, estado)
-    VALUES ('00000000-0000-0000-0000-000000000002', 'r1', 1, 5.00, '2026-11', '2026-10', 'fijada');
+    INSERT INTO comisiones.comisiones (venta_id, vendedor_id, fecha_venta, ticket, monto_venta, regla_id, regla_version, monto, periodo_id, periodo_origen, estado)
+    VALUES ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', '2026-10-15', 'V-2026-0001', 100.00, 'r1', 1, 5.00, '2026-11', '2026-10', 'fijada');
     RAISE EXCEPTION 'AssertionError: una venta solo tiene una comisión base' USING ERRCODE = 'raise_exception';
   EXCEPTION WHEN unique_violation THEN NULL;
   END;
 END $$;
-INSERT INTO comisiones.comisiones (venta_id, regla_id, regla_version, monto, periodo_id, periodo_origen, estado, ajuste_de, motivo)
-VALUES ('00000000-0000-0000-0000-000000000002', 'r1', 1, -10.00, '2026-11', '2026-10', 'ajustada', '00000000-0000-0000-0000-000000000003', 'venta anulada');
+INSERT INTO comisiones.comisiones (venta_id, vendedor_id, fecha_venta, ticket, monto_venta, regla_id, regla_version, monto, periodo_id, periodo_origen, estado, ajuste_de, motivo)
+VALUES ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000004', '2026-10-15', 'V-2026-0001', 100.00, 'r1', 1, -10.00, '2026-11', '2026-10', 'ajustada', '00000000-0000-0000-0000-000000000003', 'venta anulada');
 
 INSERT INTO seguridad.audit_log (actor_token, rol, accion, resultado) VALUES ('tok', 'administrador', 'prueba', 'ok');
 INSERT INTO conocimiento.documentos (documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash)

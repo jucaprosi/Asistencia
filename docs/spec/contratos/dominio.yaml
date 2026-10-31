@@ -46,8 +46,8 @@ venta:
 comision:
   estados: [estimada, fijada, pagada, ajustada]
   tipos_regla: [porcentaje, fijo, escalonada]
-  base_escalon: acumulado_validado_del_periodo_antes_de_esta_venta
-  orden_acumulado: [validada_en, ticket]
+  base_escalon: acumulado_validado_del_mes_de_fecha_venta_antes_de_esta_venta
+  orden_acumulado: [fecha_venta, numero_ticket]
 
 reserva:
   estados: [preliminar, confirmada, cancelada, expirada, completada]

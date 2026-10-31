@@ -450,6 +450,10 @@ CREATE TABLE comisiones.periodos (
 CREATE TABLE comisiones.comisiones (
   comision_id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   venta_id         uuid NOT NULL,
+  vendedor_id      uuid NOT NULL,
+  fecha_venta      date NOT NULL,
+  ticket           text NOT NULL,
+  monto_venta      numeric(12,2) NOT NULL CHECK (monto_venta >= 0),
   regla_id         text NOT NULL,
   regla_version    integer NOT NULL,
   monto            numeric(12,2) NOT NULL,

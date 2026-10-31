@@ -38,3 +38,10 @@ Característica: Comisiones, tablero y cierre
     Dado una regla escalonada y una base acumulada guardada de 1000.00
     Cuando se recalcula la comisión con la misma versión y la misma base
     Entonces el monto es idéntico aunque hayan llegado ventas posteriores
+
+  @US-14 @RF-COM-01 @INV_COMISION_REPRODUCIBLE
+  Escenario: El orden de validación no cambia el total
+    Dado dos ventas del mismo vendedor y mes que cruzan un escalón
+    Cuando el líder valida primero la de fecha posterior y luego la anterior
+    Entonces la comisión fijada no se modifica y entra un ajuste en el período abierto
+    Y el total coincide con validarlas en orden de fecha
