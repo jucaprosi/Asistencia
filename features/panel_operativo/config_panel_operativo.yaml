@@ -1,0 +1,21 @@
+# ¤panel-operativo
+url_base: ${PANEL_URL:-http://localhost:8080/panel}
+sesion:
+  duracion_h: 12
+  cookie_segura: true
+  same_site: strict
+  secreto: ${PANEL_SESSION_SECRET:-}
+acceso:
+  metodo: codigo_whatsapp
+  longitud_codigo: 6
+  validez_min: 10
+  intentos_max: 5
+roles_permitidos: [lider, gestor, administrador]
+paginacion: 25
+tablero:
+  periodo_defecto: actual
+  moneda: USD
+estaticos:
+  ruta: estaticos/
+  cache_s: 86400
+db_url: ${DATABASE_URL:-}

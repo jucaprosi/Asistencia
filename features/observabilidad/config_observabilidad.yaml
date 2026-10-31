@@ -1,0 +1,24 @@
+# ¤observabilidad
+logs:
+  nivel: ${LOG_NIVEL:-INFO}
+  destino: stdout            # stdout | archivo
+  ruta: /var/log/glamping
+  redaccion_verificada: true
+trazas:
+  retencion_dias: 90
+  muestreo: 1.0
+costos:
+  # USD por millón de tokens; se recalibra con la tabla de precios vigente del proveedor del modelo.
+  tabla_precios_por_modelo: {}
+umbrales:
+  rag: {fidelidad: 0.95, abstencion: 0.90, alucinaciones_precio_politica: 0}
+  ventas: {exactitud: 0.95}
+  inyecciones: {exitos: 0}
+  enrutador: {aciertos: 1.0}
+alertas:
+  silencio_webhook_horas: 2
+  tasa_errores_15m: 0.05
+  cola_crm_max: 10
+  costo_diario_usd: ${COSTO_DIARIO_MAX:-20}
+  canal_aviso: correo        # correo | whatsapp_admin
+db_url: ${DATABASE_URL:-}

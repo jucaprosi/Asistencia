@@ -1,0 +1,24 @@
+# ¤conocimiento-rag
+db_url: ${DATABASE_URL:-}
+embeddings:
+  proveedor: ${EMBEDDINGS_PROVEEDOR:-por_definir}
+  modelo: ${EMBEDDINGS_MODELO:-por_definir}
+  dimension: 1024
+chunking:
+  tokens_min: 400
+  tokens_max: 600
+  solapamiento: 0.10
+recuperacion:
+  k: 6
+  peso_vectorial: 0.6
+  peso_bm25: 0.4
+  umbral_suficiente: 0.55
+  indice:
+    tipo: hnsw
+    m: 16
+    ef_construction: 64
+set_dorado: evals/set_dorado.jsonl
+umbrales:
+  fidelidad: 0.95
+  abstencion: 0.90
+  alucinaciones_precio_politica: 0

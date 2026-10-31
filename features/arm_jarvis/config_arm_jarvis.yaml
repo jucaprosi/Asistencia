@@ -1,0 +1,19 @@
+# ¤arm-jarvis
+modelo_extractor: ${MODELO_PRINCIPAL:-claude-opus-5-5}
+clave_api: ${ANTHROPIC_API_KEY:-}
+canal:
+  modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (S-01)
+ticket:
+  prefijo: V
+  reinicio: anual
+confianza_minima: 0.80
+campos_obligatorios: [monto, producto]
+notificaciones:
+  al_validar: true
+  al_rechazar: true
+  plantilla: comision_validada
+asistente_lider:
+  cambios_permitidos: [notificaciones.al_validar, notificaciones.al_rechazar]
+  requiere_confirmacion: true
+evals: evals/ventas.jsonl
+db_url: ${DATABASE_URL:-}

@@ -1,0 +1,39 @@
+# ¤pasillo-central
+# Configuración global del pasillo central. Los secretos se referencian por variable de entorno con la
+# sintaxis de llaves y signo de dólar (con «:-» para un valor por defecto); nunca se escriben en claro.
+aplicacion:
+  nombre: glamping-imbabura-agent
+  version: 0.1.0
+  entorno: ${APP_ENV:-beta}          # beta | produccion
+  zona_horaria: America/Guayaquil
+  puerto: 8080
+
+salas:
+  # Orden de construcción en app_core/contenedor.py: una compuerta solo recibe las ya construidas.
+  # canal_whatsapp se construye antes que agente y arm_jarvis porque ambos la usan para enviar;
+  # los receptores de mensajes se registran al final (inversión de dependencias).
+  - observabilidad
+  - seguridad
+  - conocimiento
+  - pms_conector
+  - crm_conector
+  - comisiones
+  - canal_whatsapp
+  - arm_jarvis
+  - herramientas_glamping
+  - agente
+  - panel_operativo
+
+egreso_permitido:
+  # Destinos de red salientes autorizados (RNF-10). El arnés de despliegue lo verifica.
+  - graph.facebook.com
+  - api.anthropic.com
+  - ${POSTGRES_HOST:-postgres-beta}
+  - ${S3_ENDPOINT:-s3.local}
+  - ${PMS_HOST:-pms.local}
+  - ${CRM_HOST:-crm.local}
+
+tareas_programadas:
+  checkin_del_dia: "0 8 * * *"
+  reintentos_cola_crm: "*/5 * * * *"
+  cierre_periodo_comisiones: "0 2 1 * *"

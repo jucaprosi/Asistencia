@@ -1,0 +1,75 @@
+# ¤infra-hibrida
+# Compose base: idéntico en beta (PC Ubuntu) y producción (servidor propio). Las diferencias viven en
+# compose.production.yaml y en .env (RNF-14, INV_MISMO_COMPOSE). Solo el proxy publica puertos al exterior.
+name: glamping-imbabura-agent
+
+services:
+  app:
+    build: .
+    image: glamping-imbabura-agent:local
+    command: ["uvicorn", "app_core.main:crear_app", "--factory", "--host", "0.0.0.0", "--port", "8080"]
+    env_file: .env
+    networks: [agent-net]
+    expose: ["8080"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 1g}
+
+  mcp-tools:
+    image: glamping-imbabura-agent:local
+    command: ["python", "-m", "features.herramientas_glamping.server"]
+    env_file: .env
+    networks: [agent-net]
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 512m}
+
+  worker:
+    image: glamping-imbabura-agent:local
+    command: ["python", "-m", "app_core.main", "--worker"]
+    env_file: .env
+    networks: [agent-net]
+    profiles: [worker]
+    deploy:
+      resources:
+        limits: {cpus: "0.5", memory: 512m}
+
+  proxy:
+    image: caddy:2-alpine
+    ports: ["443:443", "80:80"]
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-datos:/data
+    environment:
+      PANEL_DOMAIN: ${PANEL_DOMAIN:-localhost}
+    networks: [agent-net]
+    deploy:
+      resources:
+        limits: {cpus: "0.25", memory: 128m}
+
+  postgres-beta:
+    # Solo para desarrollo con datos sintéticos; los datos reales viven en PostgreSQL gestionado (ADR-0002).
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: glamping_beta
+      POSTGRES_USER: glamping
+      POSTGRES_PASSWORD: ${POSTGRES_BETA_PASSWORD:-cambiar}
+    ports: ["127.0.0.1:5433:5432"]
+    volumes: [postgres-beta-datos:/var/lib/postgresql/data]
+    networks: [glamping-beta-net]
+    profiles: [beta]
+
+networks:
+  agent-net:
+    driver: bridge
+  glamping-beta-net:
+    driver: bridge
+
+volumes:
+  caddy-datos:
+  postgres-beta-datos:

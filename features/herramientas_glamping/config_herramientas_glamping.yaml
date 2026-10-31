@@ -1,0 +1,15 @@
+# ¤herramientas-mcp
+transporte: ${MCP_TRANSPORTE:-stdio}     # stdio | http
+puerto: 8090                             # solo en agent-net
+timeout_por_herramienta_s: 8
+herramientas:
+  - {nombre: consultar_disponibilidad, esquema: esquemas/consultar_disponibilidad.json, roles: [huesped], sala_destino: pms_conector, habilitada: false}
+  - {nombre: cotizar, esquema: esquemas/cotizar.json, roles: [huesped], sala_destino: pms_conector, habilitada: false}
+  - {nombre: crear_reserva_preliminar, esquema: esquemas/crear_reserva_preliminar.json, roles: [huesped], sala_destino: pms_conector, habilitada: false}
+  - {nombre: obtener_instrucciones_checkin, esquema: esquemas/obtener_instrucciones_checkin.json, roles: [huesped], sala_destino: pms_conector, habilitada: false}
+  - {nombre: reportar_incidencia, esquema: esquemas/reportar_incidencia.json, roles: [huesped], sala_destino: pms_conector, habilitada: false}
+  - {nombre: solicitar_humano, esquema: esquemas/solicitar_humano.json, roles: [huesped, vendedor], sala_destino: crm_conector, habilitada: false}
+  - {nombre: buscar_contacto_crm, esquema: esquemas/buscar_contacto_crm.json, roles: [agente], sala_destino: crm_conector, habilitada: false}
+  - {nombre: crear_oportunidad_crm, esquema: esquemas/crear_oportunidad_crm.json, roles: [agente], sala_destino: crm_conector, habilitada: false}
+  - {nombre: registrar_venta, esquema: esquemas/registrar_venta.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}
+  - {nombre: consultar_comision_propia, esquema: esquemas/consultar_comision_propia.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}

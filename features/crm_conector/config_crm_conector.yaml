@@ -1,0 +1,22 @@
+# ¤crm-conector
+proveedor: ${CRM_PROVEEDOR:-fake}        # fake | ghl | chatwoot_attio  (ADR-0008)
+credenciales:
+  url: ${CRM_URL:-}
+  token: ${CRM_TOKEN:-}
+  location_id: ${CRM_LOCATION_ID:-}
+webhook_ventas:
+  url: ${CRM_INBOUND_WEBHOOK_URL:-}
+  secreto_hmac: ${CRM_HMAC_SECRET:-}
+  cabecera_firma: X-Glamping-Signature
+eventos_entrantes:
+  secreto: ${CRM_EVENTS_SECRET:-}
+cola:
+  backoff_s: [30, 120, 600, 3600]
+  max_horas: 24
+mapeo_pipeline:
+  etapa_por_validar: Por validar
+  etapa_validada: Validada
+  etapa_rechazada: Rechazada
+inbox:
+  usar_proveedor: true                   # ADR-0010
+db_url: ${DATABASE_URL:-}

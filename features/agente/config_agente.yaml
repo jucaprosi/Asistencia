@@ -1,0 +1,22 @@
+# ¤agente-enrutador
+modelos:
+  principal: ${MODELO_PRINCIPAL:-claude-opus-5-5}
+  economico: ${MODELO_ECONOMICO:-claude-haiku-5-5}
+clave_api: ${ANTHROPIC_API_KEY:-}
+tope_iteraciones: 6
+timeout_modelo_s: 30
+acuse_si_tarda_s: 3
+memoria:
+  mensajes: 30
+  horas: 24
+prompts:
+  enrutador: docs/prompts/system-prompt-enrutador.md
+  glamping: docs/prompts/system-prompt-glamping.md
+  departamentos: docs/prompts/system-prompt-departamentos.md
+cache_semantico:
+  activo: true
+  umbral_similitud: 0.92
+  excluir_si_contiene: [precio, tarifa, disponib, cancel, reembolso]
+enrutamiento_modelos:
+  economico_para: [horario, ubicacion, wifi, atractivos]
+db_url: ${DATABASE_URL:-}

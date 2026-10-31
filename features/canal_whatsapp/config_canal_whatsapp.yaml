@@ -1,0 +1,25 @@
+# ¤canal-whatsapp
+numero_id: ${META_PHONE_NUMBER_ID:-}
+cuenta_negocio_id: ${META_WABA_ID:-}
+token_acceso: ${META_ACCESS_TOKEN:-}
+verify_token: ${META_VERIFY_TOKEN:-}
+secreto_app: ${META_APP_SECRET:-}
+version_api: v21.0
+reintentos:
+  max: 3
+  backoff_s: [1, 4, 10]
+ventana_servicio_horas: 24
+plantillas:
+  - {nombre: instrucciones_checkin, idioma: es, variables: [nombre, propiedad, hora], aprobada: false}
+  - {nombre: recordatorio_llegada, idioma: es, variables: [nombre, propiedad, fecha], aprobada: false}
+  - {nombre: comision_validada, idioma: es, variables: [nombre, ticket, comision], aprobada: false}
+  - {nombre: incidencia_actualizada, idioma: es, variables: [nombre, incidencia, estado], aprobada: false}
+canal_vendedores:
+  modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (se fija al validar S-01 en TASK-001)
+  grupo_id: ${CANAL_VENDEDORES_GRUPO_ID:-}
+medios:
+  bucket: ${S3_BUCKET:-glamping-medios}
+  prefijo: whatsapp/
+  max_mb: 16
+audio:
+  transcribir: false   # decisión menor de TASK-001

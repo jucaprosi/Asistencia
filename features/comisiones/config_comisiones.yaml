@@ -1,0 +1,9 @@
+# ¤comisiones
+periodo: mensual
+moneda: USD
+redondeo:
+  decimales: 2
+  modo: ROUND_HALF_UP
+cierre_automatico_dia: 1
+esquema_exportacion: esquema_exportacion.json
+db_url: ${DATABASE_URL:-}

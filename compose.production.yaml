@@ -1,0 +1,33 @@
+# ¤infra-hibrida
+# Sobrescritura de producción (servidor propio): endurece, no redefine.
+#   docker compose -f compose.yaml -f compose.production.yaml up -d
+services:
+  app:
+    restart: always
+    deploy:
+      resources:
+        limits: {cpus: "2.0", memory: 2g}
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "10"}
+    volumes:
+      - logs-app:/var/log/glamping
+
+  mcp-tools:
+    restart: always
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "5"}
+
+  worker:
+    restart: always
+    profiles: []            # en producción el worker siempre arranca
+
+  proxy:
+    restart: always
+    logging:
+      driver: json-file
+      options: {max-size: "20m", max-file: "5"}
+
+volumes:
+  logs-app:

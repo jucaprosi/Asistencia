@@ -1,0 +1,26 @@
+# ¤seguridad-canal
+whitelist:
+  politica_huespedes: por_reserva    # por_reserva | por_conversacion | manual
+  fuente: tabla
+allowlist:
+  huesped: [consultar_disponibilidad, cotizar, crear_reserva_preliminar, obtener_instrucciones_checkin, reportar_incidencia, solicitar_humano]
+  vendedor: [registrar_venta, consultar_comision_propia, solicitar_humano]
+  lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, preguntar_jarvis]
+  gestor: [ver_conversaciones_zona, resolver_incidencia, tomar_handoff, responder_handoff, devolver_handoff]
+  administrador: ["*"]
+rate_limit:
+  por_segundo: 2
+  por_minuto: 30
+  diario: 300
+  global_modelo_diario: 5000
+injection:
+  patrones_archivo: patrones_inyeccion.yaml
+  umbral_escalado: 3
+  idiomas: [es, en, pt, fr]
+pii:
+  tipos: [nombre, telefono, correo, documento, tarjeta]
+  clave_boveda: ${PII_VAULT_KEY:-}
+rls:
+  activa: true
+  rol_db: app_seguridad
+db_url: ${DATABASE_URL:-}
