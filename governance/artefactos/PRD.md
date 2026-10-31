@@ -21,7 +21,6 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 | `conocimiento` | `features/conocimiento`, `CORPUS_DIR` (datos fuera del repositorio), `scripts/seed_knowledge.py` | `conocimiento_service.py` (por crear, TASK-002) | `¤conocimiento-rag` | `¤¤data-engineer` | RF-RAG-01..06 |
 | `pms_conector` | `features/pms_conector` | `pms_conector_service.py` (por crear, TASK-003) | `¤pms-conector` | `¤¤integration-engineer` | RF-PMS-01..05 |
 | `herramientas_glamping` | `features/herramientas_glamping` | `herramientas_glamping_service.py` (TASK-000); `server.py` es el ejecutable MCP (TASK-003) | `¤herramientas-mcp` | `¤¤backend-developer` | RF-MCP-01..09 |
-| `operaciones` (condicional, ADR-0007) | `features/operaciones` | `operaciones_service.py` (por definir) | `¤operaciones-incidencias` | `¤¤backend-developer` | RF-MCP-05 (registro de Incidencia) |
 | `crm_conector` | `features/crm_conector` | `crm_conector_service.py` (por crear, TASK-004 mínimo; TASK-007 completo) | `¤crm-conector` | `¤¤integration-engineer` | RF-CRM-01..06 |
 | `arm_jarvis` | `features/arm_jarvis` | `arm_jarvis_service.py` (por crear, TASK-006) | `¤arm-jarvis` | `¤¤backend-developer` | RF-ARM-01..10 |
 | `comisiones` | `features/comisiones` | `comisiones_service.py` (por crear, TASK-006) | `¤comisiones` | `¤¤backend-developer` | RF-COM-01..04 |
@@ -50,7 +49,7 @@ Detalle, criterios de aceptación y árbitros en [`docs/PRD.md` §5](../../docs/
 | RF-GW | `canal_whatsapp` | Construir |
 | RF-AG | `agente` | Construir |
 | RF-RAG | `conocimiento` | Construir |
-| RF-PMS | `pms_conector` | Construir sobre MCP; proveedor `[DECISIÓN PENDIENTE]` ADR-0007 |
+| RF-PMS | `pms_conector` | Construir; calendario propio (ADR-0007) |
 | RF-CRM | `crm_conector` | Interfaz propia; CRM adoptado `[DECISIÓN PENDIENTE]` ADR-0008 |
 | RF-ARM | `arm_jarvis` | Construir (ADR-0005) |
 | RF-COM | `comisiones` | Construir; registro `[DECISIÓN PENDIENTE]` ADR-0009 |

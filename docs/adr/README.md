@@ -13,7 +13,7 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 | [ADR-0004](ADR-0004-infraestructura-hibrida-aislada.md) | Infraestructura híbrida y aislamiento del flujo contable | Aceptado | `¤infra-hibrida` | — |
 | [ADR-0005](ADR-0005-arm-construido-en-casa.md) | Construir el ARM «Jarvis» en casa | Aceptado (reevaluable) | `¤arm-jarvis` | — |
 | [ADR-0006](ADR-0006-metodologia-zerag-adpa-huellas.md) | Metodología ZERAG: salas ADPA, compuertas, rastros y arnés | Aceptado | `¤adr-zerag` | — |
-| [ADR-0007](ADR-0007-pms-definitivo.md) | PMS definitivo (Kamra / Repull MCP / Hospitable) | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤pms-conector` | Fase 3 |
+| [ADR-0007](ADR-0007-pms-definitivo.md) | Calendario propio en lugar de un PMS externo | Aceptado (2026-10-31) | `¤pms-conector` | — |
 | [ADR-0008](ADR-0008-proveedor-capa-commodity.md) | Proveedor de la capa commodity (GoHighLevel vs Chatwoot + Attio/HubSpot + n8n) | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤crm-conector` | Fase 7 |
 | [ADR-0009](ADR-0009-registro-comisiones.md) | Sistema de registro de comisiones (propio vs CRM) | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤comisiones` | Tablero (fase 7) |
 | [ADR-0010](ADR-0010-inbox-proveedor.md) | ¿Inbox del proveedor o inbox completo de huéspedes en el panel operativo? (reformulado por ADR-0013) | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤panel-operativo` | Fase 8 |

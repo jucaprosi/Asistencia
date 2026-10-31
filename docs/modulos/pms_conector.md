@@ -1,19 +1,19 @@
-# Módulo `pms_conector` — Conector al PMS / channel manager
+# Módulo `pms_conector` — Calendario, tarifas y reservas
 `¤pms-conector`
 
 | Campo | Valor |
 | :--- | :--- |
 | Sala | `features/pms_conector/` |
 | Compuerta | `pms_conector_service.py` → `PMSConectorService` |
-| Privados | `base_internal.py` (ABC `PMSConnector`), `fake_internal.py`, `kamra_internal.py` · `repull_internal.py` · `hospitable_internal.py` (uno activo), `tipos.py` |
+| Privados | `base_internal.py` (ABC `PMSConnector`), `fake_internal.py`, `plataforma_internal.py`, `tipos.py` |
 | Config | `config_pms_conector.yaml` |
 | Rol | `¤¤integration-engineer` |
-| Requisitos | RF-PMS-01..04 · RNF-02 · INV_SIN_CLIENTES_OTA, INV_ESCRITURA_PMS_EXPLICITA |
+| Requisitos | RF-PMS-01..08 · RNF-02 · INV_SIN_CLIENTES_OTA, INV_ESCRITURA_PMS_EXPLICITA, INV_SIN_DOBLE_RESERVA |
 | Tarea | TASK-003 |
-| Decisión | Construir sobre MCP; proveedor `[DECISIÓN PENDIENTE]` ADR-0007 |
+| Decisión | Calendario propio, ADR-0007 |
 
 ## Propósito
-Abstraer el PMS detrás de tipos del dominio para que el agente y las herramientas nunca conozcan al proveedor. Lecturas libres; escrituras deshabilitadas por defecto y con clave de idempotencia.
+Dar disponibilidad, tarifas y reservas detrás de tipos del dominio, para que el agente y las herramientas no dependan del proveedor. Lecturas libres; escrituras deshabilitadas por defecto y con clave de idempotencia.
 
 ## Tipos del dominio
 
@@ -44,16 +44,19 @@ class PMSConectorService:
     def consultar_disponibilidad(self, propiedad_id: str, desde: date, hasta: date, huespedes: int) -> Disponibilidad: ...
     def cotizar(self, propiedad_id: str, unidad_id: str, desde: date, hasta: date, huespedes: int) -> Cotizacion: ...
     def crear_reserva_preliminar(self, propiedad_id: str, unidad_id: str, desde: date, hasta: date, huespedes: int, huesped_token: str, clave_idempotencia: str) -> Reserva: ...  # escritura
+    def confirmar_reserva(self, codigo: str, clave_idempotencia: str) -> Reserva: ...  # escritura; la llama anfitriones
+    def guardar_tarifas(self, unidad_id: str, desde: date, hasta: date, precio: Decimal, minimo_noches: int, actor_id: str) -> int: ...  # escritura
+    def actualizar_calendario(self, unidad_id: str, desde: date, hasta: date, accion: str, actor_id: str) -> tuple[int, int]: ...  # noches y omitidas
     def obtener_reserva(self, codigo: str) -> Reserva: ...
     def reservas_con_llegada(self, fecha: date) -> tuple[Reserva, ...]: ...
     def cancelar_reserva(self, codigo: str, motivo: str, clave_idempotencia: str) -> Reserva: ...  # escritura
     def obtener_instrucciones_checkin(self, codigo_reserva: str) -> InstruccionesCheckin: ...
-    def registrar_incidencia(self, incidencia: Incidencia, clave_idempotencia: str) -> Incidencia: ...  # escritura; o sala operaciones (ADR-0007)
+    def registrar_incidencia(self, incidencia: Incidencia, clave_idempotencia: str) -> Incidencia: ...  # escritura
     def registrar_tarea_housekeeping(self, propiedad_id: str, unidad_id: str, fecha: date, nota: str, clave_idempotencia: str) -> str: ...
 ```
 
 ## Configuración (`config_pms_conector.yaml`)
-`proveedor: fake|kamra|repull|hospitable`, `credenciales {url: ${PMS_URL}, token: ${PMS_TOKEN}}`, `timeout_s: 8`, `reintentos_lectura: 2`, `escrituras_habilitadas {crear_reserva_preliminar: false, cancelar_reserva: false, registrar_incidencia: false, housekeeping: false}`, `cache_propiedades_s: 300`.
+`proveedor: fake|plataforma`, `timeout_s: 8`, `reintentos_lectura: 2`, `escrituras_habilitadas {crear_reserva_preliminar: false, cancelar_reserva: false, registrar_incidencia: false, housekeeping: false, calendario: false}`, `cache_propiedades_s: 300`.
 
 ## Compuertas que consume
 `observabilidad`. Ninguna otra.

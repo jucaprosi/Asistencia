@@ -1,5 +1,5 @@
 # ¤pms-conector
-proveedor: ${PMS_PROVEEDOR:-fake}        # fake | kamra | repull | hospitable  (ADR-0007)
+proveedor: ${PMS_PROVEEDOR:-fake}        # fake | plataforma  (ADR-0007)
 credenciales:
   url: ${PMS_URL:-}
   token: ${PMS_TOKEN:-}
@@ -10,5 +10,6 @@ escrituras_habilitadas:
   cancelar_reserva: false
   registrar_incidencia: false
   housekeeping: false
+  calendario: false
 cache_propiedades_s: 300
 db_url: ${DATABASE_URL:-}

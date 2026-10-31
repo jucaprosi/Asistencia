@@ -28,7 +28,7 @@ El propietario decidió que los huéspedes deben poder buscar y comparar opcione
 
 - Nacen la sala `web_huespedes`, el esquema `web`, US-18, RF-WEB-01..06, cuatro invariantes, T-105 y T-205.
 - La web es la primera superficie pública: su exposición exige límites por IP desde el primer día.
-- Con el PMS real, los precios dependen de ADR-0007. Hasta entonces la búsqueda solo corre con datos de prueba y no debe publicarse.
+- Con el calendario propio de ADR-0007, los precios salen de las tarifas cargadas. Una noche sin tarifa no se muestra.
 - Publicar exige tener aviso de privacidad, catálogo real y fotos con derechos de uso.
 
 `¤web-huespedes/`

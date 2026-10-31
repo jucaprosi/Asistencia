@@ -33,6 +33,8 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PMS-04 | T-202 | plataforma.feature: Sin clientes de OTA |
 | RF-PMS-05 | T-202 | reservas.feature: Una reserva preliminar sin pago expira |
 | RF-PMS-06 | T-202 | plataforma.feature: Validar al titular sin llamar al PMS |
+| RF-PMS-07 | T-212 | plataforma.feature: Dos huéspedes piden la misma noche<br>plataforma.feature: Noche sin tarifa |
+| RF-PMS-08 | T-212, T-306, T-404 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
 | RF-CRM-01 | T-302 | plataforma.feature: Contrato del conector CRM |
 | RF-CRM-02 | T-302, T-601 | plataforma.feature: Cambio de proveedor de CRM |
 | RF-CRM-03 | T-601 | plataforma.feature: Publicar dos veces la misma venta<br>ventas.feature: Anular una venta publicada |
@@ -75,7 +77,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-MCP-02 | T-203 | reservas.feature: Consulta con disponibilidad |
 | RF-MCP-03 | T-203 | reservas.feature: Reserva preliminar<br>reservas.feature: Reintento idempotente |
 | RF-MCP-04 | T-203 | checkin.feature: Instrucciones de la propiedad correcta<br>checkin.feature: Un código de reserva ajeno no abre las instrucciones |
-| RF-MCP-05 | T-203, T-204 | incidencias_handoff.feature: Registro de incidencia<br>incidencias_handoff.feature: Incidencia crítica |
+| RF-MCP-05 | T-203 | incidencias_handoff.feature: Registro de incidencia<br>incidencias_handoff.feature: Incidencia crítica |
 | RF-MCP-06 | T-203, T-302 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: Cancelar o cambiar una reserva pasa por una persona |
 | RF-MCP-07 | T-203 | plataforma.feature: Herramientas internas de CRM |
 | RF-MCP-08 | T-504 | plataforma.feature: El vendedor no se declara en la entrada |

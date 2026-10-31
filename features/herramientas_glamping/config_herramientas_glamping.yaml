@@ -17,3 +17,4 @@ herramientas:
   - {nombre: responder_solicitud, esquema: esquemas/responder_solicitud.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
   - {nombre: reportar_resultado_estadia, esquema: esquemas/reportar_resultado_estadia.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
   - {nombre: consultar_estado_cuenta_anfitrion, esquema: esquemas/consultar_estado_cuenta_anfitrion.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
+  - {nombre: actualizar_calendario, esquema: esquemas/actualizar_calendario.json, roles: [anfitrion], sala_destino: pms_conector, habilitada: false}

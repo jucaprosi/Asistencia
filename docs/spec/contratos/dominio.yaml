@@ -25,7 +25,7 @@ allowlist:
   lider: [validar_venta, rechazar_venta, ver_comisiones_todas, exportar_periodo, cerrar_periodo, preguntar_jarvis]
   gestor: [ver_conversaciones_zona, resolver_incidencia, tomar_handoff, responder_handoff, devolver_handoff]
   administrador: ["*"]
-  anfitrion: [responder_solicitud, reportar_resultado_estadia, consultar_estado_cuenta_anfitrion]
+  anfitrion: [responder_solicitud, reportar_resultado_estadia, consultar_estado_cuenta_anfitrion, actualizar_calendario]
   sistema: [buscar_contacto_crm, crear_oportunidad_crm]
   desconocido: []
 

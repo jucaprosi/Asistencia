@@ -278,3 +278,28 @@ Característica: Comportamiento técnico de canal, agente, conectores y observab
     Dado una venta por validar
     Cuando la acción llega dos veces con la misma clave
     Entonces se valida una sola vez y el vendedor recibe un solo aviso
+
+  @RF-PMS-07 @INV_SIN_DOBLE_RESERVA
+  Escenario: Dos huéspedes piden la misma noche
+    Dado una unidad libre y con tarifa
+    Cuando dos reservas preliminares llegan al mismo tiempo
+    Entonces solo una ocupa la noche y la otra recibe SinDisponibilidad
+
+  @RF-PMS-07
+  Escenario: Noche sin tarifa
+    Dado una unidad libre sin tarifa para una noche
+    Cuando un huésped consulta esa fecha
+    Entonces la unidad no se ofrece
+
+  @RF-PMS-08 @INV_AISLAMIENTO_ANFITRION
+  Escenario: El anfitrión bloquea fechas
+    Dado un anfitrión con una unidad propia
+    Cuando bloquea fechas por WhatsApp
+    Entonces esas noches dejan de ofrecerse
+    Y no puede cambiar la unidad de otro anfitrión
+
+  @RF-PMS-08
+  Escenario: Liberar no toca reservas
+    Dado noches con una reserva dentro del rango
+    Cuando el anfitrión libera ese rango
+    Entonces solo se liberan los bloqueos y la respuesta indica cuántas noches se omitieron

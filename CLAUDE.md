@@ -25,7 +25,7 @@
 | [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Salas ADPA, compuertas, pasillo central, topología Docker, seguridad por capa. |
 | [`docs/modulos/`](docs/modulos/README.md) | Diseño detallado por sala: compuerta con firmas tipadas, tipos, configuración, errores, persistencia, tests. Leer el de la sala antes de tocarla. |
 | [`docs/FRONTEND.md`](docs/FRONTEND.md) | Diseño del panel operativo (pantallas, componentes, tokens, contrato del BFF). |
-| [`docs/adr/`](docs/adr/README.md) | Decisiones aceptadas (ADR-0001 a 0006) y pendientes (ADR-0007 a 0012). |
+| [`docs/adr/`](docs/adr/README.md) | Decisiones aceptadas y pendientes; el índice indica el estado de cada una. |
 | [`governance/artefactos/`](governance/artefactos/PRD.md) | Nido de artefactos vivos: catálogo de salas, invariantes, fuentes, índice de rastros, problemas. |
 | [`governance/tareas/TASKS.md`](governance/tareas/TASKS.md) | Tareas ejecutables por sala (T-101…T-701) en olas paralelas sin colisión: propiedad exclusiva de rutas, compuertas que consume, árbitro. Toma una tarea de aquí, nunca una fase entera. |
 | [`governance/tareas/`](governance/tareas/README.md) | Hitos de fase (TASK-000 a TASK-008) que sellan las tareas de integración. |

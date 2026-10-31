@@ -3,11 +3,11 @@ id = "TASK-003"
 titulo = "Conector PMS por compuerta y herramientas MCP de disponibilidad, cotización, reserva, check-in e incidencias"
 fase = 3
 estado = "pendiente"
-sala = ["pms_conector", "herramientas_glamping", "operaciones (condicional)"]
+sala = ["pms_conector", "herramientas_glamping"]
 rastro = ["¤pms-conector", "¤herramientas-mcp", "¤operaciones-incidencias"]
 rol = "¤¤integration-engineer"
 depende_de = ["TASK-001"]
-bloqueada_por = ["ADR-0007"]
+bloqueada_por = []
 propiedad = ["features/pms_conector/**", "features/herramientas_glamping/**", "features/operaciones/**", "tests/pms_conector/**", "tests/herramientas_glamping/**", "tests/operaciones/**"]
 arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); contrato en verde contra FakePMS y proveedor real con fixtures; reserva preliminar real en entorno de pruebas; RNF-02"
 ```

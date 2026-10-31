@@ -131,6 +131,18 @@ BEGIN
   END;
 END $$;
 
+DO $$ BEGIN
+  INSERT INTO pms.propiedades (propiedad_id, tipo, nombre, zona_id, direccion, prompt_variante)
+  VALUES ('CAL', 'glamping', 'Calendario', 'Z', 'D', 'glamping');
+  INSERT INTO pms.unidades (unidad_id, propiedad_id, nombre, capacidad) VALUES ('CAL-1', 'CAL', 'U', 2);
+  INSERT INTO pms.noches_ocupadas (unidad_id, noche, origen) VALUES ('CAL-1', '2026-11-01', 'bloqueo');
+  BEGIN
+    INSERT INTO pms.noches_ocupadas (unidad_id, noche, origen) VALUES ('CAL-1', '2026-11-01', 'bloqueo');
+    RAISE EXCEPTION 'AssertionError: una noche se ocupó dos veces' USING ERRCODE = 'raise_exception';
+  EXCEPTION WHEN unique_violation THEN NULL;
+  END;
+END $$;
+
 SET LOCAL app.anfitrion_id = 'todos';
 DO $$
 DECLARE

@@ -59,7 +59,7 @@ El sistema es un submarino de salas estancas bajo `features/`; cada sala expone 
 | `seguridad` | Identidad y bloqueos, allowlist por acción, rate limit, filtro de inyección, redacción de PII, audit log. | `seguridad_service.py` |
 | `agente` | Claude con tool use, enrutador multi-propiedad, prompts, memoria, caché y enrutamiento de modelos. | `agente_service.py` |
 | `conocimiento` | RAG en pgvector sobre el corpus privado de `CORPUS_DIR`, con «no lo sé» explícito. | `conocimiento_service.py` |
-| `pms_conector` | Interfaz al PMS (proveedor pendiente, ADR-0007). | `pms_conector_service.py` |
+| `pms_conector` | Calendario, tarifas y reservas propios (ADR-0007). | `pms_conector_service.py` |
 | `herramientas_glamping` | Servidor MCP: disponibilidad, cotización, reserva, check-in, incidencias, handoff, venta, comisión. | `herramientas_glamping_service.py` (ejecutable: `server.py`) |
 | `crm_conector` | Interfaz al CRM (proveedor pendiente, ADR-0008), Inbound Webhook firmado y handoff por zona. | `crm_conector_service.py` |
 | `arm_jarvis` | Lee las ventas de los vendedores, las estructura, gestiona estados, ticket, notificaciones, tablero. | `arm_jarvis_service.py` |
@@ -73,7 +73,6 @@ Detalle y equivalencia con la estructura del informe: [`docs/ARQUITECTURA.md` §
 
 | Decisión | ADR | Bloquea |
 | :--- | :--- | :--- |
-| PMS definitivo (Kamra / Repull MCP / Hospitable) | [ADR-0007](docs/adr/ADR-0007-pms-definitivo.md) | Fase 3 |
 | Proveedor de CRM/inbox/workflows (GoHighLevel vs Chatwoot + Attio/HubSpot + n8n) | [ADR-0008](docs/adr/ADR-0008-proveedor-capa-commodity.md) | Fase 7 |
 | Registro de comisiones (propio vs CRM) | [ADR-0009](docs/adr/ADR-0009-registro-comisiones.md) | Tablero (fase 7) |
 | Inbox del proveedor vs panel propio | [ADR-0010](docs/adr/ADR-0010-inbox-proveedor.md) | Fase 8 |

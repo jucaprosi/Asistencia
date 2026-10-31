@@ -57,7 +57,7 @@
 | `panel_operativo` | `tests/e2e/**` | `¤¤frontend-developer` |
 | `web_huespedes` | — | `¤¤frontend-developer` |
 | `anfitriones` | — | `¤¤backend-developer` |
-| `operaciones` (condicional) | — | `¤¤backend-developer` |
+| *(`operaciones` no nace: ADR-0007)* | — | — |
 | *coordinador* (`pasillo_central`, `infraestructura`) | las rutas reservadas de la regla 5 | `¤¤solutions-architect`, `¤¤devops-engineer` |
 
 ## 3. Olas de ejecución
@@ -68,7 +68,7 @@ coordinación (`T-x10`) que enlaza las salas en `app_core` y, si aplica, la de i
 | Ola | Fase | Tareas en paralelo | Cierre de ola | Hito |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | 1 MVP WhatsApp | T-101 canal · T-102 seguridad · T-103 observabilidad · T-104 agente · T-105 web pública | T-110 pasillo · T-111 integración | TASK-001 |
-| 2 | 2–3 RAG y PMS | T-201 conocimiento · T-202 pms (fake) · T-203 herramientas · T-204 operaciones (cond.) · T-205 web búsqueda | T-212 pms real (bloq. ADR-0007) · T-210 pasillo · T-211 integración | TASK-002, TASK-003 |
+| 2 | 2–3 RAG y PMS | T-201 conocimiento · T-202 pms (fake) · T-203 herramientas · T-205 web búsqueda | T-212 calendario propio · T-210 pasillo · T-211 integración | TASK-002, TASK-003 |
 | 3 | 4 Multi-propiedad | T-301 agente enrutador · T-302 crm (fake) · T-303 panel handoff · T-304 seguridad RLS · T-305 anfitriones · T-306 herramientas de anfitrión | T-310 pasillo · T-311 integración | TASK-004 |
 | 4 | 5 Seguridad y observabilidad | T-401 seguridad · T-402 observabilidad · T-403 agente caché · T-404 panel admin · T-405 web publicados | T-410 infraestructura beta · T-411 integración (salida de beta) | TASK-005 |
 | 5 | 6 ARM | T-501 comisiones · T-502 arm · T-503 canal vendedores · T-504 herramientas ventas · T-505 panel ventas · T-506 estados de cuenta | T-510 pasillo · T-511 integración | TASK-006 |
@@ -266,41 +266,23 @@ arbitro = "tests/herramientas_glamping/{test_contratos,test_server}.py con doble
 ```
 Entregables: `esquemas/*.json` (entrada y salida de las siete herramientas), `herramientas_internal.py` (validación, `seguridad.autorizar`, despacho a la compuerta dueña, `ResultadoHerramienta`), `listar`/`ejecutar`/`esquema`, transporte MCP en `server.py` (stdio y http en `agent-net`). **Hecho cuando** cada herramienta rechaza entrada inválida con mensaje legible, rechaza rol no autorizado y pasa su contrato con los dobles.
 
-### T-204 — Operaciones (condicional): registro de incidencias si el PMS no las cubre
-`¤operaciones-incidencias`
-```toml
-id = "T-204"
-ola = 2
-fase = 3
-estado = "bloqueada"
-sala = "operaciones"
-rol = "¤¤backend-developer"
-requisitos = ["RF-MCP-05 (registro)", "INV_TICKET_UNICO (I-AAAA-NNNN)"]
-depende_de = ["TASK-000"]
-bloqueada_por = ["ADR-0007"]
-propiedad = ["features/operaciones/**", "tests/operaciones/**", "docs/modulos/operaciones.md"]
-consume = ["seguridad_service", "observabilidad_service"]
-arbitro = "tests/operaciones/{test_incidencias,test_ticket}.py (concurrencia); arnés Exit Code 0"
-```
-Solo nace si ADR-0007 concluye que el PMS elegido no cubre incidencias. El coordinador añade entonces la sala al catálogo (`governance/artefactos/PRD.md`) antes de que esta tarea empiece.
-
-### T-212 — Conector PMS: proveedor real (Kamra, Repull MCP u Hospitable)
+### T-212 — Conector PMS: calendario y tarifas propios
 `¤pms-conector`
 ```toml
 id = "T-212"
 ola = 2
 fase = 3
-estado = "bloqueada"
+estado = "pendiente"
 sala = "pms_conector"
 rol = "¤¤integration-engineer"
-requisitos = ["RF-PMS-02 (real)", "S-04"]
+requisitos = ["RF-PMS-02 (plataforma)", "RF-PMS-07", "RF-PMS-08"]
 depende_de = ["T-202"]
-bloqueada_por = ["ADR-0007", "ADR-0011 (si usa MCP de comunidad)"]
+bloqueada_por = []
 propiedad = ["features/pms_conector/**", "tests/pms_conector/**", "docs/modulos/pms_conector.md"]
 consume = ["observabilidad_service"]
-arbitro = "tests/pms_conector/test_contrato.py parametrizado con el proveedor real sobre fixtures grabados; reserva preliminar real en el entorno de pruebas del PMS; arnés Exit Code 0"
+arbitro = "tests/pms_conector/test_contrato.py con el proveedor plataforma; tests/pms_conector/test_calendario.py con concurrencia; arnés Exit Code 0"
 ```
-Misma sala que T-202, por eso es secuencial. Entregables: `<proveedor>_internal.py`, fixtures grabados en `tests/pms_conector/fixtures/`, `proveedor` en `config_pms_conector.yaml`. **Hecho cuando** el mismo test de contrato pasa con `FakePMS` y con el real.
+Misma sala que T-202, por eso es secuencial. Entregables: `plataforma_internal.py` y `proveedor: plataforma`. **Hecho cuando** el mismo test de contrato pasa con `FakePMS` y con `plataforma`, y dos reservas simultáneas no ocupan la misma noche.
 
 ### T-205 — Web pública: búsqueda, comparación y contexto para el agente
 `¤web-huespedes`
@@ -459,14 +441,14 @@ fase = 4
 estado = "pendiente"
 sala = "herramientas_glamping"
 rol = "¤¤backend-developer"
-requisitos = ["RF-ANF-04", "RF-ANF-05", "RF-ANF-06"]
+requisitos = ["RF-ANF-04", "RF-ANF-05", "RF-ANF-06", "RF-PMS-08 (herramienta)"]
 depende_de = ["T-203"]
 bloqueada_por = []
 propiedad = ["features/herramientas_glamping/**", "tests/herramientas_glamping/**", "docs/modulos/herramientas_glamping.md"]
-consume = ["seguridad_service", "anfitriones_service", "observabilidad_service"]
+consume = ["seguridad_service", "anfitriones_service", "pms_conector_service", "observabilidad_service"]
 arbitro = "tests/herramientas_glamping/test_anfitriones.py; arnés Exit Code 0"
 ```
-Entregables: `solicitar_reserva`, `responder_solicitud` y `reportar_resultado_estadia` según `docs/spec/contratos/herramientas.yaml`. `anfitrion_id` sale siempre de la identidad.
+Entregables: `solicitar_reserva`, `responder_solicitud`, `reportar_resultado_estadia` y `actualizar_calendario` según `docs/spec/contratos/herramientas.yaml`. `anfitrion_id` sale siempre de la identidad.
 
 ### T-310 — Pasillo central, fase 4: planificador de check-in, ruta del panel, eventos del CRM
 `¤pasillo-central`
@@ -571,11 +553,11 @@ fase = 5
 estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
-requisitos = ["RF-PAN-09 (usuarios, auditoría, privacidad, salud)", "RF-PAN-10", "RF-ANF-01", "RF-ANF-02"]
+requisitos = ["RF-PAN-09 (usuarios, auditoría, privacidad, salud)", "RF-PAN-10", "RF-ANF-01", "RF-ANF-02", "RF-PMS-08 (pantalla)"]
 depende_de = ["T-303"]
 bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
-consume = ["seguridad_service", "anfitriones_service", "observabilidad_service"]
+consume = ["seguridad_service", "anfitriones_service", "pms_conector_service", "observabilidad_service"]
 arbitro = "tests/panel_operativo/test_bff_admin.py (cada rol); tests/e2e/test_calidad_ui.py (accesibilidad AA, LCP ≤ 2,5 s, 0 rastros en el build); arnés Exit Code 0"
 ```
 Entregables: P-11 usuarios, roles y bloqueos, auditoría, solicitudes de titulares, salud del sistema; auditoría de accesibilidad y presupuesto de rendimiento en CI; `tests/test_interfaz_purificada.py` extendido al build (coordinado con T-410, que es dueño de ese archivo: el panel entrega la función de comprobación en su sala y el coordinador la invoca).

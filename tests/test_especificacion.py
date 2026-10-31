@@ -115,7 +115,7 @@ def test_cada_tarea_tiene_prompt_al_dia_y_completo() -> None:
 
 # ¤spec-glamping
 def test_las_entidades_del_prd_tienen_tabla() -> None:
-    for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados", "anfitriones.solicitudes", "anfitriones.lineas_cuenta"):
+    for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados", "anfitriones.solicitudes", "anfitriones.lineas_cuenta", "pms.noches_ocupadas", "pms.tarifas_noche"):
         assert f"CREATE TABLE {tabla} (" in ESQUEMA, tabla
 
 

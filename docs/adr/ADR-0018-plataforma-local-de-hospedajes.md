@@ -49,10 +49,9 @@ Las condiciones de pago en destino de Booking.com no se confirmaron en fuente of
 
 ## Puntos abiertos
 
-1. **Disponibilidad y precios:** ADR-0007 sigue pendiente. Se recomienda un calendario propio detrás de la interfaz del PMS.
-2. **Marca:** nombre comercial de la plataforma.
-3. **Legal y tributario:** términos con anfitriones, responsabilidad ante un reclamo, rol sobre datos personales y comprobantes de la comisión. Se suman a ADR-0012.
-4. **Porcentaje:** valor comercial por anfitrión.
+1. **Marca:** nombre comercial de la plataforma.
+2. **Legal y tributario:** términos con anfitriones, responsabilidad ante un reclamo, rol sobre datos personales y comprobantes de la comisión. Se suman a ADR-0012.
+3. **Porcentaje:** valor comercial por anfitrión.
 
 ## Consecuencias
 

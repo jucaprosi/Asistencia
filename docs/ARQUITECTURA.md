@@ -21,7 +21,7 @@ Este documento fija **cómo se materializa** la arquitectura del informe en un r
                  │                    SISTEMAS EXTERNOS                          │
    Huéspedes ───►│ WhatsApp Cloud API (Meta) ◄── Vendedores (grupo o 1:1, S-01) │
                  │ Claude API (Anthropic)                                        │
-                 │ PMS / channel manager  [ADR-0007]  ──► Airbnb · Booking       │
+                 │ Calendario y tarifas propios  [ADR-0007]                      │
                  │ CRM + inbox + workflows [ADR-0008]                            │
                  │ PostgreSQL + pgvector gestionado [ADR-0002] · S3 gestionado   │
                  └───────────────▲──────────────────────────────▲────────────────┘
@@ -34,7 +34,7 @@ Este documento fija **cómo se materializa** la arquitectura del informe en un r
 │  features/                                                                         │
 │   canal_whatsapp ─ seguridad ─ agente ─ conocimiento ─ herramientas_glamping        │
 │   pms_conector ─ crm_conector ─ arm_jarvis ─ comisiones ─ observabilidad           │
-│   panel_operativo · web_huespedes (pública) · anfitriones · operaciones (cond., §3)  │
+│   panel_operativo · web_huespedes (pública) · anfitriones                            │
 │                                                                                    │
 │  tests/  evals/  scripts/  docs/  governance/  compose.yaml  compose.production.yaml│
 └────────────────────────────────────────────────────────────────────────────────────┘
@@ -85,7 +85,6 @@ La estructura de §11 del informe (`apps/`, `packages/`, `mcp-servers/`) se cons
 | `packages/commissions` | `features/comisiones/` | `comisiones_service.py` | `config_comisiones.yaml` (período, moneda, redondeo) | `¤comisiones` | `¤¤backend-developer` | Construir; registro ADR-0009 |
 | `packages/observability` | `features/observabilidad/` | `observabilidad_service.py` | `config_observabilidad.yaml` (umbrales de evaluación, alertas) | `¤observabilidad` | `¤¤devops-engineer` | Construir |
 | `mcp-servers/glamping-tools` | `features/herramientas_glamping/` | `herramientas_glamping_service.py` (compuerta); `server.py` es el ejecutable del servidor MCP y solo importa su propia compuerta | `config_herramientas_glamping.yaml` (esquemas, herramientas por rol) | `¤herramientas-mcp` | `¤¤backend-developer` | Construir |
-| *(implícito)* | `features/operaciones/` — **condicional**: solo si el PMS no cubre incidencias (ADR-0007) | `operaciones_service.py` | `config_operaciones.yaml` | `¤operaciones-incidencias` | `¤¤backend-developer` | Construir si aplica |
 | *(nuevo, ADR-0013)* | `features/panel_operativo/` — frontend del equipo y BFF | `panel_operativo_service.py` | `config_panel_operativo.yaml` (sesión, acceso por código, paginación) | `¤panel-operativo` | `¤¤frontend-developer` | Construir; diseño en [`FRONTEND.md`](FRONTEND.md) |
 | *(pasillo central)* | `app_core/` | `main.py` (arranque), `contenedor.py` (inyección de dependencias) | `config_app.yaml` + `.env` | `¤pasillo-central` | `¤¤solutions-architect` | — |
 | `compose.yaml`, `compose.production.yaml` | zona `infraestructura/` (raíz) | — | archivos compose | `¤infra-hibrida` | `¤¤devops-engineer` | ADR-0004 |
@@ -129,7 +128,7 @@ Convenciones: un `pyproject.toml` en la raíz con un paquete por sala (`features
 1. `features/<a>/*` solo importa de `features/<b>/<b>_service.py`, nunca de `*_internal.py` ni de `server.py` de otra sala. Toda compuerta termina en `_service.py`: es lo que reconoce el linter ADPA.
 2. `app_core/` importa únicamente compuertas.
 3. Una compuerta no expone sesiones de base de datos, clientes HTTP ni objetos de SDK de terceros: solo tipos del dominio definidos en la propia compuerta o en un módulo `tipos.py` de la sala.
-4. Los SDK y MCP de terceros (Meta, Anthropic, Kamra/Repull/Hospitable, GHL/Chatwoot/Attio) se importan en una sola sala cada uno: Meta en `canal_whatsapp`; Anthropic en `agente` y en `arm_jarvis` (el ARM tiene su propio extractor: DPD antes que acoplarse al agente de huéspedes); PMS en `pms_conector`; CRM en `crm_conector`.
+4. Los SDK y MCP de terceros (Meta, Anthropic, GHL/Chatwoot/Attio) se importan en una sola sala cada uno: Meta en `canal_whatsapp`; Anthropic en `agente` y en `arm_jarvis` (el ARM tiene su propio extractor: DPD antes que acoplarse al agente de huéspedes); PMS en `pms_conector`; CRM en `crm_conector`.
 5. Cada sala tiene su `config_<sala>.yaml`; los secretos van por variables de entorno referenciadas desde el YAML, nunca en claro.
 
 `¤arquitectura-salas/`
@@ -176,7 +175,7 @@ Eventos externos adicionales: `POST /crm/eventos` (firmado) para validaciones de
 | PostgreSQL gestionado (`glamping`) | esquemas por sala: `agente`, `conocimiento` (pgvector + tsvector), `arm`, `comisiones`, `seguridad` (bóveda de tokens y audit log), `observabilidad` (trazas) | cada sala su esquema | Neon (ADR-0002, revisable por ADR-0012) | Un rol de base de datos por sala con permisos solo sobre su esquema; `seguridad.audit_log` con rol `INSERT`-only; RLS por `propiedad_id` donde aplique (RF-SEC-07). |
 | PostgreSQL local beta (`glamping_beta`) | mismo esquema, datos sintéticos | — | contenedor en `glamping-beta-net`, puerto no estándar | Solo para desarrollo; nunca datos reales. |
 | S3-compatible gestionado | medios de WhatsApp, exportaciones CSV/JSON | `canal_whatsapp`, `comisiones` | Backblaze B2 / Wasabi / Render (beta) → MinIO 3-2-1 opcional en producción | Versionado activado; retención configurable. |
-| Sistemas de registro externos | reservas y calendarios (PMS); contactos y oportunidades (CRM) | externos | SaaS u on-prem según ADR-0007/0008 | El repositorio guarda `pms_ref` / `crm_ref`; no copia. |
+| Sistemas de registro externos | contactos y oportunidades (CRM) | externos | SaaS u on-prem según ADR-0008 | El repositorio guarda `pms_ref` / `crm_ref`; no copia. |
 | Disco del contenedor | nada persistente | — | — | Los contenedores son reconstruibles. |
 
 Modelo de entidades y propiedad por sala: [`PRD.md` §9](PRD.md#9-modelo-de-datos-de-alto-nivel).

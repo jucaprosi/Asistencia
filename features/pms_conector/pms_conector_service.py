@@ -65,6 +65,15 @@ class PMSConectorService:
     ) -> Reserva:
         raise NotImplementedError("TASK-003 RF-PMS-02")
 
+    def confirmar_reserva(self, codigo: str, clave_idempotencia: str) -> Reserva:
+        raise NotImplementedError("T-212 RF-PMS-07")
+
+    def guardar_tarifas(self, unidad_id: str, desde: date, hasta: date, precio: Any, minimo_noches: int, actor_id: str) -> int:
+        raise NotImplementedError("T-212 RF-PMS-08")
+
+    def actualizar_calendario(self, unidad_id: str, desde: date, hasta: date, accion: str, actor_id: str) -> tuple[int, int]:
+        raise NotImplementedError("T-212 RF-PMS-08")
+
     def obtener_reserva(self, codigo: str) -> Reserva:
         raise NotImplementedError("TASK-003 RF-PMS-01")
 
@@ -78,7 +87,7 @@ class PMSConectorService:
         raise NotImplementedError("TASK-003 RF-MCP-04")
 
     def registrar_incidencia(self, incidencia: Incidencia, clave_idempotencia: str) -> Incidencia:
-        raise NotImplementedError("TASK-003 RF-MCP-05 / ADR-0007")
+        raise NotImplementedError("TASK-003 RF-MCP-05")
 
     def registrar_tarea_housekeeping(
         self, propiedad_id: str, unidad_id: str, fecha: date, nota: str, clave_idempotencia: str,

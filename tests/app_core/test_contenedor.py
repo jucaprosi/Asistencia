@@ -50,7 +50,7 @@ def test_catalogo_de_herramientas_declaradas_coincide_con_el_prd() -> None:
         "consultar_disponibilidad", "cotizar", "crear_reserva_preliminar", "obtener_instrucciones_checkin",
         "reportar_incidencia", "solicitar_humano", "buscar_contacto_crm", "crear_oportunidad_crm",
         "registrar_venta", "consultar_comision_propia", "solicitar_reserva", "responder_solicitud",
-            "reportar_resultado_estadia", "consultar_estado_cuenta_anfitrion",
+            "reportar_resultado_estadia", "consultar_estado_cuenta_anfitrion", "actualizar_calendario",
     }
     assert declaradas == esperadas
 

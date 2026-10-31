@@ -324,6 +324,28 @@ herramientas:
         total: {$ref: "#/definiciones/dinero"}
         estado: {enum: [emitido, pagado, vencido]}
         estadias: {type: integer}
+  actualizar_calendario:
+    requisito: RF-PMS-08
+    sala_destino: pms_conector
+    roles: [anfitrion]
+    contexto_servidor: [identidad]
+    entrada:
+      type: object
+      additionalProperties: false
+      required: [unidad_id, desde, hasta, accion]
+      properties:
+        unidad_id: {type: string}
+        desde: {$ref: "#/definiciones/fecha"}
+        hasta: {$ref: "#/definiciones/fecha"}
+        accion: {enum: [bloquear, liberar]}
+    salida:
+      type: object
+      additionalProperties: false
+      required: [unidad_id, noches, omitidas]
+      properties:
+        unidad_id: {type: string}
+        noches: {type: integer}
+        omitidas: {type: integer}
 
 modelos:
   venta_extraida:

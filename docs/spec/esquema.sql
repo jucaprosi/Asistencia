@@ -258,7 +258,24 @@ CREATE TABLE pms.reservas_ref (
 );
 CREATE INDEX reservas_por_llegada ON pms.reservas_ref (desde) WHERE estado = 'confirmada';
 
--- Si ADR-0007 crea la sala operaciones, esta tabla y su secuencia se mueven a ella sin cambiar de forma
+-- Calendario propio (ADR-0007): la clave primaria impide vender dos veces una noche
+CREATE TABLE pms.tarifas_noche (
+  unidad_id        text NOT NULL REFERENCES pms.unidades(unidad_id),
+  noche            date NOT NULL,
+  precio           numeric(12,2) NOT NULL CHECK (precio >= 0),
+  minimo_noches    integer NOT NULL DEFAULT 1 CHECK (minimo_noches >= 1),
+  PRIMARY KEY (unidad_id, noche)
+);
+
+CREATE TABLE pms.noches_ocupadas (
+  unidad_id        text NOT NULL REFERENCES pms.unidades(unidad_id),
+  noche            date NOT NULL,
+  origen           text NOT NULL CHECK (origen IN ('reserva','bloqueo')),
+  codigo_reserva   text REFERENCES pms.reservas_ref(codigo_reserva),
+  PRIMARY KEY (unidad_id, noche),
+  CHECK ((origen = 'reserva') = (codigo_reserva IS NOT NULL))
+);
+
 CREATE TABLE pms.incidencias (
   incidencia_id    text PRIMARY KEY CHECK (incidencia_id ~ '^I-[0-9]{4}-[0-9]{4,}$'),
   propiedad_id     text NOT NULL REFERENCES pms.propiedades(propiedad_id),
