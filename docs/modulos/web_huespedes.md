@@ -8,7 +8,7 @@
 | Decisión | [ADR-0017](../adr/ADR-0017-web-publica-huespedes.md) |
 
 ## Propósito
-Web pública para buscar y comparar las propiedades propias. Solo lectura: la reserva termina en WhatsApp.
+Web pública para buscar y comparar los hospedajes publicados. Solo lectura: la reserva termina en WhatsApp.
 
 ## Compuerta
 

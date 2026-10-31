@@ -7,7 +7,7 @@ El supuesto S-03 del PRD se considera cumplido cuando toda fila obligatoria est�
 
 | Archivo | Propiedad | Contenido mínimo | Dueño | Obligatorio para | Estado |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `glamping.md` | `glamping` | Descripción, ubicación y cómo llegar, unidades y capacidad, qué incluye, horarios, normas, clima y qué llevar, contacto humano. | Administrador | Fase 1 (prompt) y 2 | pendiente |
+| `glamping.md` | `glamping` | Descripción, ubicación y cómo llegar, unidades y capacidad, qué incluye, horarios, normas, clima y qué llevar, contacto humano. | Administrador | Al publicar ese hospedaje | pendiente |
 | `departamentos.md` | uno por departamento (o `departamentos/<id>.md`) | Edificio, piso, capacidad, zona, gestor, normas del condominio, parqueo, horarios de limpieza. Sin códigos de acceso (viven cifrados en el PMS/`seguridad`). | Gestor de cada zona | Fase 4 | pendiente |
 | `precios-y-temporadas.md` | `global` + secciones por propiedad | Temporadas, reglas de precio por día de semana y eventos, mínimos de noches, descuentos. **Referencia**: la tarifa vigente la da el PMS. | Administrador | Fase 2 | pendiente |
 | `politicas-cancelacion.md` | `global` + excepciones por propiedad | Plazos, porcentajes de reembolso, cambios de fecha, no-show. | Administrador | Fase 2 | pendiente |

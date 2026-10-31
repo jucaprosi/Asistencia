@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Estado | Aceptado por el propietario el 2026-10-31 en lo funcional; detalles técnicos por el responsable técnico |
+| Estado | Aceptado por el propietario el 2026-10-31 en lo funcional; detalles técnicos por el responsable técnico. La comparación cambia con [ADR-0018](ADR-0018-plataforma-local-de-hospedajes.md) |
 | Fecha | 2026-10-31 |
 | Rol | `¤¤frontend-architect` |
 

@@ -3,6 +3,8 @@
 
 > **Estado documental:** fuente de verdad del proyecto. Este archivo reproduce íntegro el informe maestro entregado el 2026-10-30 y añade dos anexos (A: referencia secundaria del video de @segunrob; B: cómo este informe se proyecta sobre la metodología ZERAG). El PRD derivado vive en [`PRD.md`](PRD.md); la arquitectura en [`ARQUITECTURA.md`](ARQUITECTURA.md); las decisiones en [`adr/`](adr/README.md).
 >
+> **Cambio de producto:** [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md) redefine el producto como plataforma local de hospedajes y prevalece sobre este informe donde se contradigan.
+>
 > Toda alternativa que contradiga una decisión documentada aquí exige un ADR nuevo antes de implementarse (ver sección 17, punto 4).
 
 **Propósito de este documento:** servir como contexto completo y fuente de verdad para que Claude construya el **PRD (Product Requirements Document)** del proyecto. Incluye contexto de negocio, decisiones de arquitectura, componentes técnicos, el estado del arte del ARM (con la evidencia del video de @santaia.lab), infraestructura, seguridad, riesgos, decisiones pendientes y referencias. La sección final contiene las instrucciones específicas para que Claude genere el PRD con la estructura requerida.

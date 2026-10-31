@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.2.8 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
+| Versión | 0.2.9 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
 | Fecha | 2026-10-30 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
@@ -17,6 +17,8 @@
 
 ## 1. Visión del producto
 `¤prd-vision`
+
+> **Cambio de producto (2026-10-31).** El producto es una plataforma local de hospedajes de varios anfitriones, y Glamping Imbabura es uno más. [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md) prevalece sobre este PRD hasta la especificación 0.3.0.
 
 **Qué es.** Un asistente conversacional sobre WhatsApp, con Claude como motor, que atiende a los huéspedes de Glamping Imbabura y de sus futuros departamentos urbanos, ejecuta acciones reales sobre el sistema de reservas (PMS) a través de herramientas MCP, y que incluye un módulo ARM (Agent Relationship Manager, «Jarvis») que convierte las ventas que los vendedores escriben en su canal de WhatsApp en registros estructurados con comisión calculada, validables por el líder comercial en un panel operativo propio y publicados en el CRM.
 
@@ -308,7 +310,7 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 
 - **RF-WEB-01 — Catálogo público.** Inicio y ficha por propiedad con fotos, zona, capacidad y comodidades, leídos de un catálogo del negocio. *Criterios:* (a) funciona aunque el PMS no responda; (b) no muestra precios ni cupos; (c) el catálogo real vive en `CORPUS_DIR`. *Árbitro:* `tests/web_huespedes/test_catalogo.py`.
 - **RF-WEB-02 — Búsqueda.** Por fechas, huéspedes, tipo y zona. *Criterios:* (a) precio y disponibilidad salen del PMS en cada consulta (`INV_WEB_PRECIO_EN_VIVO`); (b) si el PMS falla no se muestran precios y se ofrece WhatsApp. *Árbitro:* `tests/web_huespedes/test_busqueda.py`.
-- **RF-WEB-03 — Comparación.** Hasta tres propiedades propias lado a lado. *Criterios:* (a) muestra capacidad, zona, comodidades y total; (b) no incluye negocios de terceros. *Árbitro:* `tests/web_huespedes/test_busqueda.py`.
+- **RF-WEB-03 — Comparación.** Hasta tres hospedajes publicados lado a lado. *Criterios:* (a) muestra capacidad, zona, comodidades y total; (b) no incluye hospedajes sin publicar. *Árbitro:* `tests/web_huespedes/test_busqueda.py`.
 - **RF-WEB-04 — Paso a WhatsApp.** La reserva termina en WhatsApp con un código de contexto. *Criterios:* (a) el enlace no lleva datos personales (`INV_WEB_SIN_PII`); (b) el agente resuelve propiedad, fechas y huéspedes; (c) la web no reserva (`INV_WEB_SOLO_LECTURA`). *Árbitro:* `tests/web_huespedes/test_contacto.py`.
 - **RF-WEB-05 — Protección pública.** Límite por IP (`INV_WEB_LIMITE_POR_IP`), sin cuentas y sin cookies de sesión. *Árbitro:* `tests/web_huespedes/test_limites.py`.
 - **RF-WEB-06 — Calidad pública.** Móvil primero, WCAG 2.1 AA, LCP ≤ 2,5 s en 4G, HTML renderizado en el servidor con títulos y datos estructurados para buscadores, español de Ecuador e interfaz purificada. *Árbitro:* `tests/web_huespedes/test_calidad.py`.
@@ -601,6 +603,7 @@ erDiagram
 - Atención multi-idioma más allá de español (el filtro de inyección sí es multilenguaje; las respuestas son en español). El inglés se evaluará tras la beta.
 - Pagos dentro de WhatsApp y pasarela de pagos propia.
 - Reserva y pago dentro de la web pública: la reserva termina en WhatsApp.
+- Registro autónomo de anfitriones: el equipo de la plataforma revisa y carga cada hospedaje (ADR-0018).
 - Facturación electrónica (SRI) y contabilidad: permanecen en el flujo contable existente, que este sistema no toca.
 - Pricing dinámico algorítmico: el agente **lee** las tarifas del PMS/RAG; no las calcula.
 - Voz y llamadas.
@@ -768,6 +771,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
+| 0.2.9 | 2026-10-31 | El producto pasa a ser una plataforma local de hospedajes. Los datos de Glamping Imbabura dejan de ser requisito de la fase 1. | Decisión del propietario; [ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md). |
 | 0.2.8 | 2026-10-31 | PostgreSQL gestionado en Neon con ventana de 7 días; `jinja2` entra en dependencias; T-110 monta las rutas de la web pública. | Decisión del propietario y revisión previa al arranque. |
 | 0.2.7 | 2026-10-31 | Web pública para huéspedes desde la fase 1, sala `web_huespedes`, US-18, RF-WEB-01..06, T-105 y T-205. App en tiendas como fase futura. | Pedido del propietario; [ADR-0017](adr/ADR-0017-web-publica-huespedes.md). |
 | 0.2.6 | 2026-10-31 | Terminal móvil: RF-PAN-11..14, dos tablas, cuatro invariantes, T-801 y T-810. | Pedido del propietario; [ADR-0016](adr/ADR-0016-terminal-movil.md). |

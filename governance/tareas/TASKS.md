@@ -151,7 +151,7 @@ propiedad = ["features/agente/**", "tests/agente/**", "docs/modulos/agente.md", 
 consume = ["seguridad_service", "herramientas_glamping_service", "conocimiento_service", "canal_whatsapp_service", "observabilidad_service"]
 arbitro = "tests/agente/{test_prompts,test_bucle_herramientas,test_degradacion,test_memoria}.py con doble de modelo y dobles de compuertas; arnés Exit Code 0"
 ```
-Entregables: `cliente_modelo_internal.py` (cliente de Claude con timeout y conteo de tokens), `prompts_internal.py` (carga y hash; solo variante `glamping` en esta ola), `bucle_herramientas_internal.py` (tope de iteraciones, errores tipados), `memoria_internal.py` (`esquema agente`), `atender`. `docs/prompts/system-prompt-glamping.md` pasa de borrador a versión 1 con los datos reales inyectados. `evals/enrutador.jsonl` se crea vacío y reservado para T-301. **Hecho cuando** el bucle se detiene al tope y escala, un fallo de herramienta no inventa resultado, y un reinicio simulado conserva la conversación.
+Entregables: `cliente_modelo_internal.py` (cliente de Claude con timeout y conteo de tokens), `prompts_internal.py` (carga y hash; solo variante `glamping` en esta ola), `bucle_herramientas_internal.py` (tope de iteraciones, errores tipados), `memoria_internal.py` (`esquema agente`), `atender`. `docs/prompts/system-prompt-glamping.md` pasa de borrador a versión 1 con datos inyectados desde configuración; en esta ola son sintéticos. `evals/enrutador.jsonl` se crea vacío y reservado para T-301. **Hecho cuando** el bucle se detiene al tope y escala, un fallo de herramienta no inventa resultado, y un reinicio simulado conserva la conversación.
 
 ### T-105 — Web pública: catálogo, ficha y paso a WhatsApp
 `¤web-huespedes`
