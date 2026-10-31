@@ -46,8 +46,13 @@ venta:
 comision:
   estados: [estimada, fijada, pagada, ajustada]
   tipos_regla: [porcentaje, fijo, escalonada]
-  base_escalon: acumulado_validado_del_mes_de_fecha_venta_antes_de_esta_venta
-  orden_acumulado: [fecha_venta, numero_ticket]
+  calculo_escalon: marginal   # comision(v) = F(base + monto) - F(base); F ya redondeada a 2 decimales
+  clave_acumulado: [vendedor_id, regla_id, mes_de_fecha_venta]
+  ejemplo_escalon:
+    escalones: [{desde: "0", porcentaje: "5"}, {desde: "1000", porcentaje: "10"}]
+    ventas: ["333.33", "700.10", "566.57"]
+    total_mes: "110.00"
+    total_tras_anular_segunda: "45.00"
 
 reserva:
   estados: [preliminar, confirmada, cancelada, expirada, completada]

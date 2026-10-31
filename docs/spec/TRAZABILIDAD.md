@@ -50,9 +50,9 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-ARM-09 | T-502 | administracion.feature: Pregunta al asistente<br>administracion.feature: Cambio de configuración acotado<br>administracion.feature: Cambio reservado |
 | RF-ARM-10 | T-502 | ventas.feature: Varias ventas en un mensaje<br>ventas.feature: Posible duplicado<br>ventas.feature: La reentrega no duplica la venta |
 | RF-COM-01 | T-501 | comisiones.feature: Escalón por volumen reproducible<br>comisiones.feature: El orden de validación no cambia el total<br>ventas.feature: Sin regla vigente |
-| RF-COM-02 | T-501 | comisiones.feature: Cierre de período<br>comisiones.feature: Venta tardía |
+| RF-COM-02 | T-501 | comisiones.feature: Cierre de período<br>comisiones.feature: Venta tardía<br>comisiones.feature: Venta tardía con escalón |
 | RF-COM-03 | T-603 | plataforma.feature: Exportación del período |
-| RF-COM-04 | T-501 | ventas.feature: Anular una venta publicada |
+| RF-COM-04 | T-501 | comisiones.feature: Anular una venta no toca a las demás<br>ventas.feature: Anular una venta publicada |
 | RF-SEC-01 | T-102 | seguridad.feature: Un número nuevo puede preguntar como huésped potencial<br>seguridad.feature: Un número bloqueado se ignora<br>seguridad.feature: Pasar a huésped activo |
 | RF-SEC-02 | T-102 | seguridad.feature: Pasar a huésped activo<br>seguridad.feature: El modelo pide una herramienta prohibida |
 | RF-SEC-03 | T-102 | seguridad.feature: Límite por remitente |
@@ -122,7 +122,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | US-11 | T-411 | seguridad.feature: Intento de inyección |
 | US-12 | T-211 | conocimiento.feature: Cambio de política |
 | US-13 | T-311 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
-| US-14 | T-611 | comisiones.feature: Cierre de período<br>comisiones.feature: Venta tardía<br>comisiones.feature: Escalón por volumen reproducible<br>comisiones.feature: El orden de validación no cambia el total |
+| US-14 | T-611 | comisiones.feature: Cierre de período<br>comisiones.feature: Venta tardía<br>comisiones.feature: Escalón por volumen reproducible<br>comisiones.feature: El orden de validación no cambia el total<br>comisiones.feature: Anular una venta no toca a las demás<br>comisiones.feature: Venta tardía con escalón |
 | US-15 | T-511 | administracion.feature: Pregunta al asistente<br>administracion.feature: Cambio de configuración acotado<br>administracion.feature: Cambio reservado |
 | US-16 | T-611 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
 | US-17 | T-411 | privacidad.feature: Aviso en el primer contacto<br>privacidad.feature: Eliminación por criptoborrado<br>privacidad.feature: Retención automática<br>privacidad.feature: Conservación por obligación legal |

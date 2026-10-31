@@ -3,7 +3,7 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Estado | **Propuesto**: cada decisión espera la aprobación del propietario, salvo D-10, aprobada el 2026-10-30 |
+| Estado | **Propuesto**: cada decisión espera la aprobación del propietario, salvo D-10 |
 | Fecha | 2026-10-30 |
 | Rol | `¤¤solutions-architect` |
 | Bloquea | Congelar la especificación en la versión 1.0 |
@@ -27,7 +27,7 @@ Las marcadas con **Negocio** o **Legal** requieren revisión expresa; las técni
 | D-07 | Reserva cancelada tras la comisión | No hay reversión automática: el administrador anula la venta y se genera el ajuste. | Reversión automática desde el PMS. | Negocio |
 | D-08 | Moneda y redondeo | USD como única moneda, dos decimales, `ROUND_HALF_UP`. | Multimoneda: sin caso de uso. | Negocio |
 | D-09 | Período de una comisión | Mes de `fecha_venta` en `America/Guayaquil`. Si ese período cerró, entra al período abierto más antiguo con `periodo_origen`. | Reabrir períodos cerrados. | Negocio |
-| D-10 | Escalones por volumen | **Aprobada por el propietario.** La tasa se calcula por fecha de venta: usa el acumulado validado del vendedor en el mes de `fecha_venta`, con las ventas anteriores en orden de `fecha_venta` y número de ticket. Ese acumulado se guarda en `base_acumulada`. Si se valida una venta con fecha anterior a otras ya fijadas del mismo mes, esas se recalculan y la diferencia se registra como ajuste en el período abierto. El orden de validación no cambia el monto total. Un período cerrado no se reabre. | Orden de validación: el líder cambiaría la comisión al elegir qué valida primero. Liquidar escalones al cierre. | Negocio |
+| D-10 | Escalones por volumen | **Decidida por el propietario el 2026-10-30, tras revisión técnica.** El escalón es marginal, como una tabla de impuestos: `F(S)` es la comisión acumulada del vendedor con volumen `S`, redondeada a dos decimales, y cada venta recibe `F(base + monto) − F(base)`. `base` es el acumulado por vendedor, regla y mes de `fecha_venta` al validar, y se guarda en `base_acumulada`. El total del mes es `F(S)` en cualquier orden, sin recalcular nada. Anular resta el monto de la base y genera un solo ajuste. Una venta tardía de un mes cerrado usa la base de su mes y entra al período abierto. | Tasa completa por orden de validación: el total cambia según qué se valide primero. Tasa completa por fecha de venta con ajustes retroactivos: comisiones en cascada, fecha de venta manipulable y períodos cerrados sin cubrir. | Negocio |
 | D-11 | Sin regla aplicable | La validación falla con `SinReglaVigente` y la venta sigue `por_validar`. | Comisión cero silenciosa. | Negocio |
 | D-12 | Mensajes de venta | Un mensaje puede crear varias ventas. Duplicado por cliente, producto, monto y `fecha_venta` en 7 días: se registra y se señala al líder. `fecha_llegada` y `noches` son campos propios. | Rechazar duplicados automáticamente. | Negocio |
 | D-13 | Datos personales | Aviso y consentimiento versionados, retención configurable, solicitudes del titular y eliminación por criptoborrado de la bóveda. Los plazos son propuestas sujetas a ADR-0012 y revisión legal. | Dejarlo para después del piloto. | Legal |

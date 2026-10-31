@@ -42,6 +42,18 @@ Característica: Comisiones, tablero y cierre
   @US-14 @RF-COM-01 @INV_COMISION_REPRODUCIBLE
   Escenario: El orden de validación no cambia el total
     Dado dos ventas del mismo vendedor y mes que cruzan un escalón
-    Cuando el líder valida primero la de fecha posterior y luego la anterior
-    Entonces la comisión fijada no se modifica y entra un ajuste en el período abierto
-    Y el total coincide con validarlas en orden de fecha
+    Cuando el líder las valida en cualquier orden
+    Entonces el total del mes es el mismo al centavo
+    Y ninguna comisión fijada se recalcula
+
+  @US-14 @RF-COM-04 @INV_COMISION_REPRODUCIBLE
+  Escenario: Anular una venta no toca a las demás
+    Dado ventas por 333.33, 700.10 y 566.57 con escalones de 5 % y 10 % desde 1000
+    Cuando el administrador anula la de 700.10
+    Entonces entra un solo ajuste de -65.00 y el total del mes queda en 45.00
+
+  @US-14 @RF-COM-02 @INV_COMISION_REPRODUCIBLE
+  Escenario: Venta tardía con escalón
+    Dado un mes cerrado con acumulado de 900.00 y una venta tardía de 200.00 de ese mes
+    Cuando se fija la comisión
+    Entonces usa la base de 900.00 y entra al período abierto con periodo_origen de ese mes

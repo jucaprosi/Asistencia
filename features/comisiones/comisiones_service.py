@@ -49,7 +49,6 @@ class ComisionesService:
     def calcular(
         self, venta_id: str, vendedor_id: str, propiedad_id: str | None, producto: str, monto: Decimal,
         fecha_venta: date,
-        ticket: str,
     ) -> Comision:
         raise NotImplementedError("TASK-006 RF-COM-01")
 

@@ -10,6 +10,8 @@ import importlib.util
 import re
 import subprocess
 import sys
+from decimal import ROUND_HALF_UP, Decimal
+from itertools import permutations
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -115,6 +117,27 @@ def test_cada_tarea_tiene_prompt_al_dia_y_completo() -> None:
 def test_las_entidades_del_prd_tienen_tabla() -> None:
     for tabla in ("seguridad.huespedes", "pms.reservas_ref", "pms.incidencias", "arm.ventas", "comisiones.reglas", "crm.handoffs", "agente.envios_programados"):
         assert f"CREATE TABLE {tabla} (" in ESQUEMA, tabla
+
+
+# ¤spec-glamping
+def test_el_escalon_marginal_no_depende_del_orden() -> None:
+    ejemplo = yaml.safe_load((SPEC / "contratos" / "dominio.yaml").read_text(encoding="utf-8"))["comision"]["ejemplo_escalon"]
+    tramos = [(Decimal(e["desde"]), Decimal(e["porcentaje"]) / 100) for e in ejemplo["escalones"]]
+
+    def acumulada(volumen: Decimal) -> Decimal:
+        total = Decimal(0)
+        for (desde, tasa), (hasta, _) in zip(tramos, [*tramos[1:], (volumen, 0)]):
+            total += max(min(volumen, hasta) - desde, Decimal(0)) * tasa
+        return total.quantize(Decimal("0.01"), ROUND_HALF_UP)
+
+    ventas = [Decimal(v) for v in ejemplo["ventas"]]
+    for orden in permutations(ventas):
+        base, total = Decimal(0), Decimal(0)
+        for monto in orden:
+            total += acumulada(base + monto) - acumulada(base)
+            base += monto
+        assert total == Decimal(ejemplo["total_mes"])
+    assert acumulada(sum(ventas) - ventas[1]) == Decimal(ejemplo["total_tras_anular_segunda"])
 
 
 # ¤spec-glamping

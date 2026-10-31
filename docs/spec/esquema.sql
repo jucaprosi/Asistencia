@@ -452,8 +452,7 @@ CREATE TABLE comisiones.comisiones (
   venta_id         uuid NOT NULL,
   vendedor_id      uuid NOT NULL,
   fecha_venta      date NOT NULL,
-  ticket           text NOT NULL,
-  monto_venta      numeric(12,2) NOT NULL CHECK (monto_venta >= 0),
+  monto_venta      numeric(12,2) NOT NULL,
   regla_id         text NOT NULL,
   regla_version    integer NOT NULL,
   monto            numeric(12,2) NOT NULL,
@@ -465,7 +464,8 @@ CREATE TABLE comisiones.comisiones (
   motivo           text,
   FOREIGN KEY (regla_id, regla_version) REFERENCES comisiones.reglas(regla_id, version),
   CHECK (estado <> 'ajustada' OR ajuste_de IS NOT NULL),
-  CHECK (estado = 'ajustada' OR monto >= 0)
+  CHECK (estado = 'ajustada' OR monto >= 0),
+  CHECK (estado = 'ajustada' OR monto_venta >= 0)
 );
 CREATE UNIQUE INDEX comision_unica_por_venta ON comisiones.comisiones (venta_id) WHERE ajuste_de IS NULL;
 
