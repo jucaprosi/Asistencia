@@ -38,6 +38,8 @@ class ComisionesService:
     def calcular(self, venta_id: str, vendedor_id: str, propiedad_id: str | None, producto: str, monto: Decimal, fecha_venta: date) -> Comision: ...  # ESTIMADA
     def fijar(self, comision_id: str) -> Comision: ...                                        # al validar la venta → recalcula con la base actual; FIJADA, inmutable (D-10)
     def resumen(self, vendedor_id: str | None, periodo_id: str) -> Mapping[str, Any]: ...      # validada, pendiente, ventas
+    def desglose(self, comision_id: str) -> Mapping[str, Any]: ...                             # regla, versión, modo, base y tramos (RF-PAN-03)
+    def estado_cuenta(self, vendedor_id: str, periodo_id: str) -> Mapping[str, Any]: ...       # líneas por venta y ajuste (RF-PAN-04)
     def reglas(self, vigentes_en: date | None = None) -> tuple[ReglaComision, ...]: ...
     def crear_regla(self, actor: Identidad, regla: ReglaComision) -> ReglaComision: ...        # nueva versión; nunca edita la anterior
     def cerrar_periodo(self, periodo_id: str, actor: Identidad) -> Periodo: ...                # RF-COM-02

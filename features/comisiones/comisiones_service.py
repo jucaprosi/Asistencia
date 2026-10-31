@@ -58,6 +58,12 @@ class ComisionesService:
     def resumen(self, vendedor_id: str | None, periodo_id: str) -> Mapping[str, Any]:
         raise NotImplementedError("TASK-006 RF-ARM-07")
 
+    def desglose(self, comision_id: str) -> Mapping[str, Any]:
+        raise NotImplementedError("TASK-006 RF-PAN-03")
+
+    def estado_cuenta(self, vendedor_id: str, periodo_id: str) -> Mapping[str, Any]:
+        raise NotImplementedError("TASK-006 RF-PAN-04")
+
     def reglas(self, vigentes_en: date | None = None) -> tuple[ReglaComision, ...]:
         raise NotImplementedError("TASK-006 RF-COM-01")
 

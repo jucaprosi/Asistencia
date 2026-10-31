@@ -76,3 +76,9 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | :--- | :--- | :--- |
 | [Stripe: precios por tramos](https://docs.stripe.com/subscriptions/pricing-models/tiered-pricing) | D-10 | Separa graduado y volumen como modos explícitos. |
 | [Qobra: comisión escalonada](https://www.qobra.co/glossary/tiered-commission) | D-10 | Marginal y retroactivo. Es fuente de proveedor. |
+
+## Referentes de interfaz (`¤frontend-glamping`)
+
+| Fuente | Función | Nota |
+| :--- | :--- | :--- |
+| [wacrm, README](https://raw.githubusercontent.com/ArnasDon/wacrm/main/README.md) | ADR-0015 | Next.js, Supabase y licencia MIT según su README. Solo patrón de inbox. |

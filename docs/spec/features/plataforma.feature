@@ -221,6 +221,20 @@ Característica: Comportamiento técnico de canal, agente, conectores y observab
     Cuando el líder abre el detalle
     Entonces la línea de tiempo coincide con arm_jarvis.detalle
 
+  @RF-PAN-03 @INV_PANEL_SIN_LOGICA
+  Escenario: Desglose de comisión
+    Dado una comisión escalonada fijada
+    Cuando el líder abre el detalle
+    Entonces ve regla, versión, modo, acumulado y tramos servidos por el servidor
+    Y la suma de los tramos es el monto fijado
+
+  @RF-PAN-04
+  Escenario: Estado de cuenta por vendedor
+    Dado un vendedor con ventas y un ajuste en el período
+    Cuando el líder abre su estado de cuenta
+    Entonces hay una línea por venta y por ajuste
+    Y el total coincide al centavo con la exportación
+
   @RF-PAN-08
   Escenario: Resolver incidencia
     Dado una incidencia abierta de la zona del gestor

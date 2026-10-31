@@ -3,8 +3,8 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.1.0 (2026-10-30) |
-| Decisión | [ADR-0013 — Panel operativo propio](adr/ADR-0013-panel-operativo-propio.md) (aceptado por el propietario el 2026-10-30; revisa la adopción de la UI del CRM del informe §3) |
+| Versión | 0.2.0 (2026-10-30) |
+| Decisión | [ADR-0013 — Panel operativo propio](adr/ADR-0013-panel-operativo-propio.md) (aceptado por el propietario el 2026-10-30; revisa la adopción de la UI del CRM del informe §3) y [ADR-0015 — Referentes de interfaz](adr/ADR-0015-referentes-de-interfaz.md) |
 | Módulo | [`modulos/panel_operativo.md`](modulos/panel_operativo.md) (compuerta, BFF, persistencia, tests) |
 | Requisitos | [`PRD.md` §5.11](PRD.md#511-panel-operativo--sala-panel_operativo) (RF-PAN-01..10) |
 | Método | BBAP en 2 pasos: boceto libre con inspiración en la ergonomía de plataformas líderes (densidad de datos, espaciado limpio, una acción principal por pantalla) → sellado sin logotipos, nombres comerciales ni CSS/JS propietario de terceros |
@@ -50,6 +50,7 @@ flowchart LR
     V2 --> V3
     I --> C[Comisiones]
     C --> C1[Tablero]
+    C --> C4[Estado de cuenta]
     C --> C2[Cierre de período]
     C --> C3[Exportar]
     I --> J[Jarvis]
@@ -125,6 +126,20 @@ Tarjetas de resumen con la acción principal del rol arriba: Líder → «N vent
 ### P-04 Detalle de venta
 Datos completos, comisión (regla y versión aplicadas), estado de publicación en el CRM, enlace a la reserva si existe, y línea de tiempo de transiciones (quién, cuándo, motivo). Acciones según estado y rol: Anular (solo administrador, con motivo).
 
+La comisión se muestra con su cálculo, para que nadie tenga que confiar en una cifra suelta. Los datos vienen de `comisiones.desglose`; el cliente no calcula nada:
+
+```
+┌──────────────────────────────┐
+│ Comisión            30,00 USD│
+│ Regla Depa Centro · versión 3│
+│ Modo: por tramos             │
+│ Acumulado previo    800,00   │
+│ 200,00 al 5 %        10,00   │
+│ 200,00 al 10 %       20,00   │
+│ Período octubre · fijada     │
+└──────────────────────────────┘
+```
+
 ### P-05 Comisiones · Tablero (US-08)
 
 ```
@@ -143,6 +158,9 @@ Datos completos, comisión (regla y versión aplicadas), estado de publicación 
 ```
 
 Los totales se calculan en `comisiones` y coinciden al centavo con la exportación (RF-ARM-08). Gráficos sencillos (barras por mes, barras horizontales por vendedor/propiedad); nada de gráficos decorativos.
+
+### P-05b Estado de cuenta por vendedor
+Se abre al tocar un vendedor en el tablero. Solo líder y administrador; el vendedor consulta lo suyo por WhatsApp. Una línea por venta y por ajuste, con ticket, mes de origen, monto, comisión y estado. Los ajustes muestran su motivo y la venta a la que corrigen. El total coincide al centavo con la exportación del período. Cada línea abre P-04.
 
 ### P-06 Cierre de período y exportación
 Solo líder y administrador. Muestra el resumen previo (ventas, comisiones por vendedor, pendientes de validar que quedarán fuera) y exige confirmación escrita del período («OCT-2026»). Tras cerrar, el período es de solo lectura y la exportación CSV/JSON queda disponible.
@@ -195,6 +213,8 @@ Jarvis responde solo con datos que el rol puede ver; los cambios de configuraci�
 ### P-09 Detalle de conversación
 Historial con PII rehidratada **solo** lo necesario para atender (nombre y teléfono del huésped de la reserva; nunca datos de terceros), resumen del asistente, propiedad y reserva. Caja de respuesta (sale por el mismo número de WhatsApp) y botón **Devolver al asistente**. Si la ventana de 24 h cerró, la caja avisa y ofrece la plantilla.
 
+En ≥ 1024 px, P-08 y P-09 se unen en tres columnas: lista, hilo y contexto (huésped, reserva, propiedad y motivo del handoff). En móvil se muestra una columna a la vez, con el contexto plegado arriba del hilo.
+
 ### P-10 Incidencias
 Lista por zona con prioridad y estado; detalle con número, descripción, propiedad, reserva, historial; acción **Resolver** con nota (notifica al huésped por plantilla si corresponde).
 
@@ -226,6 +246,7 @@ Lista por zona con prioridad y estado; detalle con número, descripción, propie
 | `TarjetaMetrica` | Tablero, salud. | Valor grande, etiqueta, variación vs período anterior. |
 | `GraficoBarras` | Ventas por mes, por vendedor, por propiedad. | Un color; valores al pasar o tocar; accesible por tabla alternativa. |
 | `ChatJarvis` | P-07. | Burbujas, confirmación explícita para cambios, sin historial persistente más allá de la sesión. |
+| `DesgloseComision` | P-04, P-05b. | Muestra regla, versión, modo, acumulado y tramos tal como llegan del BFF; montos con números tabulares. |
 | `ListaHandoff`, `HiloConversacion` | P-08, P-09. | Mensajes entrantes/salientes diferenciados; aviso de ventana de 24 h. |
 | `Aviso` (toast) | Resultado de acciones. | Texto con el efecto real («comisión 45,00 fijada»); error con `mensaje_usuario`. |
 | `EstadoVacio`, `EstadoCarga`, `EstadoError` | Toda lista. | Texto breve y acción siguiente; esqueletos en carga. |
@@ -284,6 +305,8 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | `POST /ventas/{id}/rechazar` `{motivo}` | `arm.rechazar` | líder, admin |
 | `POST /ventas/{id}/anular` `{motivo}` | `arm.anular` | admin |
 | `GET /comisiones/tablero?periodo=` | `arm.tablero` | líder, admin |
+| `GET /comisiones/{id}/desglose` | `comisiones.desglose` | líder, admin |
+| `GET /comisiones/estado-cuenta?vendedor=&periodo=` | `comisiones.estado_cuenta` | líder, admin |
 | `POST /comisiones/periodos/{id}/cerrar` `{confirmacion}` | `comisiones.cerrar_periodo` | líder, admin |
 | `GET /comisiones/periodos/{id}/exportar?formato=csv\|json` | `comisiones.exportar` | líder, admin |
 | `POST /jarvis` `{pregunta, conversacion_id}` · `POST /jarvis/confirmar` | `arm.preguntar_jarvis` / `aplicar_cambio_configuracion` | líder, admin |
@@ -319,7 +342,7 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | :--- | :--- | :--- |
 | UI | React 18 + TypeScript, Vite | Ecosistema amplio, tipado, build rápido; el equipo que construya el proyecto lo conoce. |
 | Datos | TanStack Query | Caché, reintentos y estados de carga/error uniformes para todas las listas. |
-| Estilos | CSS con variables (tokens de §6); utilidades opcionales | Cero dependencia visual de terceros; modo oscuro por tokens. |
+| Estilos | CSS con variables (tokens de §6); utilidades opcionales | Modo oscuro por tokens. Se permiten primitivas accesibles de licencia MIT para diálogo, hoja y menú, con estilos propios, si cumplen el presupuesto de §7. |
 | Gráficos | Recharts | Barras simples, accesibles, sin licencias restrictivas. |
 | Servidor | BFF en FastAPI dentro de la sala (`bff_internal.py`), estáticos servidos por la misma app tras el proxy | Un solo despliegue; sin CORS; sesión por cookie. |
 | Pruebas | Vitest (componentes), Playwright (e2e sobre `localhost`), `pytest` (BFF) | Encaja con el protocolo de autoevaluación E2E de ZERAG. |
@@ -347,7 +370,7 @@ Todas las rutas exigen sesión (cookie `HttpOnly`, `Secure`, `SameSite=Strict`) 
 | 4 | P-01, P-02, P-08, P-09, P-10 (bandeja de handoff e incidencias por zona) | `FakeCRM` y `crm.handoffs` |
 | 5 | P-11 usuarios, auditoría, privacidad, salud | — |
 | 6 | P-03, P-04, P-07 (ventas por validar, detalle, Jarvis) | validación «desde la UI del CRM» |
-| 7 | P-05, P-06, P-11 reglas, plantillas, conocimiento, propiedades | visualización del tablero «en el CRM o BI» |
+| 7 | P-05, P-05b, P-06, P-11 reglas, plantillas, conocimiento, propiedades | visualización del tablero «en el CRM o BI» |
 | 8 (condicional, ADR-0010) | Inbox completo de conversaciones de huéspedes (no solo handoffs) | inbox del proveedor |
 
 `¤frontend-fases/`

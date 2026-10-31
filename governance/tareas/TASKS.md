@@ -561,7 +561,7 @@ propiedad = ["features/comisiones/**", "tests/comisiones/**", "docs/modulos/comi
 consume = ["seguridad_service", "observabilidad_service"]
 arbitro = "tests/comisiones/{test_reglas,test_cierre_periodo}.py; arnés Exit Code 0"
 ```
-Entregables: `reglas_internal.py` (vigencia a fecha de venta, versiones, escalones), `periodo_internal.py` (cierre inmutable, ajustes al período abierto), `esquema comisiones` con disparador que rechaza `UPDATE` en períodos cerrados.
+Entregables: `desglose` y `estado_cuenta` para el panel (ADR-0015), `reglas_internal.py` (vigencia a fecha de venta, versiones, escalones), `periodo_internal.py` (cierre inmutable, ajustes al período abierto), `esquema comisiones` con disparador que rechaza `UPDATE` en períodos cerrados.
 
 ### T-502 — ARM: ingesta, extracción, estados, ticket, comisión, notificación, consulta propia, asistente del líder
 `¤arm-jarvis`

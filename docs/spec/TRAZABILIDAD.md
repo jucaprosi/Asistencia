@@ -82,8 +82,8 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-MCP-09 | T-504 | plataforma.feature: Consulta sin período |
 | RF-PAN-01 | T-303 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
 | RF-PAN-02 | T-505 | ventas.feature: Validar una venta<br>ventas.feature: Conflicto entre dos usuarios |
-| RF-PAN-03 | T-505 | plataforma.feature: Detalle de venta |
-| RF-PAN-04 | T-604 | comisiones.feature: Tablero que cuadra |
+| RF-PAN-03 | T-505 | plataforma.feature: Detalle de venta<br>plataforma.feature: Desglose de comisión |
+| RF-PAN-04 | T-604 | comisiones.feature: Tablero que cuadra<br>plataforma.feature: Estado de cuenta por vendedor |
 | RF-PAN-05 | T-604 | comisiones.feature: Cierre de período |
 | RF-PAN-06 | T-505 | administracion.feature: Pregunta al asistente |
 | RF-PAN-07 | T-303, T-701 | incidencias_handoff.feature: Bandeja por zona<br>incidencias_handoff.feature: Devolver al asistente |
