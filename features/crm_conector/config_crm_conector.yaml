@@ -1,5 +1,14 @@
 # ¤crm-conector
 proveedor: ${CRM_PROVEEDOR:-fake}        # fake | ghl | chatwoot_attio  (ADR-0008)
+admin_id: "00000000-0000-0000-0000-000000000001"
+contacto_humano_escalamiento: "+593999999999"
+bandeja_handoff_activa: true
+minutos_estimados_atencion: 15
+tiempo_limite_sin_tomar_minutos: 15
+tiempo_limite_abandono_horas: 24
+propiedades_zonas:
+  glamping_imbabura: imbabura_norte
+  dep_ibarra_centro: ibarra_urbano
 credenciales:
   url: ${CRM_URL:-}
   token: ${CRM_TOKEN:-}

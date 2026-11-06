@@ -57,11 +57,64 @@ def ejecutar(comando: list[str]) -> tuple[int, str]:
 
 
 # ¤bbap-glamping
+def verificar_egreso() -> tuple[int, str]:
+    """Verifica que la lista de egreso documentada en config_app.yaml incluya PMS y embeddings (RNF-10)."""
+    import yaml
+
+    ruta_cfg = RAIZ / "app_core" / "config_app.yaml"
+    if not ruta_cfg.is_file():
+        return 1, f"Falta {ruta_cfg.relative_to(RAIZ)}"
+    try:
+        cfg = yaml.safe_load(ruta_cfg.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return 1, f"Error leyendo {ruta_cfg.name}: {exc}"
+
+    egreso = cfg.get("egreso_permitido", [])
+    if not isinstance(egreso, list) or not egreso:
+        return 1, "egreso_permitido debe ser una lista no vacía en config_app.yaml"
+
+    tiene_pms = any("PMS" in item or "pms" in item for item in egreso)
+    tiene_embeddings = any("anthropic" in item or "embedding" in item for item in egreso)
+    if not tiene_pms:
+        return 1, "La lista de egreso no incluye el PMS"
+    if not tiene_embeddings:
+        return 1, "La lista de egreso no incluye embeddings/modelo"
+
+    contables = [item for item in egreso if any(c in item.lower() for c in ("contab", "erp", "sap", "accounting"))]
+    if contables:
+        return 1, f"RNF-10 violación: servicios contables en lista de egreso: {contables}"
+
+    return 0, f"egreso_permitido: {len(egreso)} destinos autorizados (PMS, embeddings, 0 contables)"
+
+
+# ¤bbap-glamping
+def ejecutar_semilla_rag() -> tuple[int, str]:
+    """Paso de semilla sintética del RAG: ejecuta seed_knowledge.py --sintetico y la evaluación rag (T-210)."""
+    python = sys.executable
+    cod_semilla, out_semilla = ejecutar([python, "scripts/seed_knowledge.py", "--sintetico"])
+    if cod_semilla != 0:
+        return cod_semilla, f"Error en seed_knowledge.py:\n{out_semilla}"
+
+    cod_eval, out_eval = ejecutar([python, "scripts/run_evals.py", "--suite", "rag"])
+    if cod_eval != 0:
+        return cod_eval, f"Error en evaluación rag:\n{out_eval}"
+
+    salida = f"{out_semilla}\n{out_eval}".strip()
+    return 0, salida
+
+
+# ¤bbap-glamping
 def validar_compose() -> tuple[int, str]:
     """Paso 5: los dos compose son YAML válidos; con docker en el PATH, además ``docker compose config``."""
     import yaml  # dependencia del proyecto; se importa aquí para que el paso falle solo, no el arnés entero
 
     salidas: list[str] = []
+    # Validar lista de egreso (RNF-10)
+    cod_egr, out_egr = verificar_egreso()
+    if cod_egr != 0:
+        return cod_egr, out_egr
+    salidas.append(out_egr)
+
     for nombre in ("compose.yaml", "compose.production.yaml"):
         try:
             yaml.safe_load((RAIZ / nombre).read_text(encoding="utf-8"))
@@ -94,6 +147,7 @@ def main() -> int:
     pasos = [
         ("utf8_sin_bom", verificar_utf8),
         ("secretos", lambda: ejecutar([python, "scripts/verificar_secretos.py"])),
+        ("semilla_sintetica_rag", ejecutar_semilla_rag),
         ("pytest", lambda: ejecutar([python, "-m", "pytest", "tests", "-q"])),
         ("evaluaciones", lambda: ejecutar([python, "scripts/run_evals.py"])),
         ("compose", validar_compose),

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block titulo %}Comparar Hospedajes — Glamping Imbabura{% endblock %}
+
+{% block contenido %}
+<nav aria-label="Miga de pan" style="margin-bottom: 16px;">
+  <a href="/buscar{% if busqueda %}?desde={{ busqueda.desde.isoformat() }}&hasta={{ busqueda.hasta.isoformat() }}&huespedes={{ busqueda.huespedes }}{% endif %}" class="boton boton-secundario" style="min-height: 40px; padding: 6px 14px; font-size: 14px;">← Volver a la búsqueda</a>
+</nav>
+
+<section aria-labelledby="titulo-comparar">
+  <h1 id="titulo-comparar" style="font-size: 28px; margin-bottom: 8px;">Comparación de Hospedajes</h1>
+  <p style="color: var(--texto-secundario); margin-bottom: 24px;">
+    Compara lado a lado hasta 3 opciones para elegir la que mejor se adapte a tu viaje.
+  </p>
+
+  {% if opciones %}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; align-items: stretch;">
+    {% for op in opciones %}
+    <article class="tarjeta" style="display: flex; flex-direction: column;" aria-labelledby="comp-{{ op.ficha.propiedad_id }}">
+      {% if op.ficha.fotos and op.ficha.fotos|length > 0 %}
+      <img src="{{ op.ficha.fotos[0] }}" alt="Foto de {{ op.ficha.nombre }}" class="foto-propiedad" loading="lazy">
+      {% else %}
+      <div class="foto-placeholder" role="img" aria-label="Sin fotografía disponible para {{ op.ficha.nombre }}">
+        Fotografía no disponible
+      </div>
+      {% endif %}
+
+      <div class="cuerpo-tarjeta" style="flex: 1; display: flex; flex-direction: column;">
+        <h2 id="comp-{{ op.ficha.propiedad_id }}" class="titulo-propiedad" style="font-size: 20px;">{{ op.ficha.nombre }}</h2>
+        <p class="metadatos" style="margin-bottom: 12px;"><strong>Tipo:</strong> {{ op.ficha.tipo }}</p>
+
+        <div style="border-top: 1px solid var(--borde); padding: 10px 0;">
+          <span style="font-size: 13px; color: var(--texto-secundario);">Capacidad</span>
+          <p style="font-weight: 600;">Hasta {{ op.ficha.capacidad }} personas</p>
+        </div>
+
+        <div style="border-top: 1px solid var(--borde); padding: 10px 0;">
+          <span style="font-size: 13px; color: var(--texto-secundario);">Zona</span>
+          <p style="font-weight: 600;">{{ op.ficha.zona }}</p>
+        </div>
+
+        {% if op.ficha.ofrecido_por or op.ficha.anfitrion_id %}
+        <div style="border-top: 1px solid var(--borde); padding: 10px 0;">
+          <span style="font-size: 13px; color: var(--texto-secundario);">Ofrecido por</span>
+          <p style="font-weight: 600;">{{ op.ficha.ofrecido_por or op.ficha.anfitrion_id }}</p>
+        </div>
+        {% endif %}
+
+        <div style="border-top: 1px solid var(--borde); padding: 10px 0; flex: 1;">
+          <span style="font-size: 13px; color: var(--texto-secundario);">Comodidades</span>
+          <div style="margin-top: 6px;">
+            {% for c in op.ficha.comodidades %}
+            <span class="chip">{{ c }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--borde); padding: 12px 0; margin-top: auto; background-color: var(--fondo); border-radius: var(--radio-boton); text-align: center;">
+          <span style="font-size: 13px; color: var(--texto-secundario);">Total estancia</span>
+          <div style="font-size: 24px; font-weight: 700; color: var(--acento);">
+            ${{ "%.2f"|format(op.total) }} <span style="font-size: 14px; font-weight: normal; color: var(--texto-secundario);">{{ op.moneda }}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <a href="/contacto?propiedad_id={{ op.ficha.propiedad_id }}{% if busqueda %}&desde={{ busqueda.desde.isoformat() }}&hasta={{ busqueda.hasta.isoformat() }}&huespedes={{ busqueda.huespedes }}{% endif %}" class="boton boton-primario" style="width: 100%;">
+            Continuar a WhatsApp
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color: var(--texto-secundario);">No hay opciones para mostrar en la comparación.</p>
+  {% endif %}
+</section>
+{% endblock %}

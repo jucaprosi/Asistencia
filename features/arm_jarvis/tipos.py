@@ -1,13 +1,32 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
-"""Tipos del dominio de la sala arm_jarvis."""
+"""Tipos del dominio y excepciones de la sala arm_jarvis."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Mapping
+from typing import Any, Mapping
+
+__all__ = [
+    "EstadoVenta",
+    "Vendedor",
+    "VentaExtraida",
+    "Venta",
+    "Transicion",
+    "ResumenComision",
+    "Tablero",
+    "ErrorArm",
+    "VendedorNoRegistrado",
+    "TransicionInvalida",
+    "CamposFaltantes",
+    "NoEsVenta",
+    "ComisionAjena",
+    "CambioNoPermitido",
+    "ConfirmacionRequerida",
+    "VentaNoEncontrada",
+]
 
 
 # ¤arm-jarvis
@@ -62,6 +81,10 @@ class Venta:
     comision_estimada: Decimal | None = None
     comision_fijada: Decimal | None = None
     reserva_ref: str | None = None
+    posible_duplicado: bool = False
+    posible_duplicado_de: str | None = None
+    mensaje_id: str = ""
+    indice_en_mensaje: int = 0
 
 
 # ¤arm-jarvis
@@ -93,6 +116,128 @@ class Tablero:
     ventas_por_mes: tuple[tuple[str, Decimal], ...] = field(default_factory=tuple)
     ventas_por_vendedor: tuple[tuple[str, Decimal, int], ...] = field(default_factory=tuple)
     ventas_por_propiedad: tuple[tuple[str, Decimal], ...] = field(default_factory=tuple)
-    comisiones_validadas: Decimal = Decimal("0")
-    comisiones_pendientes: Decimal = Decimal("0")
+    comisiones_validadas: Decimal = Decimal("0.00")
+    comisiones_pendientes: Decimal = Decimal("0.00")
     por_validar: int = 0
+
+
+# ¤arm-jarvis
+class ErrorArm(Exception):
+    """Error base tipado de la sala arm_jarvis."""
+
+    def __init__(self, codigo: str, mensaje_usuario: str, detalle_tecnico: str | None = None) -> None:
+        super().__init__(f"{codigo}: {mensaje_usuario}")
+        self.codigo = codigo
+        self.mensaje_usuario = mensaje_usuario
+        self.detalle_tecnico = detalle_tecnico
+
+
+# ¤arm-jarvis
+class VendedorNoRegistrado(ErrorArm):
+    """El remitente no es un vendedor registrado o activo en el sistema."""
+
+    def __init__(self, remitente: str) -> None:
+        super().__init__(
+            codigo="vendedor_no_registrado",
+            mensaje_usuario="El remitente no cuenta con rol de vendedor activo.",
+            detalle_tecnico=f"Remitente {remitente} no registrado en arm.vendedores",
+        )
+        self.remitente = remitente
+
+
+# ¤arm-jarvis
+class TransicionInvalida(ErrorArm):
+    """La transición de estado solicitada viola la máquina de estados o permisos."""
+
+    def __init__(self, estado_actual: str, estado_nuevo: str, motivo: str | None = None) -> None:
+        mensaje = motivo or f"No se puede pasar del estado '{estado_actual}' a '{estado_nuevo}'."
+        super().__init__(
+            codigo="transicion_invalida",
+            mensaje_usuario=mensaje,
+            detalle_tecnico=motivo or f"Transición {estado_actual} -> {estado_nuevo} no permitida",
+        )
+        self.estado_actual = estado_actual
+        self.estado_nuevo = estado_nuevo
+
+
+# ¤arm-jarvis
+class CamposFaltantes(ErrorArm):
+    """La venta extraída carece de campos obligatorios requeridos (monto, producto)."""
+
+    def __init__(self, campos: tuple[str, ...], pregunta: str) -> None:
+        super().__init__(
+            codigo="campos_faltantes",
+            mensaje_usuario=pregunta,
+            detalle_tecnico=f"Campos obligatorios faltantes: {campos}",
+        )
+        self.campos = campos
+        self.pregunta = pregunta
+
+
+# ¤arm-jarvis
+class NoEsVenta(ErrorArm):
+    """El mensaje procesado no corresponde a una venta comercial."""
+
+    def __init__(self, texto: str) -> None:
+        super().__init__(
+            codigo="no_es_venta",
+            mensaje_usuario="El mensaje recibido no contiene información de venta.",
+            detalle_tecnico=f"Texto analizado no clasificado como venta: {texto[:50]}...",
+        )
+
+
+# ¤arm-jarvis
+class ComisionAjena(ErrorArm):
+    """Un vendedor intentó consultar la comisión de otro vendedor (INV_COMISION_PROPIA)."""
+
+    def __init__(self, vendedor_actor: str, vendedor_solicitado: str) -> None:
+        super().__init__(
+            codigo="comision_ajena",
+            mensaje_usuario="Solo puedes consultar tu propia comisión.",
+            detalle_tecnico=(
+                f"Intento de acceso cruzado: {vendedor_actor} consultó comisiones de {vendedor_solicitado}"
+            ),
+        )
+        self.vendedor_actor = vendedor_actor
+        self.vendedor_solicitado = vendedor_solicitado
+
+
+# ¤arm-jarvis
+class CambioNoPermitido(ErrorArm):
+    """El cambio de configuración solicitado no está permitido al rol o es reservado."""
+
+    def __init__(self, clave: str, rol: str) -> None:
+        super().__init__(
+            codigo="cambio_no_permitido",
+            mensaje_usuario=f"El rol '{rol}' no tiene permisos para modificar la configuración '{clave}'.",
+            detalle_tecnico=f"Clave {clave} no autorizada para rol {rol}",
+        )
+        self.clave = clave
+        self.rol = rol
+
+
+# ¤arm-jarvis
+class ConfirmacionRequerida(ErrorArm):
+    """La operación solicitada requiere confirmación explícita del usuario."""
+
+    def __init__(self, cambio: Mapping[str, Any], pregunta: str) -> None:
+        super().__init__(
+            codigo="confirmacion_requerida",
+            mensaje_usuario=pregunta,
+            detalle_tecnico=f"Se requiere confirmación para aplicar cambio: {cambio}",
+        )
+        self.cambio = cambio
+        self.pregunta = pregunta
+
+
+# ¤arm-jarvis
+class VentaNoEncontrada(ErrorArm):
+    """La venta con el identificador solicitado no existe."""
+
+    def __init__(self, venta_id: str) -> None:
+        super().__init__(
+            codigo="venta_no_encontrada",
+            mensaje_usuario=f"No se encontró la venta con ID '{venta_id}'.",
+            detalle_tecnico=f"ID de venta desconocido: {venta_id}",
+        )
+        self.venta_id = venta_id

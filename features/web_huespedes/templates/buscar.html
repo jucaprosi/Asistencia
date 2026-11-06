@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block titulo %}Buscar Hospedajes — Glamping Imbabura{% endblock %}
+
+{% block cabecera %}
+{% if opciones %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Resultados de búsqueda de hospedajes",
+  "itemListElement": [
+    {% for op in opciones %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "LodgingBusiness",
+        "name": "{{ op.ficha.nombre }}",
+        "description": "{{ op.ficha.resumen }}",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "{{ op.ficha.zona }}",
+          "addressCountry": "EC"
+        }
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block contenido %}
+<section aria-labelledby="titulo-buscar">
+  <h1 id="titulo-buscar" style="font-size: 28px; margin-bottom: 8px;">Buscar Hospedajes</h1>
+  <p style="color: var(--texto-secundario); margin-bottom: 20px;">
+    Ingresa tus fechas y número de personas para consultar disponibilidad y precios en tiempo real.
+  </p>
+
+  <form method="get" action="/buscar" class="formulario-busqueda" style="background-color: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-tarjeta); padding: 20px; margin-bottom: 30px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: end;">
+      <div class="campo-formulario">
+        <label for="buscar-desde">Llegada</label>
+        <input type="date" id="buscar-desde" name="desde" value="{{ busqueda.desde.isoformat() if busqueda else '' }}" required>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="buscar-hasta">Salida</label>
+        <input type="date" id="buscar-hasta" name="hasta" value="{{ busqueda.hasta.isoformat() if busqueda else '' }}" required>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="buscar-huespedes">Huéspedes</label>
+        <input type="number" id="buscar-huespedes" name="huespedes" min="1" max="10" value="{{ busqueda.huespedes if busqueda else 2 }}" required>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="buscar-tipo">Tipo</label>
+        <input type="text" id="buscar-tipo" name="tipo" placeholder="Ej. glamping, cabaña" value="{{ busqueda.tipo if busqueda and busqueda.tipo else '' }}">
+      </div>
+
+      <div class="campo-formulario">
+        <label for="buscar-zona">Zona</label>
+        <input type="text" id="buscar-zona" name="zona" placeholder="Ej. Otavalo, Lago San Pablo" value="{{ busqueda.zona if busqueda and busqueda.zona else '' }}">
+      </div>
+
+      <div>
+        <button type="submit" class="boton boton-primario" style="width: 100%;">Buscar disponibilidad</button>
+      </div>
+    </div>
+  </form>
+
+  {% if error_busqueda %}
+  <div class="alerta-error" role="alert">
+    <p><strong>Aviso:</strong> {{ error_busqueda }}</p>
+  </div>
+  {% endif %}
+
+  {% if not pms_disponible %}
+  <div style="background-color: var(--superficie); border-left: 4px solid var(--aviso); padding: 16px; border-radius: var(--radio-boton); margin-bottom: 24px;" role="status">
+    <h2 style="font-size: 18px; margin-bottom: 6px; color: var(--aviso);">Consulta de tarifas temporalmente no disponible</h2>
+    <p style="color: var(--texto-secundario); font-size: 15px;">
+      No pudimos consultar precios ni disponibilidad en vivo en este momento. A continuación te presentamos las opciones que coinciden con tu búsqueda para que puedas consultar directamente por WhatsApp.
+    </p>
+  </div>
+
+  {% if propiedades_sin_precio %}
+  <div class="grid-catalogo">
+    {% for prop in propiedades_sin_precio %}
+    <article class="tarjeta" aria-labelledby="sin-precio-{{ prop.propiedad_id }}">
+      {% if prop.fotos and prop.fotos|length > 0 %}
+      <img src="{{ prop.fotos[0] }}" alt="Foto de {{ prop.nombre }}" class="foto-propiedad" loading="lazy">
+      {% else %}
+      <div class="foto-placeholder" role="img" aria-label="Sin fotografía disponible para {{ prop.nombre }}">
+        Fotografía no disponible
+      </div>
+      {% endif %}
+
+      <div class="cuerpo-tarjeta">
+        <h2 id="sin-precio-{{ prop.propiedad_id }}" class="titulo-propiedad">{{ prop.nombre }}</h2>
+        <div class="metadatos">
+          <span><strong>Zona:</strong> {{ prop.zona }}</span> ·
+          <span><strong>Capacidad:</strong> hasta {{ prop.capacidad }} personas</span>
+        </div>
+
+        <p style="font-size: 14px; margin: 6px 0;">{{ prop.resumen }}</p>
+
+        {% if prop.comodidades %}
+        <div style="margin-top: 6px;">
+          {% for comodidad in prop.comodidades %}
+          <span class="chip">{{ comodidad }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="acciones-tarjeta">
+          <a href="/contacto?propiedad_id={{ prop.propiedad_id }}{% if busqueda %}&desde={{ busqueda.desde.isoformat() }}&hasta={{ busqueda.hasta.isoformat() }}&huespedes={{ busqueda.huespedes }}{% endif %}" class="boton boton-primario">
+            Consultar por WhatsApp
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color: var(--texto-secundario);">No encontramos hospedajes que cumplan los criterios seleccionados.</p>
+  {% endif %}
+
+  {% elif busqueda %}
+  {% if opciones %}
+  <h2 style="font-size: 20px; margin-bottom: 16px;">Opciones disponibles ({{ opciones|length }})</h2>
+  <div class="grid-catalogo">
+    {% for op in opciones %}
+    <article class="tarjeta" aria-labelledby="opcion-{{ op.ficha.propiedad_id }}">
+      {% if op.ficha.fotos and op.ficha.fotos|length > 0 %}
+      <img src="{{ op.ficha.fotos[0] }}" alt="Foto de {{ op.ficha.nombre }}" class="foto-propiedad" loading="lazy">
+      {% else %}
+      <div class="foto-placeholder" role="img" aria-label="Sin fotografía disponible para {{ op.ficha.nombre }}">
+        Fotografía no disponible
+      </div>
+      {% endif %}
+
+      <div class="cuerpo-tarjeta">
+        <h3 id="opcion-{{ op.ficha.propiedad_id }}" class="titulo-propiedad">{{ op.ficha.nombre }}</h3>
+        <div class="metadatos">
+          <span><strong>Zona:</strong> {{ op.ficha.zona }}</span> ·
+          <span><strong>Capacidad:</strong> hasta {{ op.ficha.capacidad }} personas</span>
+          {% if op.ficha.ofrecido_por or op.ficha.anfitrion_id %}
+          · <span><strong>Ofrecido por:</strong> {{ op.ficha.ofrecido_por or op.ficha.anfitrion_id }}</span>
+          {% endif %}
+        </div>
+
+        <p style="font-size: 14px; margin: 6px 0;">{{ op.ficha.resumen }}</p>
+
+        <div style="margin: 10px 0; padding: 10px; background-color: var(--fondo); border-radius: var(--radio-boton);">
+          <span style="font-size: 14px; color: var(--texto-secundario);">Total por la estancia:</span>
+          <div style="font-size: 22px; font-weight: 700; color: var(--acento);">
+            ${{ "%.2f"|format(op.total) }} <span style="font-size: 14px; font-weight: normal; color: var(--texto-secundario);">{{ op.moneda }}</span>
+          </div>
+        </div>
+
+        <div class="acciones-tarjeta">
+          <a href="/contacto?propiedad_id={{ op.ficha.propiedad_id }}&desde={{ busqueda.desde.isoformat() }}&hasta={{ busqueda.hasta.isoformat() }}&huespedes={{ busqueda.huespedes }}" class="boton boton-primario">
+            Reservar por WhatsApp
+          </a>
+          <a href="/propiedades/{{ op.ficha.propiedad_id }}" class="boton boton-secundario">
+            Ver detalles
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="background-color: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-tarjeta); padding: 24px; text-align: center;">
+    <h2 style="font-size: 20px; margin-bottom: 8px;">No hay disponibilidad para las fechas seleccionadas</h2>
+    <p style="color: var(--texto-secundario); margin-bottom: 16px;">
+      No encontramos hospedajes disponibles con la capacidad requerida en ese rango de fechas.
+    </p>
+    <a href="/" class="boton boton-secundario">Explorar todo el catálogo</a>
+  </div>
+  {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

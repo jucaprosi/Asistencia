@@ -1,0 +1,23 @@
+{
+  "nombre": "buscar_contacto_crm",
+  "descripcion": "Busca un contacto existente en el CRM por token de teléfono o correo.",
+  "sala_destino": "crm_conector",
+  "roles": ["sistema"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "telefono_token": {"type": "string"},
+      "email_token": {"type": "string"}
+    },
+    "anyOf": [{"required": ["telefono_token"]}, {"required": ["email_token"]}]
+  },
+  "salida": {
+    "type": "object",
+    "required": ["encontrado"],
+    "properties": {
+      "encontrado": {"type": "boolean"},
+      "contacto_id": {"type": "string"}
+    }
+  }
+}

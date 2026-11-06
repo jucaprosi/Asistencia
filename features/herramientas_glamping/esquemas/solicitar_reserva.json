@@ -1,0 +1,24 @@
+{
+  "nombre": "solicitar_reserva",
+  "descripcion": "Genera una solicitud de reserva con código PL- a partir de una reserva preliminar en el PMS.",
+  "sala_destino": "anfitriones",
+  "roles": ["huesped_potencial", "huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["codigo_reserva"],
+    "properties": {
+      "codigo_reserva": {"type": "string"}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["solicitud", "estado", "vence_en"],
+    "properties": {
+      "solicitud": {"type": "string", "pattern": "^PL-[0-9]{4}-[0-9]{4,}$"},
+      "estado": {"const": "solicitada"},
+      "vence_en": {"type": "string", "format": "date-time"}
+    }
+  }
+}

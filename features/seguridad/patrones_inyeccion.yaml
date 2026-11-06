@@ -1,0 +1,168 @@
+# ¤seguridad-canal
+# ¤¤security-engineer
+# Catálogo canónico de patrones de prompt injection multilingüe y heurísticas (RF-SEC-04, INV_INYECCION_CERO)
+# Mínimo 40 patrones distribuidos en español, inglés, portugués, francés y delimitadores.
+
+patrones:
+  # Español (>= 12)
+  - patron: "\\bignora\\s+(?:todas\\s+)?(?:las\\s+)?(?:instrucciones|reglas|directivas)\\b"
+    idioma: es
+    categoria: ignore_instructions
+  - patron: "\\bolvida\\s+(?:todas\\s+)?(?:las\\s+)?(?:instrucciones|reglas)\\b"
+    idioma: es
+    categoria: ignore_instructions
+  - patron: "\\brevela\\s+(?:tu\\s+)?(?:prompt|system\\s*prompt|instrucciones|directivas)\\b"
+    idioma: es
+    categoria: reveal_prompt
+  - patron: "\\bmuestra\\s+(?:el\\s+|tu\\s+)?(?:prompt|system\\s*prompt|instrucciones)\\b"
+    idioma: es
+    categoria: reveal_prompt
+  - patron: "\\bcu[aá]les\\s+son\\s+tus\\s+(?:instrucciones|directivas|reglas)(?:\\s+de\\s+sistema|\\s+iniciales)?\\b"
+    idioma: es
+    categoria: reveal_prompt
+  - patron: "\\bact[uú]a\\s+como\\b"
+    idioma: es
+    categoria: act_as
+  - patron: "\\bahora\\s+eres\\s+(?:un\\s+|una\\s+)?(?:hacker|asistente\\s+sin\\s+restricciones|dan)\\b"
+    idioma: es
+    categoria: act_as
+  - patron: "\\bmodo\\s+desarrollador\\b"
+    idioma: es
+    categoria: developer_mode
+  - patron: "\\bomite\\s+(?:las\\s+)?restricciones\\b"
+    idioma: es
+    categoria: bypass
+  - patron: "\\bsaltar\\s+(?:los\\s+)?filtros\\s+de\\s+seguridad\\b"
+    idioma: es
+    categoria: bypass
+  - patron: "\\bpretende\\s+que\\s+no\\s+tienes\\s+l[ií]mites\\b"
+    idioma: es
+    categoria: bypass
+  - patron: "\\bdesactiva\\s+(?:tus\\s+)?(?:salvaguardas|filtros|reglas)\\b"
+    idioma: es
+    categoria: bypass
+  - patron: "\\bdame\\s+acceso\\s+al\\s+sistema\\s+como\\s+root\\b"
+    idioma: es
+    categoria: privilege_escalation
+  - patron: "\\brepite\\s+el\\s+texto\\s+anterior\\s+al\\s+primer\\s+mensaje\\b"
+    idioma: es
+    categoria: reveal_prompt
+
+  # English (>= 12)
+  - patron: "\\bignore\\s+(?:all\\s+)?(?:previous\\s+)?instructions\\b"
+    idioma: en
+    categoria: ignore_instructions
+  - patron: "\\bdisregard\\s+(?:all\\s+)?(?:previous\\s+)?(?:instructions|rules)\\b"
+    idioma: en
+    categoria: ignore_instructions
+  - patron: "\\breveal\\s+(?:your\\s+)?(?:system\\s+prompt|prompt|instructions)\\b"
+    idioma: en
+    categoria: reveal_prompt
+  - patron: "\\bshow\\s+(?:me\\s+)?(?:your\\s+)?(?:system\\s+prompt|initial\\s+prompt)\\b"
+    idioma: en
+    categoria: reveal_prompt
+  - patron: "\\bwhat\\s+are\\s+your\\s+(?:system\\s+)?instructions\\b"
+    idioma: en
+    categoria: reveal_prompt
+  - patron: "\\bact\\s+as\\b"
+    idioma: en
+    categoria: act_as
+  - patron: "\\byou\\s+are\\s+now\\b"
+    idioma: en
+    categoria: act_as
+  - patron: "\\bjailbreak\\b"
+    idioma: en
+    categoria: jailbreak
+  - patron: "\\bdan\\s+mode\\b"
+    idioma: en
+    categoria: jailbreak
+  - patron: "\\bdeveloper\\s+mode\\b"
+    idioma: en
+    categoria: developer_mode
+  - patron: "\\bbypass\\s+(?:all\\s+)?safety\\b"
+    idioma: en
+    categoria: bypass
+  - patron: "\\boverride\\s+system\\s+rules\\b"
+    idioma: en
+    categoria: bypass
+  - patron: "\\bpretend\\s+you\\s+have\\s+no\\s+restrictions\\b"
+    idioma: en
+    categoria: bypass
+  - patron: "\\bprint\\s+(?:your\\s+)?initial\\s+instructions\\b"
+    idioma: en
+    categoria: reveal_prompt
+
+  # Português (>= 8)
+  - patron: "\\bignore\\s+(?:todas\\s+as\\s+)?instru[cç][oõ]es\\s+anteriores\\b"
+    idioma: pt
+    categoria: ignore_instructions
+  - patron: "\\besque[cç]a\\s+(?:todas\\s+as\\s+)?instru[cç][oõ]es\\b"
+    idioma: pt
+    categoria: ignore_instructions
+  - patron: "\\bmostre\\s+(?:o\\s+)?(?:system\\s+)?prompt\\b"
+    idioma: pt
+    categoria: reveal_prompt
+  - patron: "\\brevele\\s+(?:o\\s+)?prompt\\b"
+    idioma: pt
+    categoria: reveal_prompt
+  - patron: "\\bquais\\s+s[aã]o\\s+as\\s+suas\\s+instru[cç][oõ]es\\b"
+    idioma: pt
+    categoria: reveal_prompt
+  - patron: "\\baja\\s+como\\b"
+    idioma: pt
+    categoria: act_as
+  - patron: "\\bvoc[eê]\\s+agora\\s+[eé]\\b"
+    idioma: pt
+    categoria: act_as
+  - patron: "\\bmodo\\s+desenvolvedor\\b"
+    idioma: pt
+    categoria: developer_mode
+  - patron: "\\bdesative\\s+(?:todas\\s+as\\s+)?restri[cç][oõ]es\\b"
+    idioma: pt
+    categoria: bypass
+
+  # Français (>= 8)
+  - patron: "\\bignorez\\s+(?:toutes\\s+les\\s+)?instructions\\s+pr[eé]c[eé]dentes\\b"
+    idioma: fr
+    categoria: ignore_instructions
+  - patron: "\\boublie\\s+(?:toutes\\s+les\\s+)?instructions\\b"
+    idioma: fr
+    categoria: ignore_instructions
+  - patron: "\\br[eé]v[eè]le\\s+(?:ton|le)\\s+(?:system\\s+)?prompt\\b"
+    idioma: fr
+    categoria: reveal_prompt
+  - patron: "\\bmontre\\s+(?:ton|le)\\s+prompt\\b"
+    idioma: fr
+    categoria: reveal_prompt
+  - patron: "\\bquelles\\s+sont\\s+tes\\s+instructions\\b"
+    idioma: fr
+    categoria: reveal_prompt
+  - patron: "\\bagis\\s+comme\\b"
+    idioma: fr
+    categoria: act_as
+  - patron: "\\btu\\s+es\\s+maintenant\\b"
+    idioma: fr
+    categoria: act_as
+  - patron: "\\bmode\\s+d[eé]veloppeur\\b"
+    idioma: fr
+    categoria: developer_mode
+  - patron: "\\bcontourne\\s+la\\s+s[eé]curit[eé]\\b"
+    idioma: fr
+    categoria: bypass
+
+  # Delimitadores y heurísticas especiales (>= 6)
+  - patron: "(?:---|===)\\s*(?:end|system|developer|instruction)"
+    idioma: multi
+    categoria: delimiter_hijack
+  - patron: "(?:<\\|im_start\\|>|<\\|im_end\\|>|<system>|\\[INST\\])"
+    idioma: multi
+    categoria: delimiter_hijack
+  - patron: "(?:sudo|root)\\s+mode"
+    idioma: multi
+    categoria: privilege_escalation
+  - patron: "(?:unrestricted|uncensored)\\s+assistant"
+    idioma: multi
+    categoria: jailbreak
+  - patron: "(?:system\\s*prompt\\s*leak|leak\\s*prompt)"
+    idioma: multi
+    categoria: reveal_prompt

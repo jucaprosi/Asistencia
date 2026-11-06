@@ -12,8 +12,6 @@
 
 <!-- Justificación: el triaje entrega la gobernanza vigente; el cliente conserva solo su activador. -->
 
-Las normas, el proceso y los documentos de este proyecto están en [`CLAUDE.md`](CLAUDE.md); este archivo solo activa la aduana para agentes que leen `AGENTS.md`.
-
 ---
 
 © 2026 Juan Carlos Proaño. Todos los derechos reservados.

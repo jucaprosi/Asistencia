@@ -8,4 +8,28 @@ propiedades:
     capacidad: 2
     resumen: Propiedad sintética para pruebas.
     comodidades: [desayuno, parqueo]
-    fotos: []
+    fotos: ["/static/fotos/ejemplo-1.jpg"]
+  - propiedad_id: DOMO-LAGO
+    tipo: glamping
+    nombre: Domo del Lago San Pablo
+    zona: Lago San Pablo
+    capacidad: 2
+    resumen: Domo geodésico con vista panorámica al lago San Pablo y volcán Imbabura.
+    comodidades: [wifi, desayuno, hidromasaje, parqueo, fogata]
+    fotos: ["/static/fotos/domo-lago-1.jpg", "/static/fotos/domo-lago-2.jpg"]
+  - propiedad_id: CAB-BOSQUE
+    tipo: cabaña
+    nombre: Cabaña del Bosque
+    zona: Otavalo
+    capacidad: 4
+    resumen: Cabaña rústica de madera entre eucaliptos con chimenea de leña y balcón panorámico.
+    comodidades: [wifi, chimenea, cocina_equipada, parqueo, parrilla]
+    fotos: ["/static/fotos/cab-bosque-1.jpg"]
+  - propiedad_id: SUITE-IMBABURA
+    tipo: suite
+    nombre: Suite Panorámica Imbabura
+    zona: Ibarra
+    capacidad: 2
+    resumen: Suite moderna con ventanales de piso a techo y jacuzzi exterior privado.
+    comodidades: [wifi, desayuno, jacuzzi, parqueo, vista_panoramica]
+    fotos: ["/static/fotos/suite-imbabura-1.jpg"]

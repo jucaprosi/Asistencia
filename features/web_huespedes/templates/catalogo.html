@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block titulo %}Catálogo de Hospedajes — Glamping Imbabura{% endblock %}
+
+{% block cabecera %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Catálogo de Hospedajes Glamping Imbabura",
+  "description": "Lista de domos y cabañas disponibles en Imbabura, Ecuador.",
+  "itemListElement": [
+    {% for prop in propiedades %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "LodgingBusiness",
+        "name": "{{ prop.nombre }}",
+        "description": "{{ prop.resumen }}",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "{{ prop.zona }}",
+          "addressCountry": "EC"
+        }
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block contenido %}
+<section aria-labelledby="titulo-catalogo">
+  <h1 id="titulo-catalogo" style="font-size: 28px; margin-bottom: 8px;">Nuestros Hospedajes</h1>
+  <p style="color: var(--texto-secundario); margin-bottom: 24px;">
+    Explora nuestras opciones en entornos naturales de Imbabura. Selecciona una propiedad para ver sus comodidades o escribirnos directamente a WhatsApp.
+  </p>
+
+  {% if propiedades %}
+  <div class="grid-catalogo">
+    {% for prop in propiedades %}
+    <article class="tarjeta" aria-labelledby="prop-{{ prop.propiedad_id }}">
+      {% if prop.fotos and prop.fotos|length > 0 %}
+      <img src="{{ prop.fotos[0] }}" alt="Foto de {{ prop.nombre }}" class="foto-propiedad" loading="lazy">
+      {% else %}
+      <div class="foto-placeholder" role="img" aria-label="Sin fotografía disponible para {{ prop.nombre }}">
+        Fotografía no disponible
+      </div>
+      {% endif %}
+
+      <div class="cuerpo-tarjeta">
+        <h2 id="prop-{{ prop.propiedad_id }}" class="titulo-propiedad">{{ prop.nombre }}</h2>
+        <div class="metadatos">
+          <span><strong>Zona:</strong> {{ prop.zona }}</span> ·
+          <span><strong>Capacidad:</strong> hasta {{ prop.capacidad }} personas</span>
+          {% if prop.ofrecido_por or prop.anfitrion_id %}
+          · <span><strong>Ofrecido por:</strong> {{ prop.ofrecido_por or prop.anfitrion_id }}</span>
+          {% endif %}
+        </div>
+
+        <p style="font-size: 14px; margin: 6px 0;">{{ prop.resumen }}</p>
+
+        {% if prop.comodidades %}
+        <div style="margin-top: 6px;">
+          {% for comodidad in prop.comodidades %}
+          <span class="chip">{{ comodidad }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="acciones-tarjeta">
+          <a href="/propiedades/{{ prop.propiedad_id }}" class="boton boton-secundario">Ver detalles</a>
+          <form method="post" action="/contacto" style="display: inline;">
+            <input type="hidden" name="propiedad_id" value="{{ prop.propiedad_id }}">
+            <button type="submit" class="boton boton-primario">Consultar por WhatsApp</button>
+          </form>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>No hay hospedajes registrados en este momento. Por favor vuelve a consultar pronto.</p>
+  {% endif %}
+</section>
+{% endblock %}

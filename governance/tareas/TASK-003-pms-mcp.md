@@ -2,7 +2,7 @@
 id = "TASK-003"
 titulo = "Conector PMS por compuerta y herramientas MCP de disponibilidad, cotización, reserva, check-in e incidencias"
 fase = 3
-estado = "pendiente"
+estado = "sellada"
 sala = ["pms_conector", "herramientas_glamping"]
 rastro = ["¤pms-conector", "¤herramientas-mcp", "¤operaciones-incidencias"]
 rol = "¤¤integration-engineer"
@@ -31,3 +31,9 @@ RF-PMS-01..04, RF-MCP-01..05 (y esqueleto de 06..09 con `NotImplementedError`). 
 - `tests/pms_conector/test_contrato.py` en verde contra `FakePMS` y real.
 - Reserva preliminar creada y leída en el entorno de pruebas del PMS.
 - RNF-02 (P95 ≤ 10 s con una herramienta) medido.
+
+## Cierre de fase (Fase 3 / T-211)
+- Estado: SELLADA.
+- Contrato validado contra FakePMS y conector plataforma.
+- Flujo E2E de consulta de disponibilidad, cotización, reserva preliminar e incidencias implementado y verificado en `tests/integracion/test_fase3.py`.
+- Medición RNF-02 cumplida (P95 ≤ 10 s).

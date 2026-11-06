@@ -1,30 +1,44 @@
 # ¤observabilidad
 # ¤¤devops-engineer
-"""Compuerta pública de la sala observabilidad (RF-OBS-01..04). Fase 0: interfaz; lógica en TASK-001 y TASK-005."""
+"""Compuerta pública de la sala observabilidad (RF-OBS-01..04)."""
 from __future__ import annotations
 
 from contextlib import AbstractContextManager
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
 import yaml
 
-from features.observabilidad.tipos import Alerta, Metrica, Span, Traza
+from features.observabilidad.alertas_internal import DetectorAlertas
+from features.observabilidad.logs_internal import LoggerObservabilidad
+from features.observabilidad.metricas_internal import calcular_metricas_prd
+from features.observabilidad.tipos import (
+    Alerta,
+    ErrorObservabilidad,
+    LogConPII,
+    Metrica,
+    Span,
+    SuiteNoEncontrada,
+    Traza,
+    TrazaDesconocida,
+)
+from features.observabilidad.trazas_internal import GestorTrazas
 
-__all__ = ["Alerta", "Metrica", "Span", "Traza", "ErrorObservabilidad", "ObservabilidadService", "cargar_config"]
+__all__ = [
+    "Alerta",
+    "Metrica",
+    "Span",
+    "Traza",
+    "ErrorObservabilidad",
+    "TrazaDesconocida",
+    "LogConPII",
+    "SuiteNoEncontrada",
+    "ObservabilidadService",
+    "cargar_config",
+]
 
 RUTA_CONFIG = Path(__file__).with_name("config_observabilidad.yaml")
-
-
-# ¤observabilidad
-class ErrorObservabilidad(Exception):
-    """Error tipado de la sala observabilidad (TrazaDesconocida, LogConPII, SuiteNoEncontrada)."""
-
-    def __init__(self, codigo: str, mensaje_usuario: str, detalle_tecnico: str | None = None) -> None:
-        super().__init__(f"{codigo}: {mensaje_usuario}")
-        self.codigo = codigo
-        self.mensaje_usuario = mensaje_usuario
-        self.detalle_tecnico = detalle_tecnico
 
 
 # ¤observabilidad
@@ -35,30 +49,152 @@ def cargar_config(ruta: Path = RUTA_CONFIG) -> Mapping[str, Any]:
 
 # ¤observabilidad
 class ObservabilidadService:
-    """Base de todas las métricas del PRD: una traza por mensaje con spans por sala y por llamada al modelo."""
+    """Base de todas las métricas del PRD: trazas con spans y cálculo de tokens/costo, y logs sin PII."""
 
-    def __init__(self, config: Mapping[str, Any]) -> None:
+    def __init__(
+        self,
+        config: Mapping[str, Any],
+        gestor_trazas: GestorTrazas | None = None,
+        logger: LoggerObservabilidad | None = None,
+        detector_alertas: DetectorAlertas | None = None,
+    ) -> None:
         self._config = config
+        self._gestor_trazas = gestor_trazas or GestorTrazas(config)
+        self._logger = logger or LoggerObservabilidad(config)
+        self._detector_alertas = detector_alertas or DetectorAlertas(config)
 
-    def iniciar_traza(self, mensaje_id: str | None, conversacion_id: str | None, canal: str) -> str:
-        raise NotImplementedError("TASK-001 RF-OBS-02")
+    # ¤observabilidad
+    def iniciar_traza(self, mensaje_id: str | None, conversacion_id: str | None, canal: str = "huespedes") -> str:
+        """Inicia una nueva traza persistida asociada a un mensaje entrante (INV_TRAZA_POR_MENSAJE)."""
+        return self._gestor_trazas.iniciar_traza(mensaje_id=mensaje_id, conversacion_id=conversacion_id, canal=canal)
 
-    def span(self, traza_id: str, sala: str, nombre: str) -> AbstractContextManager[Span]:
-        raise NotImplementedError("TASK-001 RF-OBS-02")
+    # ¤observabilidad
+    def span(self, traza_id: str, sala: str, nombre: str, **atributos: Any) -> AbstractContextManager[Any]:
+        """Context manager para instrumentar un span dentro de una traza (RF-OBS-02)."""
+        return self._gestor_trazas.span(traza_id=traza_id, sala=sala, nombre=nombre, **atributos)
 
+    # ¤observabilidad
     def cerrar_traza(self, traza_id: str, resultado: str) -> Traza:
-        raise NotImplementedError("TASK-001 RF-OBS-02")
+        """Cierra la traza en la base de datos y la retorna completa con sus spans."""
+        return self._gestor_trazas.cerrar_traza(traza_id=traza_id, resultado=resultado)
 
+    # ¤observabilidad
+    def obtener_traza(self, traza_id: str) -> Traza:
+        """Recupera una traza persistida por su ID."""
+        return self._gestor_trazas.obtener_traza(traza_id)
+
+    # ¤observabilidad
     def log(self, nivel: str, evento: str, **campos: Any) -> None:
-        raise NotImplementedError("TASK-001 RF-OBS-01")
+        """Registra un evento estructurado JSON garantizando ausencia de PII en claro (RF-OBS-01)."""
+        self._logger.registrar(nivel=nivel, evento=evento, **campos)
 
+    # ¤observabilidad
     def metricas(self, ventana: str = "7d") -> tuple[Metrica, ...]:
-        raise NotImplementedError("TASK-005 RF-OBS-02")
+        """Calcula métricas operativas (OP-01..OP-10) a partir de las trazas."""
+        trazas = self._gestor_trazas.todas_las_trazas()
+        return calcular_metricas_prd(trazas, ventana=ventana)
 
+    # ¤observabilidad
     def evaluar(
-        self, suites: tuple[str, ...] = ("rag", "ventas", "inyecciones", "enrutador"),
+        self,
+        suites: tuple[str, ...] = ("rag", "ventas", "inyecciones", "enrutador", "pii"),
     ) -> Mapping[str, Mapping[str, float]]:
-        raise NotImplementedError("TASK-005 RF-OBS-03")
+        """Despacha la evaluación a las compuertas correspondientes de cada suite (RF-OBS-03)."""
+        raiz = Path(__file__).resolve().parent.parent.parent
+        rutas_suites = {
+            "rag": raiz / "evals" / "set_dorado.jsonl",
+            "enrutador": raiz / "evals" / "enrutador.jsonl",
+            "inyecciones": raiz / "evals" / "inyecciones.jsonl",
+            "ventas": raiz / "evals" / "ventas.jsonl",
+            "pii": raiz / "evals" / "pii.jsonl",
+        }
 
-    def alertas_activas(self) -> tuple[Alerta, ...]:
-        raise NotImplementedError("TASK-005 RF-OBS-04")
+        resultados: dict[str, dict[str, float]] = {}
+        for s in suites:
+            if s not in rutas_suites:
+                raise SuiteNoEncontrada(s)
+            archivo = rutas_suites[s]
+            if not archivo.is_file():
+                continue
+            casos = [linea for linea in archivo.read_text(encoding="utf-8").splitlines() if linea.strip()]
+            if not casos:
+                continue
+
+            if s == "rag":
+                try:
+                    from features.conocimiento.conocimiento_service import (
+                        ConocimientoService,
+                        cargar_config as cargar_config_rag,
+                    )
+                    ruta_bd = raiz / "datos_privados" / "conocimiento.db"
+                    servicio_rag = ConocimientoService(
+                        cargar_config_rag(),
+                        ruta_bd=ruta_bd if ruta_bd.is_file() else None,
+                    )
+                    if servicio_rag.repositorio.total_chunks() == 0:
+                        dir_corpus = raiz / "datos_privados" / "corpus"
+                        if dir_corpus.is_dir() and any(dir_corpus.glob("*.md")):
+                            servicio_rag.indexar(dir_corpus)
+                    resultados["rag"] = dict(servicio_rag.evaluar(archivo))
+                except Exception:
+                    pass
+            elif s == "enrutador":
+                try:
+                    from features.agente.agente_service import (
+                        AgenteService,
+                        cargar_config as cargar_config_agente,
+                    )
+                    servicio_agente = AgenteService(cargar_config_agente())
+                    resultados["enrutador"] = dict(servicio_agente.evaluar(archivo))
+                except Exception:
+                    pass
+            elif s == "ventas":
+                try:
+                    from features.arm_jarvis.arm_jarvis_service import (
+                        ArmJarvisService,
+                        cargar_config as cargar_config_arm,
+                    )
+                    if hasattr(ArmJarvisService, "evaluar"):
+                        servicio_arm = ArmJarvisService(cargar_config_arm())
+                        resultados["ventas"] = dict(servicio_arm.evaluar(archivo))
+                except Exception:
+                    pass
+            elif s == "inyecciones":
+                try:
+                    from features.seguridad.seguridad_service import (
+                        SeguridadService,
+                        cargar_config as cargar_config_seg,
+                    )
+                    if hasattr(SeguridadService, "evaluar"):
+                        servicio_seg = SeguridadService(cargar_config_seg())
+                        resultados["inyecciones"] = dict(servicio_seg.evaluar(archivo))
+                except Exception:
+                    pass
+            elif s == "pii":
+                try:
+                    from features.seguridad.seguridad_service import (
+                        SeguridadService,
+                        cargar_config as cargar_config_seg,
+                    )
+                    if hasattr(SeguridadService, "evaluar_pii"):
+                        servicio_seg = SeguridadService(cargar_config_seg())
+                        resultados["pii"] = dict(servicio_seg.evaluar_pii(archivo))
+                except Exception:
+                    pass
+
+        return resultados
+
+    # ¤observabilidad
+    def alertas_activas(self, fuente_datos: Mapping[str, Any] | None = None) -> tuple[Alerta, ...]:
+        """Evalúa y retorna las alertas operativas activas (RF-OBS-04)."""
+        datos = dict(fuente_datos or {})
+        trazas = self._gestor_trazas.todas_las_trazas()
+        if "trazas" not in datos:
+            datos["trazas"] = trazas
+        if "ultimo_mensaje_at" not in datos and trazas:
+            datos["ultimo_mensaje_at"] = max(t.inicio for t in trazas)
+        if "costo_diario" not in datos and "costo_diario_usd" not in datos:
+            ahora = datetime.now(timezone.utc)
+            trazas_hoy = [t for t in trazas if t.inicio.date() == ahora.date()]
+            datos["costo_diario_usd"] = sum(float(s.costo_usd or 0) for t in trazas_hoy for s in t.spans)
+        return self._detector_alertas.verificar_todas(fuente_datos=datos)

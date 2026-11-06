@@ -31,6 +31,15 @@ jobs:
       - name: Arnés físico (UTF-8, secretos, pytest, evaluaciones, compose)
         run: bash ejecutar_arnes_glamping.sh
 
+      - name: Prueba de aislamiento de red INV_RED_AISLADA (RNF-10)
+        run: pytest tests/integracion/carga/test_aislamiento_red.py -v
+
+      - name: Prueba de carga concurrente y latencia (RNF-06, RNF-01)
+        run: pytest tests/integracion/carga/test_carga_concurrente.py -v
+
+      - name: Sondeo de salud y disponibilidad (RNF-05)
+        run: pytest tests/integracion/carga/test_sondeo_salud.py -v
+
       - name: Aplicar y verificar el esquema canónico en PostgreSQL real
         run: |
           psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/esquema.sql
@@ -42,3 +51,8 @@ jobs:
         with:
           name: test_verdict
           path: governance/artefactos/data/
+
+      - name: Alerta al canal del administrador en caso de fallo (RF-OBS-04)
+        if: failure()
+        run: |
+          python -c "from features.observabilidad.observabilidad_service import ObservabilidadService, cargar_config; obs = ObservabilidadService(cargar_config()); obs.log('ERROR', 'alerta_ci_fallo_arnes', pipeline='github-actions', canal='admin')"

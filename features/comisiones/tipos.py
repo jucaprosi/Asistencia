@@ -67,6 +67,10 @@ class Comision:
     ajuste_de: str | None = None
     base_acumulada: Decimal = Decimal("0")
     periodo_origen: str | None = None
+    vendedor_id: str = ""
+    fecha_venta: date | None = None
+    monto_venta: Decimal = Decimal("0")
+    motivo: str | None = None
 
 
 # ¤comisiones

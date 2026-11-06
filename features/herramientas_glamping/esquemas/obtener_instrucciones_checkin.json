@@ -1,0 +1,41 @@
+{
+  "nombre": "obtener_instrucciones_checkin",
+  "descripcion": "Obtiene dirección, instrucciones de llegada, wifi seguro y normas para una reserva confirmada.",
+  "sala_destino": "pms_conector",
+  "roles": ["huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["codigo_reserva"],
+    "properties": {
+      "codigo_reserva": {"type": "string"}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["propiedad", "direccion", "hora_checkin", "acceso", "wifi", "normas", "contacto_emergencia"],
+    "properties": {
+      "propiedad": {"type": "string"},
+      "direccion": {"type": "string"},
+      "hora_checkin": {"type": "string"},
+      "acceso": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "wifi": {
+        "type": "object",
+        "required": ["red", "clave_ref"],
+        "properties": {
+          "red": {"type": "string"},
+          "clave_ref": {"type": "string", "pattern": "^\\[\\[SECRETO:[a-z0-9_-]+\\]\\]$"}
+        }
+      },
+      "normas": {
+        "type": "array",
+        "items": {"type": "string"}
+      },
+      "contacto_emergencia": {"type": "string"}
+    }
+  }
+}

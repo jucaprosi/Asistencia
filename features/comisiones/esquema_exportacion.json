@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExportacionPeriodoComisiones",
+  "type": "object",
+  "required": ["periodo_id", "moneda", "lineas", "totales"],
+  "properties": {
+    "periodo_id": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+    },
+    "moneda": {
+      "type": "string"
+    },
+    "lineas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "comision_id",
+          "venta_id",
+          "vendedor_id",
+          "fecha_venta",
+          "monto_venta",
+          "monto_comision",
+          "estado",
+          "periodo_id",
+          "periodo_origen"
+        ],
+        "properties": {
+          "comision_id": { "type": "string" },
+          "venta_id": { "type": "string" },
+          "vendedor_id": { "type": "string" },
+          "fecha_venta": { "type": "string" },
+          "monto_venta": { "type": "string" },
+          "monto_comision": { "type": "string" },
+          "estado": { "type": "string" },
+          "periodo_id": { "type": "string" },
+          "periodo_origen": { "type": "string" },
+          "ajuste_de": { "type": ["string", "null"] },
+          "motivo": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "totales": {
+      "type": "object",
+      "required": ["total_comisiones", "total_ventas", "numero_lineas"],
+      "properties": {
+        "total_comisiones": { "type": "string" },
+        "total_ventas": { "type": "string" },
+        "numero_lineas": { "type": "integer" }
+      }
+    }
+  }
+}

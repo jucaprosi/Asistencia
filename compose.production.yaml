@@ -1,4 +1,5 @@
 # ¤infra-hibrida
+# ¤¤devops-engineer
 # Sobrescritura de producción (servidor propio): endurece, no redefine.
 #   docker compose -f compose.yaml -f compose.production.yaml up -d
 services:
@@ -12,22 +13,40 @@ services:
       options: {max-size: "20m", max-file: "10"}
     volumes:
       - logs-app:/var/log/glamping
+    networks:
+      - agent-net
 
   mcp-tools:
     restart: always
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 1g}
     logging:
       driver: json-file
       options: {max-size: "20m", max-file: "5"}
+    networks:
+      - agent-net
 
   worker:
     restart: always
     profiles: []            # en producción el worker siempre arranca
+    deploy:
+      resources:
+        limits: {cpus: "1.0", memory: 1g}
+    networks:
+      - agent-net
 
   proxy:
     restart: always
     logging:
       driver: json-file
       options: {max-size: "20m", max-file: "5"}
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge
 
 volumes:
   logs-app:

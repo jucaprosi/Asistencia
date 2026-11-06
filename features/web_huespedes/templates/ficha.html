@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ ficha.nombre }} — Glamping Imbabura{% endblock %}
+
+{% block cabecera %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LodgingBusiness",
+  "name": "{{ ficha.nombre }}",
+  "description": "{{ ficha.resumen }}",
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "{{ ficha.zona }}",
+    "addressCountry": "EC"
+  },
+  "amenityFeature": [
+    {% for c in ficha.comodidades %}
+    {
+      "@type": "LocationFeatureSpecification",
+      "name": "{{ c }}",
+      "value": true
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block contenido %}
+<nav aria-label="Miga de pan" style="margin-bottom: 16px;">
+  <a href="/" class="boton boton-secundario" style="min-height: 40px; padding: 6px 14px; font-size: 14px;">← Volver al catálogo</a>
+</nav>
+
+<article class="detalle-ficha" aria-labelledby="nombre-hospedaje">
+  <header style="background: transparent; border: none; padding: 0;">
+    <h1 id="nombre-hospedaje" style="font-size: 30px; margin-bottom: 6px;">{{ ficha.nombre }}</h1>
+    <div class="metadatos" style="font-size: 16px;">
+      <span><strong>Zona:</strong> {{ ficha.zona }}</span> ·
+      <span><strong>Capacidad máxima:</strong> {{ ficha.capacidad }} personas</span> ·
+      <span><strong>Tipo:</strong> {{ ficha.tipo }}</span>
+      {% if ficha.ofrecido_por or ficha.anfitrion_id %}
+      · <span><strong>Ofrecido por:</strong> {{ ficha.ofrecido_por or ficha.anfitrion_id }}</span>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if ficha.fotos and ficha.fotos|length > 0 %}
+  <section aria-label="Fotografías de {{ ficha.nombre }}">
+    <div class="galeria-fotos">
+      {% for foto in ficha.fotos %}
+      <img src="{{ foto }}" alt="Fotografía de {{ ficha.nombre }} - Vista {{ loop.index }}" class="foto-propiedad" style="height: 240px; border-radius: var(--radio-tarjeta);" loading="lazy">
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="titulo-descripcion">
+    <h2 id="titulo-descripcion" style="font-size: 20px; margin-bottom: 8px;">Descripción</h2>
+    <p style="line-height: 1.6;">{{ ficha.resumen }}</p>
+  </section>
+
+  {% if ficha.comodidades %}
+  <section aria-labelledby="titulo-comodidades">
+    <h2 id="titulo-comodidades" style="font-size: 20px; margin-bottom: 10px;">Comodidades incluidas</h2>
+    <div>
+      {% for comodidad in ficha.comodidades %}
+      <span class="chip" style="font-size: 14px; padding: 6px 14px;">{{ comodidad }}</span>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="seccion-contacto" aria-labelledby="titulo-contacto">
+    <h2 id="titulo-contacto" style="font-size: 20px; margin-bottom: 6px;">Consultar y Reservar por WhatsApp</h2>
+    <p style="color: var(--texto-secundario); font-size: 14px;">
+      Nuestras reservas se gestionan exclusivamente por WhatsApp para brindarte atención personalizada, validar disponibilidad y coordinar tu llegada sin intermediarios ni comisiones sorpresa.
+    </p>
+
+    <form method="post" action="/contacto" class="formulario-contacto">
+      <input type="hidden" name="propiedad_id" value="{{ ficha.propiedad_id }}">
+
+      <div class="campo-formulario">
+        <label for="campo-desde">Fecha de llegada (opcional)</label>
+        <input type="date" id="campo-desde" name="desde">
+      </div>
+
+      <div class="campo-formulario">
+        <label for="campo-hasta">Fecha de salida (opcional)</label>
+        <input type="date" id="campo-hasta" name="hasta">
+      </div>
+
+      <div class="campo-formulario">
+        <label for="campo-huespedes">Número de personas (opcional)</label>
+        <input type="number" id="campo-huespedes" name="huespedes" min="1" max="{{ ficha.capacidad }}" placeholder="1 a {{ ficha.capacidad }}">
+      </div>
+
+      <button type="submit" class="boton boton-primario" style="margin-top: 8px; font-size: 18px;">
+        Continuar a WhatsApp
+      </button>
+
+      <p class="aviso-privacidad">
+        Al hacer clic se abrirá una conversación en WhatsApp con un código de referencia. No solicitamos contraseñas, tarjetas de crédito ni datos sensibles en esta web.
+      </p>
+    </form>
+  </section>
+</article>
+{% endblock %}

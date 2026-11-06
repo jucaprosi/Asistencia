@@ -2,7 +2,7 @@
 # ¤¤solutions-architect
 """Arranque HTTP del submarino. Fábrica para uvicorn: ``uvicorn app_core.main:crear_app --factory``.
 
-En la fase 0 solo existe ``GET /health``; el webhook de Meta, los eventos del CRM y el panel llegan con sus tareas.
+Incluye GET /health, rutas del webhook de Meta (/webhook) y montaje de las rutas públicas de web_huespedes.
 """
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import argparse
 from typing import Any
 
 from app_core.app_core_service import Contenedor, cargar_config_app, construir
+from app_core.webhook_router import crear_router_webhook
 
 VERSION = "0.1.0"
 
@@ -38,6 +39,14 @@ def crear_app(contenedor: Contenedor | None = None) -> Any:
     @app.get("/health")
     def _health() -> dict[str, Any]:
         return salud(contenedor_activo)
+
+    # Rutas HTTP de webhook de Meta (RF-GW-01, RF-GW-07)
+    app.include_router(crear_router_webhook(contenedor_activo.canal))
+
+    # Montaje de las rutas públicas del catálogo web (web_huespedes)
+    if hasattr(contenedor_activo, "web") and contenedor_activo.web is not None:
+        app_web = contenedor_activo.web.crear_app()
+        app.mount("", app_web)
 
     return app
 

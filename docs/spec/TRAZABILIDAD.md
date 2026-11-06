@@ -34,12 +34,12 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PMS-05 | T-202 | reservas.feature: Una reserva preliminar sin pago expira |
 | RF-PMS-06 | T-202 | plataforma.feature: Validar al titular sin llamar al PMS |
 | RF-PMS-07 | T-212 | plataforma.feature: Dos huéspedes piden la misma noche<br>plataforma.feature: Noche sin tarifa |
-| RF-PMS-08 | T-212, T-306, T-404 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
+| RF-PMS-08 | T-212, T-404, T-306 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
 | RF-CRM-01 | T-302 | plataforma.feature: Contrato del conector CRM |
 | RF-CRM-02 | T-302, T-601 | plataforma.feature: Cambio de proveedor de CRM |
 | RF-CRM-03 | T-601 | plataforma.feature: Publicar dos veces la misma venta<br>ventas.feature: Anular una venta publicada |
 | RF-CRM-04 | T-601, T-602 | ventas.feature: El CRM no acepta la venta |
-| RF-CRM-05 | T-310, T-601 | plataforma.feature: Confinamiento de MCP de comunidad |
+| RF-CRM-05 | T-601, T-310 | plataforma.feature: Confinamiento de MCP de comunidad |
 | RF-CRM-06 | T-302 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Handoff sin zona resuelta<br>incidencias_handoff.feature: Nadie toma el handoff<br>incidencias_handoff.feature: La atención queda abandonada |
 | RF-ARM-01 | T-502 | ventas.feature: Remitente no registrado en el canal de vendedores |
 | RF-ARM-02 | T-502 | ventas.feature: Venta completa<br>ventas.feature: Falta un campo obligatorio<br>ventas.feature: No es una venta |

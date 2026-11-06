@@ -2,7 +2,7 @@
 id = "TASK-000"
 titulo = "Esqueleto ADPA, compose, arnés, CI y backups probados"
 fase = 0
-estado = "boceto"
+estado = "sellada"
 sala = ["app_core", "infraestructura", "todas (compuertas vacías)"]
 rastro = ["¤pasillo-central", "¤infra-hibrida", "¤arquitectura-salas", "¤bbap-glamping"]
 rol = "¤¤solutions-architect"

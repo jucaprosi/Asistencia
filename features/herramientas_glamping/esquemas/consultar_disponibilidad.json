@@ -1,0 +1,51 @@
+{
+  "nombre": "consultar_disponibilidad",
+  "descripcion": "Consulta disponibilidad de fechas y unidades en el PMS.",
+  "sala_destino": "pms_conector",
+  "roles": ["huesped_potencial", "huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["propiedad_id", "desde", "hasta", "huespedes"],
+    "properties": {
+      "propiedad_id": {"type": "string"},
+      "desde": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "hasta": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "huespedes": {"type": "integer", "minimum": 1}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["disponible", "unidades", "alternativas"],
+    "properties": {
+      "disponible": {"type": "boolean"},
+      "motivo": {"type": "string"},
+      "unidades": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["unidad_id", "nombre", "capacidad"],
+          "properties": {
+            "unidad_id": {"type": "string"},
+            "nombre": {"type": "string"},
+            "capacidad": {"type": "integer"}
+          }
+        }
+      },
+      "alternativas": {
+        "type": "array",
+        "maxItems": 3,
+        "items": {
+          "type": "object",
+          "required": ["unidad_id", "desde", "hasta"],
+          "properties": {
+            "unidad_id": {"type": "string"},
+            "desde": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "hasta": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+          }
+        }
+      }
+    }
+  }
+}

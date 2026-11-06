@@ -1,0 +1,30 @@
+{
+  "nombre": "crear_reserva_preliminar",
+  "descripcion": "Crea una reserva preliminar con expiración a 24 horas y clave de idempotencia.",
+  "sala_destino": "pms_conector",
+  "roles": ["huesped_potencial", "huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["propiedad_id", "unidad_id", "desde", "hasta", "huespedes", "nombre_token", "clave_idempotencia"],
+    "properties": {
+      "propiedad_id": {"type": "string"},
+      "unidad_id": {"type": "string"},
+      "desde": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "hasta": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "huespedes": {"type": "integer", "minimum": 1},
+      "nombre_token": {"type": "string"},
+      "clave_idempotencia": {"type": "string", "format": "uuid", "pattern": "^[0-9a-fA-F-]{36}$"}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["codigo_reserva", "estado", "expira_en"],
+    "properties": {
+      "codigo_reserva": {"type": "string"},
+      "estado": {"const": "preliminar"},
+      "expira_en": {"type": "string", "format": "date-time"}
+    }
+  }
+}

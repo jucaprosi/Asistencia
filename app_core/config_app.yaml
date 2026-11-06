@@ -8,6 +8,10 @@ aplicacion:
   zona_horaria: America/Guayaquil
   puerto: 8080
 
+canal_vendedores:
+  modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (S-01)
+  grupo_id: ${CANAL_VENDEDORES_GRUPO_ID:-}
+
 salas:
   # Orden de construcción en app_core/contenedor.py: una compuerta solo recibe las ya construidas.
   # canal_whatsapp se construye antes que agente y arm_jarvis porque ambos la usan para enviar;

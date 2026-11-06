@@ -10,7 +10,7 @@ acceso:
   longitud_codigo: 6
   validez_min: 10
   intentos_max: 5
-roles_permitidos: [lider, gestor, administrador]
+roles_permitidos: [lider, gestor, administrador, anfitrion]
 paginacion: 25
 tablero:
   periodo_defecto: actual

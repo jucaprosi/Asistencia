@@ -5,7 +5,7 @@
 | :--- | :--- |
 | Sala | `features/comisiones/` |
 | Compuerta | `comisiones_service.py` → `ComisionesService` |
-| Privados | `reglas_internal.py`, `periodo_internal.py`, `exportacion_internal.py`, `esquema_exportacion.json`, `tipos.py` |
+| Privados | `reglas_internal.py`, `periodo_internal.py`, `exportacion_internal.py`, `persistencia_internal.py`, `esquema_exportacion.json`, `tipos.py` |
 | Config | `config_comisiones.yaml` |
 | Rol | `¤¤backend-developer` |
 | Requisitos | RF-COM-01..03 · INV_COMISION_REPRODUCIBLE |
@@ -44,6 +44,7 @@ class ComisionesService:
     def crear_regla(self, actor: Identidad, regla: ReglaComision) -> ReglaComision: ...        # nueva versión; nunca edita la anterior
     def cerrar_periodo(self, periodo_id: str, actor: Identidad) -> Periodo: ...                # RF-COM-02
     def ajustar(self, comision_id: str, actor: Identidad, nuevo_monto: Decimal, motivo: str) -> Comision: ...  # crea AJUSTADA en el período abierto
+    def anular_venta(self, venta_id: str, actor: Identidad, motivo: str) -> Comision: ...       # crea AJUSTADA negativa en el período abierto (RF-COM-04)
     def exportar(self, periodo_id: str, formato: Literal["csv", "json"]) -> bytes: ...          # RF-COM-03
 ```
 
@@ -60,6 +61,11 @@ class ComisionesService:
 `reglas(regla_id, version, ..., PK(regla_id, version))`, `comisiones(comision_id PK, venta_id, regla_id, regla_version, monto, periodo_id, estado, ajuste_de)`, `periodos(periodo_id PK, cerrado_en, cerrado_por, resumen_json)`; disparador que rechaza `UPDATE` en comisiones de períodos cerrados.
 
 ## Tests (árbitro)
-`tests/comisiones/test_reglas.py` (vigencia a fecha de venta, versiones), `test_cierre_periodo.py`, `test_exportacion.py` (valida contra esquema).
+`tests/comisiones/test_reglas.py` (vigencia a fecha de venta, versiones), `test_cierre_periodo.py`, `test_anulacion.py` (RF-COM-04), `test_exportacion.py` (valida CSV y JSON deterministas contra `esquema_exportacion.json`, RF-COM-03).
+
+## Exportación determinista (`exportacion_internal.py`)
+Genera la salida del período ordenando las comisiones de forma determinista por `(fecha_venta, comision_id)`.
+- **CSV:** Cabecera canónica (`comision_id, venta_id, vendedor_id, fecha_venta, monto_venta, regla_id, regla_version, monto, base_acumulada, periodo_id, periodo_origen, estado, ajuste_de, motivo`) con montos formateados a dos decimales.
+- **JSON:** Estructura con `periodo_id`, `moneda`, `lineas` (con `ajuste_de` y `motivo` admitiendo `null` o `string`) y `totales` (`total_comisiones`, `total_ventas`, `numero_lineas`), validada contractualmente con `Draft202012Validator` contra `features/comisiones/esquema_exportacion.json`. Lanza `ExportacionInvalida` ante cualquier no conformidad.
 
 `¤comisiones/`

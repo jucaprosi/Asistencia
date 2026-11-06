@@ -1,9 +1,9 @@
 # ¤infra-hibrida
-# ¤¤security-engineer
+# ¤¤devops-engineer
 """Escáner de secretos (INV_SIN_SECRETOS_EN_REPO, RNF-08). Exit 0 si no hay hallazgos; 1 con la lista en stdout.
 
-Busca tokens de Meta, claves de Anthropic, claves AWS, claves privadas PEM y asignaciones literales largas a
-nombres típicos de secreto. Los valores ``${VARIABLE}`` y las líneas vacías de ``.env.example`` no cuentan.
+Busca tokens de Meta, claves de Anthropic, claves AWS, claves privadas PEM, tokens de GitHub/OpenAI
+y asignaciones literales largas a nombres típicos de secreto. Los valores ``${VARIABLE}`` y las líneas vacías de ``.env.example`` no cuentan.
 """
 from __future__ import annotations
 
@@ -20,6 +20,8 @@ PATRONES = (
     ("token_meta", re.compile(r"\bEAA[A-Za-z0-9]{40,}\b")),
     ("clave_aws", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("clave_privada_pem", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----")),
+    ("token_github", re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36,}\b")),
+    ("clave_openai", re.compile(r"\bsk-(?!ant-)[A-Za-z0-9_-]{32,}\b")),
     ("asignacion_literal", re.compile(r"(?i)\b(?:api[_-]?key|secret|token|password|contrase[nñ]a)\b\s*[:=]\s*[\"'][^\"'${}\s]{16,}[\"']")),
 )
 
@@ -37,6 +39,20 @@ def archivos_a_revisar() -> list[Path]:
 
 
 # ¤infra-hibrida
+def verificar_archivo_env() -> list[str]:
+    """Verifica que .env nunca contenga secretos en claro sin enmascarar (INV_SIN_SECRETOS_EN_REPO)."""
+    hallazgos: list[str] = []
+    env_file = RAIZ / ".env"
+    if env_file.is_file():
+        texto = env_file.read_text(encoding="utf-8", errors="replace")
+        for numero, linea in enumerate(texto.splitlines(), start=1):
+            for nombre, patron in PATRONES:
+                if patron.search(linea):
+                    hallazgos.append(f".env:{numero} [{nombre}]")
+    return hallazgos
+
+
+# ¤infra-hibrida
 def main() -> int:
     hallazgos: list[str] = []
     for ruta in archivos_a_revisar():
@@ -45,6 +61,7 @@ def main() -> int:
             for nombre, patron in PATRONES:
                 if patron.search(linea):
                     hallazgos.append(f"{ruta.relative_to(RAIZ)}:{numero} [{nombre}]")
+    hallazgos.extend(verificar_archivo_env())
     if hallazgos:
         print("posibles secretos en el repositorio:")
         print("\n".join(hallazgos))

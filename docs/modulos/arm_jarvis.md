@@ -5,7 +5,7 @@
 | :--- | :--- |
 | Sala | `features/arm_jarvis/` |
 | Compuerta | `arm_jarvis_service.py` → `ArmJarvisService` |
-| Privados | `extractor_internal.py` (cliente Claude propio), `estados_internal.py`, `ticket_internal.py`, `notificador_internal.py`, `tablero_internal.py`, `asistente_lider_internal.py`, `tipos.py` |
+| Privados | `extractor_internal.py` (cliente de modelo propio: Google Gemini / Claude multimodal), `estados_internal.py`, `ticket_internal.py`, `notificador_internal.py`, `tablero_internal.py`, `asistente_lider_internal.py`, `tipos.py` |
 | Config | `config_arm_jarvis.yaml` |
 | Rol | `¤¤backend-developer` |
 | Requisitos | RF-ARM-01..09 · RNF-03 · INV_ESTADOS_VENTA, INV_COMISION_PROPIA, INV_TICKET_UNICO, INV_VENTA_NO_SE_PIERDE |
@@ -47,6 +47,8 @@ class ArmJarvisService:
     def listar(self, estado: EstadoVenta | None, vendedor_id: str | None, periodo: str | None, pagina: int) -> tuple[Venta, ...]: ...
     def detalle(self, venta_id: str) -> tuple[Venta, tuple[Transicion, ...]]: ...
     def tablero(self, periodo: str) -> Tablero: ...                                            # RF-ARM-08
+    def exportar_csv(self, periodo: str) -> str: ...                                           # RF-ARM-08 exportación CSV del tablero
+    def exportar_ventas_csv(self, periodo: str) -> str: ...                                    # exportación CSV de ventas individuales
     def preguntar_jarvis(self, actor: Identidad, pregunta: str, conversacion_id: str) -> str: ...   # RF-ARM-09, solo lectura + cambios con confirmación
     def aplicar_cambio_configuracion(self, actor: Identidad, cambio: Mapping[str, Any], confirmado: bool) -> None: ...
 ```

@@ -1,0 +1,27 @@
+{
+  "nombre": "solicitar_humano",
+  "descripcion": "Solicita transferencia de la conversación al gestor humano (handoff en panel).",
+  "sala_destino": "crm_conector",
+  "roles": ["huesped_potencial", "huesped_activo", "vendedor"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["motivo", "resumen"],
+    "properties": {
+      "propiedad_id": {"type": "string"},
+      "motivo": {"enum": ["peticion_explicita", "baja_confianza", "fuera_alcance", "incidencia_critica", "inyeccion_repetida", "degradacion", "limite_iteraciones"]},
+      "resumen": {"type": "string", "minLength": 3}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["handoff_id", "asignado_a", "canal", "minutos_estimados"],
+    "properties": {
+      "handoff_id": {"type": "string"},
+      "asignado_a": {"type": "string"},
+      "canal": {"const": "panel"},
+      "minutos_estimados": {"type": "integer"}
+    }
+  }
+}

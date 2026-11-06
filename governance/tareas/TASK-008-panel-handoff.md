@@ -1,13 +1,13 @@
 ```toml
 id = "TASK-008"
-titulo = "Inbox completo de conversaciones de huéspedes dentro del panel operativo (solo si ADR-0010 prescinde del inbox del proveedor)"
+titulo = "Inbox completo de conversaciones de huéspedes dentro del panel operativo (aprobado por ADR-0010)"
 fase = 8
-estado = "bloqueada"
+estado = "sellada"
 sala = ["panel_operativo"]
 rastro = ["¤panel-operativo"]
 rol = "¤¤frontend-developer"
 depende_de = ["TASK-007"]
-bloqueada_por = ["ADR-0010"]
+bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/test_inbox_huespedes.py"]
 arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); conversaciones de huéspedes consultables y atendibles sin el inbox del proveedor (e2e)"
 ```
@@ -31,4 +31,4 @@ Extensión de RF-PAN-07 (conversaciones fuera de handoff); US-09 y US-10 siguen 
 - Métrica de handoffs/semana y tiempo de atención visibles en Salud del sistema.
 
 ## Estado
-Bloqueada hasta ADR-0010. No se inicia por iniciativa de la IA. Reformulada el 2026-10-30 por ADR-0013 (antes: «panel de handoff propio», que ahora existe desde la fase 4).
+Sellada tras la aprobación de ADR-0010 (Opción 2: inbox nativo en panel operativo propio). Implementada la compuerta en `PanelOperativoService`, rutas en `bff_internal.py`, persistencia en `persistencia_internal.py`, componente UI `p13_inbox_huespedes.ts` y verificada con `tests/e2e/test_inbox_huespedes.py` con Exit Code 0 en `ejecutar_arnes_glamping.bat`.

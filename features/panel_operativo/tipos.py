@@ -6,6 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any, Mapping
 
 
 # ¤panel-operativo
@@ -62,3 +63,59 @@ class AvisoMovil:
     tipo: str
     cantidad: int
     ruta: str
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class VistaUsuario:
+    usuario_id: str
+    correo_enmascarado: str
+    numero_enmascarado: str
+    rol: str
+    activo: bool
+    creado_en: datetime
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class VistaReglaComision:
+    regla_id: str
+    version: int
+    nombre: str
+    tipo: str
+    parametros: Mapping[str, Any]
+    vigencia_desde: str
+    activa: bool = True
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class VistaAnfitrion:
+    anfitrion_id: str
+    nombre: str
+    telefono_token: str
+    porcentaje_comision: Decimal
+    version_terminos: str
+    estado: str
+    creado_en: datetime
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class VistaHospedaje:
+    hospedaje_id: str
+    anfitrion_id: str
+    titulo: str
+    estado: str
+    publicado_por: str | None = None
+    publicado_en: datetime | None = None
+
+
+# ¤panel-operativo
+@dataclass(frozen=True)
+class SolicitudPrivacidad:
+    solicitud_id: str
+    tipo: str
+    titular_hash: str
+    estado: str
+    creada_en: datetime

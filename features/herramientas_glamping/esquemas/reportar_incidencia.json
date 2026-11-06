@@ -1,0 +1,28 @@
+{
+  "nombre": "reportar_incidencia",
+  "descripcion": "Registra una incidencia operativa y notifica al gestor de la zona.",
+  "sala_destino": "pms_conector",
+  "roles": ["huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["propiedad_id", "descripcion", "categoria"],
+    "properties": {
+      "codigo_reserva": {"type": "string"},
+      "propiedad_id": {"type": "string"},
+      "descripcion": {"type": "string", "minLength": 3},
+      "categoria": {"enum": ["agua", "electricidad", "limpieza", "acceso", "seguridad", "ruido", "wifi", "otra"]}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["incidencia_id", "prioridad", "gestor_asignado", "eta_respuesta_horas"],
+    "properties": {
+      "incidencia_id": {"type": "string", "pattern": "^I-[0-9]{4}-[0-9]{4,}$"},
+      "prioridad": {"enum": ["baja", "media", "alta", "critica"]},
+      "gestor_asignado": {"type": "string"},
+      "eta_respuesta_horas": {"type": "number"}
+    }
+  }
+}
