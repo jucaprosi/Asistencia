@@ -1,7 +1,21 @@
 {
+  "_meta": {
+    "descripcion": "Registro canónico de fallas observadas en pruebas manuales, de humo y de Playwright.",
+    "protocolo": "No corregir en caliente: cada falla detectada se registra aquí con su causa raíz, severidad y estado; la tarea que la corrige debe citar su id.",
+    "esquema_item": {
+      "id": "PROB-XXX (identificador secuencial)",
+      "fecha": "YYYY-MM-DD",
+      "origen": "pruebas_manuales | playwright | arnes",
+      "caso_ref": "Identificador del caso (ej. TC-MAN-01, TC-E2E-02)",
+      "descripcion": "Descripción concisa del defecto observado",
+      "causa_raiz": "Causa raíz técnica diagnosticada",
+      "estado": "abierto | en_analisis | resuelto",
+      "tarea_correccion": "Identificador de tarea que implementa la solución (ej. T-XXX)"
+    }
+  },
   "proyecto": "glamping-imbabura-agent",
   "rastro": "¤depuracion-traceback",
-  "actualizado": "2026-10-30",
+  "actualizado": "2026-11-22",
   "active_problems": [],
   "resolved_problems": []
 }

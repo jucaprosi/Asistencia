@@ -24,9 +24,12 @@ RAIZ = Path(__file__).resolve().parent.parent
 RUTA_DATOS = RAIZ / "governance" / "artefactos" / "data"
 RUTA_CERTIFICADO = RUTA_DATOS / ".test_verdict.json"
 RUTA_LOG = RUTA_DATOS / "arnes.log"
+RUTA_COBERTURA = RUTA_DATOS / "cobertura.json"
+RUTA_COBERTURA_BASE = RAIZ / "governance" / "artefactos" / "COBERTURA_BASE.json"
 EXCLUIDOS = {".git", "transcriptor_tiktok", "node_modules", ".venv", "venv", "__pycache__", ".pytest_cache", "dist", "data"}
 EXTENSIONES_TEXTO = {".py", ".yaml", ".yml", ".md", ".toml", ".json", ".sh", ".bat", ".txt", ".example", ".sql", ".feature"}
 OMISIONES: list[str] = []
+COBERTURA_MEDIDA: dict[str, object] = {}
 
 
 # ¤bbap-glamping
@@ -140,6 +143,73 @@ def validar_compose() -> tuple[int, str]:
 
 
 # ¤bbap-glamping
+def calcular_cobertura(ruta_json: Path) -> dict[str, object]:
+    """Extrae el porcentaje total y por sala del reporte json generado por pytest-cov."""
+    if not ruta_json.is_file():
+        raise FileNotFoundError(f"No existe el archivo de cobertura: {ruta_json}")
+    data = json.loads(ruta_json.read_text(encoding="utf-8"))
+    total_pct = round(data.get("totals", {}).get("percent_covered", 0.0), 2)
+    salas: dict[str, dict[str, int]] = {}
+    for path_str, file_data in data.get("files", {}).items():
+        norm = path_str.replace("\\", "/")
+        parts = norm.split("/")
+        if len(parts) >= 2 and parts[0] == "features" and not parts[1].endswith(".py"):
+            sala = parts[1]
+            s = file_data.get("summary", {})
+            salas.setdefault(sala, {"covered": 0, "statements": 0})
+            salas[sala]["covered"] += s.get("covered_lines", 0)
+            salas[sala]["statements"] += s.get("num_statements", 0)
+
+    pcts_sala = {
+        sala: round(v["covered"] / v["statements"] * 100, 2) if v["statements"] > 0 else 100.0
+        for sala, v in sorted(salas.items())
+    }
+    return {
+        "total": total_pct,
+        "salas": pcts_sala,
+    }
+
+
+# ¤bbap-glamping
+def verificar_cobertura_contra_piso(medida: dict[str, object], ruta_base: Path) -> tuple[int, str]:
+    """Compara la cobertura medida contra el piso congelado en COBERTURA_BASE.json."""
+    if not ruta_base.is_file():
+        return 1, f"Falta el archivo de línea base de cobertura: {ruta_base}"
+    base = json.loads(ruta_base.read_text(encoding="utf-8"))
+    piso_global = base.get("piso_global", 0.0)
+    pisos_sala = base.get("pisos_por_sala", {})
+
+    total = float(medida.get("total", 0.0))
+    salas = medida.get("salas", {})
+
+    fallos: list[str] = []
+    if total < piso_global - 0.001:
+        fallos.append(f"Cobertura global {total:.2f}% por debajo del piso {piso_global:.2f}%")
+
+    for sala, piso in pisos_sala.items():
+        actual = salas.get(sala)
+        if actual is None:
+            fallos.append(f"Sala '{sala}' no tiene medición de cobertura")
+        elif actual < piso - 0.001:
+            fallos.append(f"Sala '{sala}' con cobertura {actual:.2f}% por debajo del piso {piso:.2f}%")
+
+    if fallos:
+        return 1, "\n".join(fallos)
+    return 0, f"Cobertura global {total:.2f}% (piso {piso_global:.2f}%) y {len(pisos_sala)} salas cumplen el piso"
+
+
+# ¤bbap-glamping
+def verificar_cobertura() -> tuple[int, str]:
+    """Paso 4: valida que la cobertura no haya bajado del piso congelado."""
+    global COBERTURA_MEDIDA
+    try:
+        COBERTURA_MEDIDA = calcular_cobertura(RUTA_COBERTURA)
+    except Exception as exc:
+        return 1, f"Error calculando cobertura: {exc}"
+    return verificar_cobertura_contra_piso(COBERTURA_MEDIDA, RUTA_COBERTURA_BASE)
+
+
+# ¤bbap-glamping
 def main() -> int:
     RUTA_DATOS.mkdir(parents=True, exist_ok=True)
     inicio = time.time()
@@ -148,7 +218,9 @@ def main() -> int:
         ("utf8_sin_bom", verificar_utf8),
         ("secretos", lambda: ejecutar([python, "scripts/verificar_secretos.py"])),
         ("semilla_sintetica_rag", ejecutar_semilla_rag),
-        ("pytest", lambda: ejecutar([python, "-m", "pytest", "tests", "-q"])),
+        ("humo_playwright", lambda: ejecutar([python, "-m", "pytest", "tests/e2e/test_humo_playwright.py", "-q", "--maxfail=1"])),
+        ("pytest", lambda: ejecutar([python, "-m", "pytest", "--cov=features", f"--cov-report=json:{RUTA_COBERTURA}", "tests", "-q"])),
+        ("cobertura", verificar_cobertura),
         ("evaluaciones", lambda: ejecutar([python, "scripts/run_evals.py"])),
         ("compose", validar_compose),
     ]
@@ -163,6 +235,13 @@ def main() -> int:
         print(f"[{estado}] {nombre} ({duracion} ms)")
         if codigo != 0:
             print(salida)
+            registro.append(f"== {nombre} exit={codigo} {duracion}ms ==\n{salida}")
+            resultados.append({"nombre": nombre, "exit_code": codigo, "duracion_ms": duracion})
+            codigo_global = codigo_global or codigo
+            if nombre == "humo_playwright":
+                print("[DETENCIÓN INMEDIATA]: Fallo en la suite de humo de Playwright; se suspende la suite completa.")
+                break
+            continue
         registro.append(f"== {nombre} exit={codigo} {duracion}ms ==\n{salida}")
         resultados.append({"nombre": nombre, "exit_code": codigo, "duracion_ms": duracion})
         codigo_global = codigo_global or codigo
@@ -177,6 +256,8 @@ def main() -> int:
         "exit_code": codigo_global,
         "veredicto": veredicto,
         "omisiones": OMISIONES,
+        "cobertura_total": COBERTURA_MEDIDA.get("total"),
+        "cobertura_por_sala": COBERTURA_MEDIDA.get("salas", {}),
         "pasos": resultados,
         "duracion_total_ms": int((time.time() - inicio) * 1000),
         "sha256_log": hashlib.sha256(texto_log.encode("utf-8")).hexdigest(),

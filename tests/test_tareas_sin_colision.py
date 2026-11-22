@@ -64,10 +64,35 @@ def test_ids_unicos_y_dependencias_resolubles() -> None:
     ids = [t["id"] for t in tareas]
     assert len(ids) == len(set(ids)), "ids duplicados en TASKS.md"
     conocidos = set(ids)
+    por_id = {t["id"]: t for t in tareas}
     for tarea in tareas:
+        mi_ola = int(tarea["ola"])
         for dependencia in tarea["depende_de"]:
             base = dependencia.split(" ")[0]
             assert base in conocidos or re.fullmatch(r"TASK-\d{3}", base), f"{tarea['id']} depende de {dependencia!r} desconocida"
+            if base in por_id:
+                dep_ola = int(por_id[base]["ola"])
+                assert dep_ola < mi_ola, (
+                    f"Violación de regla de olas: {tarea['id']} (ola {mi_ola}) depende de {base} "
+                    f"(ola {dep_ola}); la ola de una dependencia debe ser estrictamente menor."
+                )
+
+
+def test_regla_de_olas_falla_si_dependencia_es_de_misma_ola_o_posterior() -> None:
+    """Verifica (mutante muerto) que una dependencia en la misma ola o posterior sea rechazada."""
+    import pytest
+    tareas_sinteticas = [
+        {"id": "T-001", "ola": 2, "depende_de": []},
+        {"id": "T-002", "ola": 2, "depende_de": ["T-001"]},  # misma ola!
+    ]
+    por_id = {t["id"]: t for t in tareas_sinteticas}
+    with pytest.raises(AssertionError, match="Violación de regla de olas: T-002"):
+        for tarea in tareas_sinteticas:
+            mi_ola = int(tarea["ola"])
+            for dep in tarea["depende_de"]:
+                if dep in por_id:
+                    assert int(por_id[dep]["ola"]) < mi_ola, f"Violación de regla de olas: {tarea['id']}"
+
 
 
 def test_sin_colisiones_de_rutas_dentro_de_cada_ola() -> None:

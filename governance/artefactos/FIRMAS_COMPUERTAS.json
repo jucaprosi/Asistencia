@@ -1,0 +1,1274 @@
+{
+  "_meta": {
+    "descripcion": "Línea base congelada de firmas públicas de compuertas _service.py. Las firmas solo pueden crecer. Quitar o cambiar requiere entrada en cambios_de_contrato.",
+    "version": "1.0.0"
+  },
+  "cambios_de_contrato": [],
+  "firmas": {
+    "features/agente/agente_service.py::AgenteService": {
+      "atender": [
+        "self",
+        "mensaje"
+      ],
+      "contexto": [
+        "self",
+        "conversacion_id"
+      ],
+      "entrar_en_silencio": [
+        "self",
+        "conversacion_id",
+        "motivo"
+      ],
+      "reanudar": [
+        "self",
+        "conversacion_id"
+      ],
+      "resolver_propiedad": [
+        "self",
+        "mensaje",
+        "contexto"
+      ],
+      "herramientas_para": [
+        "self",
+        "rol",
+        "propiedad_id"
+      ],
+      "enviar_checkins_del_dia": [
+        "self",
+        "fecha"
+      ],
+      "evaluar": [
+        "self",
+        "archivo_casos"
+      ]
+    },
+    "features/anfitriones/anfitriones_service.py::AnfitrionesService": {
+      "registrar_anfitrion": [
+        "self",
+        "anfitrion",
+        "telefono_token",
+        "actor_id"
+      ],
+      "guardar_hospedaje": [
+        "self",
+        "hospedaje",
+        "actor_id"
+      ],
+      "publicados": [
+        "self"
+      ],
+      "solicitar_reserva": [
+        "self",
+        "codigo_reserva"
+      ],
+      "responder_solicitud": [
+        "self",
+        "solicitud",
+        "anfitrion_id",
+        "acepta",
+        "motivo"
+      ],
+      "reportar_resultado": [
+        "self",
+        "solicitud",
+        "anfitrion_id",
+        "resultado",
+        "ahora_fecha"
+      ],
+      "expirar_solicitudes_vencidas": [
+        "self",
+        "ahora"
+      ],
+      "procesar_estadias_completadas": [
+        "self",
+        "ahora_fecha"
+      ],
+      "cerrar_periodo": [
+        "self",
+        "periodo",
+        "ahora"
+      ],
+      "estado_de_cuenta": [
+        "self",
+        "anfitrion_id",
+        "periodo",
+        "actor_id"
+      ],
+      "registrar_pago": [
+        "self",
+        "estado_cuenta_id",
+        "actor_id",
+        "ahora"
+      ],
+      "agregar_ajuste": [
+        "self",
+        "anfitrion_id",
+        "periodo",
+        "solicitud",
+        "comision",
+        "base",
+        "porcentaje",
+        "actor_id"
+      ],
+      "procesar_cuentas_vencidas": [
+        "self",
+        "ahora_fecha"
+      ],
+      "consultar_estado_cuenta": [
+        "self",
+        "anfitrion_id",
+        "periodo",
+        "actor_id"
+      ]
+    },
+    "features/arm_jarvis/arm_jarvis_service.py::ArmJarvisService": {
+      "repositorio": [
+        "self"
+      ],
+      "registrar_vendedor": [
+        "self",
+        "telefono_token",
+        "nombre",
+        "activo",
+        "vendedor_id",
+        "regla_comision_default_id"
+      ],
+      "procesar": [
+        "self",
+        "mensaje"
+      ],
+      "extraer": [
+        "self",
+        "texto"
+      ],
+      "validar": [
+        "self",
+        "venta_id",
+        "actor",
+        "correcciones"
+      ],
+      "rechazar": [
+        "self",
+        "venta_id",
+        "actor",
+        "motivo"
+      ],
+      "anular": [
+        "self",
+        "venta_id",
+        "actor",
+        "motivo"
+      ],
+      "editar_venta": [
+        "self",
+        "venta_id",
+        "actor",
+        "nuevo_monto"
+      ],
+      "marcar_publicacion": [
+        "self",
+        "venta_id",
+        "ok",
+        "detalle"
+      ],
+      "consultar_comision_propia": [
+        "self",
+        "vendedor_id",
+        "periodo"
+      ],
+      "listar": [
+        "self",
+        "estado",
+        "vendedor_id",
+        "periodo",
+        "pagina"
+      ],
+      "detalle": [
+        "self",
+        "venta_id"
+      ],
+      "tablero": [
+        "self",
+        "periodo"
+      ],
+      "exportar_csv": [
+        "self",
+        "periodo"
+      ],
+      "exportar_ventas_csv": [
+        "self",
+        "periodo"
+      ],
+      "preguntar_jarvis": [
+        "self",
+        "actor",
+        "pregunta",
+        "conversacion_id"
+      ],
+      "aplicar_cambio_configuracion": [
+        "self",
+        "actor",
+        "cambio",
+        "confirmado"
+      ],
+      "evaluar": [
+        "self",
+        "ruta_ventas"
+      ]
+    },
+    "features/canal_whatsapp/canal_whatsapp_service.py::CanalWhatsappService": {
+      "repositorio": [
+        "self"
+      ],
+      "trabajador": [
+        "self"
+      ],
+      "aprobar_plantilla": [
+        "self",
+        "nombre",
+        "aprobada"
+      ],
+      "registrar_receptor": [
+        "self",
+        "canal",
+        "receptor"
+      ],
+      "receptores": [
+        "self"
+      ],
+      "verificar_webhook": [
+        "self",
+        "modo",
+        "token",
+        "desafio"
+      ],
+      "recibir": [
+        "self",
+        "cuerpo",
+        "firma_sha256"
+      ],
+      "clasificar_canal": [
+        "self",
+        "remitente",
+        "grupo_id"
+      ],
+      "registrar_vendedor": [
+        "self",
+        "remitente"
+      ],
+      "despachar": [
+        "self",
+        "mensaje"
+      ],
+      "en_ventana_24h": [
+        "self",
+        "destinatario"
+      ],
+      "enviar": [
+        "self",
+        "mensaje"
+      ],
+      "enviar_plantilla": [
+        "self",
+        "destinatario",
+        "plantilla"
+      ],
+      "actualizar_estado": [
+        "self",
+        "mensaje_id",
+        "estado"
+      ],
+      "descargar_medio": [
+        "self",
+        "medio_id",
+        "remitente"
+      ],
+      "procesar_ingesta": [
+        "self"
+      ],
+      "recuperar_caidas": [
+        "self"
+      ]
+    },
+    "features/comisiones/comisiones_service.py::ComisionesService": {
+      "calcular": [
+        "self",
+        "venta_id",
+        "vendedor_id",
+        "propiedad_id",
+        "producto",
+        "monto",
+        "fecha_venta"
+      ],
+      "fijar": [
+        "self",
+        "comision_id"
+      ],
+      "anular_venta": [
+        "self",
+        "venta_id",
+        "actor",
+        "motivo"
+      ],
+      "ajustar": [
+        "self",
+        "comision_id",
+        "actor",
+        "nuevo_monto",
+        "motivo"
+      ],
+      "resumen": [
+        "self",
+        "vendedor_id",
+        "periodo_id"
+      ],
+      "desglose": [
+        "self",
+        "comision_id"
+      ],
+      "estado_cuenta": [
+        "self",
+        "vendedor_id",
+        "periodo_id"
+      ],
+      "reglas": [
+        "self",
+        "vigentes_en"
+      ],
+      "crear_regla": [
+        "self",
+        "actor",
+        "regla"
+      ],
+      "cerrar_periodo": [
+        "self",
+        "periodo_id",
+        "actor"
+      ],
+      "exportar": [
+        "self",
+        "periodo_id",
+        "formato"
+      ]
+    },
+    "features/conocimiento/conocimiento_service.py::ConocimientoService": {
+      "repositorio": [
+        "self"
+      ],
+      "indexar": [
+        "self",
+        "raiz"
+      ],
+      "recuperar": [
+        "self",
+        "consulta",
+        "propiedad_id",
+        "k"
+      ],
+      "documentos": [
+        "self",
+        "propiedad_id"
+      ],
+      "evaluar": [
+        "self",
+        "set_dorado"
+      ]
+    },
+    "features/crm_conector/crm_conector_service.py::CRMConectorService": {
+      "registrar_receptor": [
+        "self",
+        "tipo",
+        "receptor"
+      ],
+      "despachar_evento": [
+        "self",
+        "evento"
+      ],
+      "buscar_contacto": [
+        "self",
+        "telefono_token",
+        "email_token"
+      ],
+      "crear_contacto": [
+        "self",
+        "contacto"
+      ],
+      "crear_oportunidad": [
+        "self",
+        "oportunidad"
+      ],
+      "actualizar_oportunidad": [
+        "self",
+        "oportunidad_id",
+        "datos"
+      ],
+      "buscar_contacto_crm": [
+        "self",
+        "telefono_token",
+        "email_token"
+      ],
+      "crear_oportunidad_crm": [
+        "self",
+        "contacto_id",
+        "propiedad_id",
+        "etapa",
+        "monto"
+      ],
+      "publicar_venta": [
+        "self",
+        "venta"
+      ],
+      "publicar_anulacion": [
+        "self",
+        "venta"
+      ],
+      "procesar_cola": [
+        "self",
+        "ahora"
+      ],
+      "reintentar_publicacion": [
+        "self",
+        "venta_id",
+        "evento"
+      ],
+      "enviar_mensaje": [
+        "self",
+        "conversacion_id",
+        "texto"
+      ],
+      "recibir_evento": [
+        "self",
+        "cuerpo",
+        "firma",
+        "fecha_iso"
+      ],
+      "solicitar_handoff": [
+        "self",
+        "conversacion_id",
+        "zona_id",
+        "resumen",
+        "motivo",
+        "propiedad_id"
+      ],
+      "solicitar_humano": [
+        "self",
+        "motivo",
+        "resumen",
+        "propiedad_id",
+        "conversacion_id"
+      ],
+      "tomar_handoff": [
+        "self",
+        "handoff_id",
+        "gestor_id"
+      ],
+      "devolver_al_asistente": [
+        "self",
+        "handoff_id",
+        "gestor_id",
+        "devuelto_por",
+        "reanudar_callback"
+      ],
+      "revisar_plazos_handoffs": [
+        "self",
+        "ahora"
+      ],
+      "obtener_handoff": [
+        "self",
+        "handoff_id"
+      ],
+      "listar_handoffs": [
+        "self",
+        "zona_id",
+        "estado"
+      ],
+      "obtener_zona": [
+        "self",
+        "zona_id"
+      ],
+      "listar_zonas": [
+        "self"
+      ],
+      "registrar_zona": [
+        "self",
+        "zona"
+      ],
+      "guardar_referencia": [
+        "self",
+        "entidad",
+        "id_local",
+        "crm_ref"
+      ],
+      "obtener_referencia": [
+        "self",
+        "entidad",
+        "id_local"
+      ]
+    },
+    "features/herramientas_glamping/herramientas_glamping_service.py::HerramientasGlampingService": {
+      "catalogo_declarado": [
+        "self"
+      ],
+      "listar": [
+        "self",
+        "rol",
+        "propiedad_id"
+      ],
+      "ejecutar": [
+        "self",
+        "nombre",
+        "entrada",
+        "identidad",
+        "conversacion_id"
+      ],
+      "esquema": [
+        "self",
+        "nombre"
+      ]
+    },
+    "features/observabilidad/observabilidad_service.py::ObservabilidadService": {
+      "iniciar_traza": [
+        "self",
+        "mensaje_id",
+        "conversacion_id",
+        "canal"
+      ],
+      "span": [
+        "self",
+        "traza_id",
+        "sala",
+        "nombre"
+      ],
+      "cerrar_traza": [
+        "self",
+        "traza_id",
+        "resultado"
+      ],
+      "obtener_traza": [
+        "self",
+        "traza_id"
+      ],
+      "log": [
+        "self",
+        "nivel",
+        "evento"
+      ],
+      "metricas": [
+        "self",
+        "ventana"
+      ],
+      "evaluar": [
+        "self",
+        "suites"
+      ],
+      "alertas_activas": [
+        "self",
+        "fuente_datos"
+      ]
+    },
+    "features/panel_operativo/panel_operativo_service.py::PanelOperativoService": {
+      "solicitar_codigo": [
+        "self",
+        "correo"
+      ],
+      "iniciar_sesion": [
+        "self",
+        "correo",
+        "codigo_un_uso"
+      ],
+      "validar_sesion": [
+        "self",
+        "cookie_token"
+      ],
+      "cerrar_sesion": [
+        "self",
+        "sesion",
+        "cookie_token"
+      ],
+      "registrar_handoff_interno": [
+        "self",
+        "conversacion_id",
+        "propiedad",
+        "zona_id",
+        "motivo",
+        "resumen",
+        "esperando_desde",
+        "mensajes",
+        "huesped_nombre",
+        "huesped_telefono"
+      ],
+      "handoffs": [
+        "self",
+        "sesion",
+        "zona_filtro"
+      ],
+      "detalle_conversacion": [
+        "self",
+        "sesion",
+        "conversacion_id"
+      ],
+      "tomar_handoff": [
+        "self",
+        "sesion",
+        "conversacion_id"
+      ],
+      "responder": [
+        "self",
+        "sesion",
+        "conversacion_id",
+        "texto"
+      ],
+      "devolver_al_asistente": [
+        "self",
+        "sesion",
+        "conversacion_id"
+      ],
+      "registrar_conversacion_inbox": [
+        "self",
+        "conversacion_id",
+        "propiedad_id",
+        "zona_id",
+        "huesped_nombre",
+        "huesped_telefono",
+        "estado",
+        "modo",
+        "mensajes"
+      ],
+      "listar_inbox": [
+        "self",
+        "sesion",
+        "propiedad_id",
+        "estado",
+        "busqueda",
+        "limite"
+      ],
+      "detalle_inbox": [
+        "self",
+        "sesion",
+        "conversacion_id"
+      ],
+      "asignar_etiqueta_inbox": [
+        "self",
+        "sesion",
+        "conversacion_id",
+        "etiqueta"
+      ],
+      "remover_etiqueta_inbox": [
+        "self",
+        "sesion",
+        "conversacion_id",
+        "etiqueta"
+      ],
+      "agregar_nota_inbox": [
+        "self",
+        "sesion",
+        "conversacion_id",
+        "texto"
+      ],
+      "responder_inbox": [
+        "self",
+        "sesion",
+        "conversacion_id",
+        "texto"
+      ],
+      "registrar_incidencia_interna": [
+        "self",
+        "incidencia_id",
+        "propiedad_id",
+        "zona_id",
+        "categoria",
+        "prioridad",
+        "descripcion",
+        "huesped_telefono"
+      ],
+      "incidencias": [
+        "self",
+        "sesion",
+        "filtros"
+      ],
+      "resolver_incidencia": [
+        "self",
+        "sesion",
+        "incidencia_id",
+        "nota"
+      ],
+      "desglose_comision": [
+        "self",
+        "sesion",
+        "venta_id"
+      ],
+      "usuarios": [
+        "self",
+        "sesion"
+      ],
+      "whitelist": [
+        "self",
+        "sesion"
+      ],
+      "editar_usuario": [
+        "self",
+        "sesion",
+        "numero",
+        "rol",
+        "alta",
+        "sujeto_id",
+        "correo"
+      ],
+      "bloquear_numero": [
+        "self",
+        "sesion",
+        "numero",
+        "motivo"
+      ],
+      "desbloquear_numero": [
+        "self",
+        "sesion",
+        "numero"
+      ],
+      "reglas_comision": [
+        "self",
+        "sesion"
+      ],
+      "crear_regla_comision": [
+        "self",
+        "sesion",
+        "regla"
+      ],
+      "registrar_anfitrion": [
+        "self",
+        "sesion",
+        "anfitrion_data"
+      ],
+      "anfitriones": [
+        "self",
+        "sesion"
+      ],
+      "guardar_hospedaje_borrador": [
+        "self",
+        "hospedaje_id",
+        "anfitrion_id",
+        "titulo"
+      ],
+      "publicar_hospedaje": [
+        "self",
+        "sesion",
+        "hospedaje_id"
+      ],
+      "hospedajes": [
+        "self",
+        "sesion"
+      ],
+      "registrar_unidad": [
+        "self",
+        "unidad_id",
+        "anfitrion_id",
+        "nombre"
+      ],
+      "registrar_reserva_calendario": [
+        "self",
+        "unidad_id",
+        "fecha_noche"
+      ],
+      "bloquear_fechas": [
+        "self",
+        "sesion",
+        "unidad_id",
+        "desde",
+        "hasta"
+      ],
+      "liberar_fechas": [
+        "self",
+        "sesion",
+        "unidad_id",
+        "desde",
+        "hasta"
+      ],
+      "auditoria": [
+        "self",
+        "sesion",
+        "filtros"
+      ],
+      "exportar_auditoria_csv": [
+        "self",
+        "sesion",
+        "desde",
+        "hasta"
+      ],
+      "solicitudes_privacidad": [
+        "self",
+        "sesion"
+      ],
+      "registrar_solicitud_privacidad": [
+        "self",
+        "sesion",
+        "tipo",
+        "titular_hash"
+      ],
+      "estado_sistema": [
+        "self",
+        "sesion"
+      ],
+      "reindexar": [
+        "self",
+        "sesion"
+      ],
+      "plantillas": [
+        "self",
+        "sesion"
+      ],
+      "aprobar_plantilla": [
+        "self",
+        "sesion",
+        "nombre",
+        "aprobada"
+      ],
+      "propiedades": [
+        "self",
+        "sesion"
+      ],
+      "conocimiento": [
+        "self",
+        "sesion"
+      ],
+      "comprobar_interfaz_purificada": [
+        "self",
+        "ruta_build"
+      ],
+      "registrar_dispositivo": [
+        "self",
+        "sesion",
+        "endpoint",
+        "clave_p256dh",
+        "clave_auth"
+      ],
+      "revocar_dispositivo": [
+        "self",
+        "sesion",
+        "endpoint"
+      ],
+      "enviar_aviso": [
+        "self",
+        "usuario_id",
+        "aviso"
+      ],
+      "ventas_por_validar": [
+        "self",
+        "sesion",
+        "filtros"
+      ],
+      "validar_venta": [
+        "self",
+        "sesion",
+        "venta_id",
+        "correcciones"
+      ],
+      "rechazar_venta": [
+        "self",
+        "sesion",
+        "venta_id",
+        "motivo"
+      ],
+      "detalle_venta": [
+        "self",
+        "sesion",
+        "venta_id"
+      ],
+      "anular_venta": [
+        "self",
+        "sesion",
+        "venta_id",
+        "motivo"
+      ],
+      "reintentar_publicacion_crm": [
+        "self",
+        "sesion",
+        "venta_id"
+      ],
+      "preguntar_jarvis": [
+        "self",
+        "sesion",
+        "pregunta",
+        "conversacion_id"
+      ],
+      "confirmar_cambio_jarvis": [
+        "self",
+        "sesion",
+        "cambio",
+        "confirmado"
+      ],
+      "tablero_comisiones": [
+        "self",
+        "sesion",
+        "periodo_id"
+      ],
+      "estado_cuenta_vendedor": [
+        "self",
+        "sesion",
+        "vendedor_id",
+        "periodo_id"
+      ],
+      "resumen_cierre": [
+        "self",
+        "sesion",
+        "periodo_id"
+      ],
+      "cerrar_periodo": [
+        "self",
+        "sesion",
+        "periodo_id",
+        "confirmacion_escrita"
+      ],
+      "exportar_periodo": [
+        "self",
+        "sesion",
+        "periodo_id",
+        "formato"
+      ],
+      "estados_cuenta_anfitriones": [
+        "self",
+        "sesion"
+      ],
+      "registrar_pago_anfitrion": [
+        "self",
+        "sesion",
+        "estado_cuenta_id"
+      ],
+      "pausar_hospedajes_por_cobro_vencido": [
+        "self",
+        "sesion",
+        "dias_tolerancia"
+      ],
+      "obtener_vapid_public_key": [
+        "self"
+      ],
+      "suscribir_dispositivo": [
+        "self",
+        "sesion",
+        "endpoint",
+        "clave_p256dh",
+        "clave_auth"
+      ],
+      "dispositivos_usuario": [
+        "self",
+        "sesion"
+      ],
+      "enviar_aviso_movil": [
+        "self",
+        "usuario_id",
+        "aviso"
+      ],
+      "enviar_aviso_por_rol": [
+        "self",
+        "rol",
+        "aviso",
+        "zona"
+      ]
+    },
+    "features/pms_conector/pms_conector_service.py::PMSConectorService": {
+      "conector": [
+        "self"
+      ],
+      "conexion": [
+        "self"
+      ],
+      "proveedor": [
+        "self"
+      ],
+      "listar_propiedades": [
+        "self"
+      ],
+      "consultar_disponibilidad": [
+        "self",
+        "propiedad_id",
+        "desde",
+        "hasta",
+        "huespedes"
+      ],
+      "cotizar": [
+        "self",
+        "propiedad_id",
+        "unidad_id",
+        "desde",
+        "hasta",
+        "huespedes"
+      ],
+      "crear_reserva_preliminar": [
+        "self",
+        "propiedad_id",
+        "unidad_id",
+        "desde",
+        "hasta",
+        "huespedes",
+        "huesped_token",
+        "clave_idempotencia"
+      ],
+      "confirmar_reserva": [
+        "self",
+        "codigo",
+        "clave_idempotencia"
+      ],
+      "obtener_reserva": [
+        "self",
+        "codigo"
+      ],
+      "reservas_con_llegada": [
+        "self",
+        "fecha"
+      ],
+      "cancelar_reserva": [
+        "self",
+        "codigo",
+        "motivo",
+        "clave_idempotencia"
+      ],
+      "obtener_instrucciones_checkin": [
+        "self",
+        "codigo_reserva"
+      ],
+      "registrar_incidencia": [
+        "self",
+        "incidencia",
+        "clave_idempotencia"
+      ],
+      "registrar_tarea_housekeeping": [
+        "self",
+        "propiedad_id",
+        "unidad_id",
+        "fecha",
+        "nota",
+        "clave_idempotencia"
+      ],
+      "guardar_tarifas": [
+        "self",
+        "unidad_id",
+        "desde",
+        "hasta",
+        "precio",
+        "minimo_noches",
+        "actor_id"
+      ],
+      "actualizar_calendario": [
+        "self",
+        "unidad_id",
+        "desde",
+        "hasta",
+        "accion",
+        "actor_id"
+      ],
+      "validar_titular_local": [
+        "self",
+        "codigo_reserva",
+        "huesped_token"
+      ],
+      "obtener_referencia_local": [
+        "self",
+        "codigo_reserva"
+      ]
+    },
+    "features/seguridad/seguridad_service.py::SeguridadService": {
+      "conexion": [
+        "self"
+      ],
+      "registrar_reserva_activa": [
+        "self",
+        "numero"
+      ],
+      "quitar_reserva_activa": [
+        "self",
+        "numero"
+      ],
+      "identificar": [
+        "self",
+        "remitente",
+        "canal"
+      ],
+      "filtrar_entrada": [
+        "self",
+        "remitente",
+        "texto",
+        "canal",
+        "conversacion_id"
+      ],
+      "autorizar": [
+        "self",
+        "rol",
+        "herramienta"
+      ],
+      "exigir_autorizacion": [
+        "self",
+        "rol",
+        "herramienta"
+      ],
+      "tokenizar": [
+        "self",
+        "texto",
+        "conversacion_id",
+        "titular_hash"
+      ],
+      "rehidratar": [
+        "self",
+        "texto",
+        "conversacion_id"
+      ],
+      "filtrar_salida": [
+        "self",
+        "texto",
+        "conversacion_id"
+      ],
+      "auditar": [
+        "self",
+        "evento"
+      ],
+      "informe_semanal": [
+        "self",
+        "desde",
+        "hasta"
+      ],
+      "administrar_usuarios": [
+        "self",
+        "actor",
+        "numero",
+        "rol",
+        "alta",
+        "sujeto_id",
+        "correo"
+      ],
+      "bloquear_numero": [
+        "self",
+        "actor",
+        "numero",
+        "motivo"
+      ],
+      "desbloquear_numero": [
+        "self",
+        "actor",
+        "numero"
+      ],
+      "obtener_aviso_privacidad": [
+        "self"
+      ],
+      "tiene_consentimiento": [
+        "self",
+        "titular_hash",
+        "version_aviso"
+      ],
+      "revocar_consentimiento": [
+        "self",
+        "titular_hash"
+      ],
+      "guardar_secreto_operativo": [
+        "self",
+        "token_id",
+        "tipo",
+        "valor_plano",
+        "titular_hash"
+      ],
+      "obtener_secreto_operativo": [
+        "self",
+        "token_o_marcador"
+      ],
+      "rehidratar_secretos": [
+        "self",
+        "texto"
+      ],
+      "validar_acceso_reserva": [
+        "self",
+        "codigo_reserva",
+        "remitente_token",
+        "es_titular",
+        "fecha_llegada",
+        "reserva_confirmada",
+        "instante",
+        "traza_id"
+      ],
+      "contexto_inquilino": [
+        "self",
+        "propiedad_id",
+        "conexion"
+      ],
+      "generar_migraciones_rls": [
+        "self",
+        "rol_aplicacion"
+      ],
+      "purgar_retencion": [
+        "self",
+        "fecha_referencia",
+        "dias_override"
+      ],
+      "registrar_solicitud_titular": [
+        "self",
+        "titular_hash",
+        "tipo",
+        "recibida_en"
+      ],
+      "listar_solicitudes_titular": [
+        "self",
+        "estado"
+      ],
+      "solicitudes_proximas_a_vencer": [
+        "self",
+        "dias_aviso",
+        "ahora"
+      ],
+      "atender_solicitud_titular": [
+        "self",
+        "solicitud_id",
+        "atendida_por",
+        "sujeto_a_conservacion",
+        "motivo_conservacion"
+      ],
+      "ejecutar_criptoborrado": [
+        "self",
+        "titular_hash",
+        "actor_id"
+      ],
+      "evaluar": [
+        "self",
+        "ruta_inyecciones",
+        "suite"
+      ],
+      "evaluar_pii": [
+        "self",
+        "ruta_pii"
+      ]
+    },
+    "features/web_huespedes/web_huespedes_service.py::WebHuespedesService": {
+      "catalogo": [
+        "self"
+      ],
+      "ficha": [
+        "self",
+        "propiedad_id"
+      ],
+      "filtrar_catalogo": [
+        "self",
+        "busqueda"
+      ],
+      "buscar": [
+        "self",
+        "busqueda"
+      ],
+      "comparar": [
+        "self",
+        "propiedades",
+        "busqueda"
+      ],
+      "crear_enlace_contacto": [
+        "self",
+        "propiedad_id",
+        "busqueda"
+      ],
+      "resolver_contacto": [
+        "self",
+        "codigo"
+      ],
+      "verificar_limite_ip": [
+        "self",
+        "ip"
+      ],
+      "crear_app": [
+        "self"
+      ]
+    }
+  }
+}

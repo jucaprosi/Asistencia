@@ -43,6 +43,14 @@ def crear_app(contenedor: Contenedor | None = None) -> Any:
     # Rutas HTTP de webhook de Meta (RF-GW-01, RF-GW-07)
     app.include_router(crear_router_webhook(contenedor_activo.canal))
 
+    # Montaje de panel operativo y CRM (T-310)
+    try:
+        from app_core.panel_crm_router import montar_panel_y_crm
+        montar_panel_y_crm(app, contenedor_activo)
+    except Exception as exc:
+        if hasattr(contenedor_activo, "observabilidad") and hasattr(contenedor_activo.observabilidad, "log"):
+            contenedor_activo.observabilidad.log("ERROR", "error_montaje_panel_en_main", error=str(exc))
+
     # Montaje de las rutas públicas del catálogo web (web_huespedes)
     if hasattr(contenedor_activo, "web") and contenedor_activo.web is not None:
         app_web = contenedor_activo.web.crear_app()

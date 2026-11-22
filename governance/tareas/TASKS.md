@@ -694,6 +694,9 @@ bloqueada_por = []
 propiedad = ["app_core/main.py", "app_core/webhook_router.py", "tests/app_core/test_webhook_app.py"]
 consume = ["todas las compuertas"]
 arbitro = "tests/app_core/test_webhook_app.py; arnés Exit Code 0"
+entorno_arbitro = "servicio_local_y_compuertas_reales"
+fecha_arbitro = "2026-11-02"
+comando_arbitro = "pytest tests/app_core/test_webhook_app.py"
 ```
 Entregables: `app_core/webhook_router.py` y enlace en `app_core/main.py` para `GET/POST /webhook` → `canal.verificar_webhook` / `canal.recibir` → receptor con cola asíncrona (responder 200 en < 2 s) y montaje de las rutas públicas de `web_huespedes`. **Hecho cuando** `tests/app_core/test_webhook_app.py` cubre la ruta del webhook con firma válida e inválida y `GET /` de la web pública.
 
@@ -712,6 +715,9 @@ bloqueada_por = []
 propiedad = ["compose.yaml", "scripts/arnes_glamping.py", "tests/app_core/test_mcp_compose.py"]
 consume = ["todas las compuertas"]
 arbitro = "tests/app_core/test_mcp_compose.py; arnés Exit Code 0 incluyendo el paso de semilla sintética del RAG"
+entorno_arbitro = "servicio_local_y_compuertas_reales"
+fecha_arbitro = "2026-11-02"
+comando_arbitro = "pytest tests/app_core/test_mcp_compose.py"
 ```
 Entregables: servicio `mcp-tools` operativo en `compose.yaml`, lista de egreso con PMS y embeddings, y paso en `scripts/arnes_glamping.py` que ejecuta `seed_knowledge.py` sobre el corpus sintético y la evaluación `rag`.
 
@@ -730,6 +736,9 @@ bloqueada_por = []
 propiedad = ["app_core/worker.py", "app_core/panel_crm_router.py", "tests/app_core/test_worker_y_panel.py"]
 consume = ["todas las compuertas"]
 arbitro = "tests/app_core/test_worker_y_panel.py; arnés Exit Code 0"
+entorno_arbitro = "servicio_local_y_compuertas_reales"
+fecha_arbitro = "2026-11-02"
+comando_arbitro = "pytest tests/app_core/test_worker_y_panel.py"
 ```
 Entregables: tarea programada `checkin_del_dia` en `app_core/worker.py`, montaje de `/panel/*` y estáticos, y ruta `POST /crm/eventos` → `crm.recibir_evento` → receptores (`agente.reanudar`, panel) en `app_core/panel_crm_router.py`.
 
@@ -748,6 +757,9 @@ bloqueada_por = []
 propiedad = ["app_core/contenedor.py", "app_core/config_app.yaml", ".env.example", "tests/app_core/test_vendedores_app.py"]
 consume = ["todas las compuertas"]
 arbitro = "tests/app_core/test_vendedores_app.py; arnés Exit Code 0"
+entorno_arbitro = "servicio_local_y_compuertas_reales"
+fecha_arbitro = "2026-11-02"
+comando_arbitro = "pytest tests/app_core/test_vendedores_app.py"
 ```
 Entregables: enlace de `canal_vendedores.modo` y compuertas de `arm_jarvis`, `comisiones` y `anfitriones` en `app_core/contenedor.py`, `app_core/config_app.yaml` y `.env.example`, verificado en `tests/app_core/test_vendedores_app.py`.
 
@@ -761,7 +773,7 @@ Entregables: enlace de `canal_vendedores.modo` y compuertas de `arm_jarvis`, `co
 id = "T-111"
 ola = 10
 fase = 1
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["RNF-01", "INV_INTERFAZ_PURIFICADA", "S-01", "S-02", "S-09"]
@@ -770,8 +782,11 @@ bloqueada_por = ["S-02"]
 propiedad = ["tests/integracion/test_fase1.py", "tests/test_interfaz_purificada.py", "governance/tareas/TASK-001-mvp-whatsapp.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase1.py; conversación real registrada en Meta WhatsApp Cloud API con traza; RNF-01 anotado en TASK-001; arnés Exit Code 0"
+entorno_arbitro = "doble_simulado_meta"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase1.py"
 ```
-Entregables: prueba de integración de extremo a extremo en `tests/integracion/test_fase1.py`; conversación real con el número de pruebas de Meta Cloud API y P95 de la semana anotado; `tests/test_interfaz_purificada.py` sobre plantillas y mensajes; comprobación empírica de `S-01` (lectura del canal de vendedores con la API oficial de Meta) y `S-09` (transcripción de audio) documentadas en `TASK-001-mvp-whatsapp.md`. **Hecho cuando** TASK-001 pasa a `sellada`.
+Entregables: prueba de integración de extremo a extremo en `tests/integracion/test_fase1.py`; conversación real con el número de pruebas de Meta Cloud API y P95 de la semana anotado; `tests/test_interfaz_purificada.py` sobre plantillas y mensajes; comprobación empírica de `S-01` (lectura del canal de vendedores con la API oficial de Meta) y `S-09` (transcripción de audio) documentadas en `TASK-001-mvp-whatsapp.md`. **Estado:** Pendiente de integración real contra número y API de Meta WhatsApp Cloud en vivo (validada previamente con doble simulado). **Hecho cuando** TASK-001 pasa a `sellada`.
 
 ### T-211 — Comprobación Cloud Fases 2–3 (Claude API + Corpus Real RAG + PMS): reserva preliminar E2E y medición RNF-02
 `¤bbap-glamping`
@@ -779,7 +794,7 @@ Entregables: prueba de integración de extremo a extremo en `tests/integracion/t
 id = "T-211"
 ola = 10
 fase = 3
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["US-01", "US-02", "US-04", "US-12", "RNF-02"]
@@ -788,8 +803,11 @@ bloqueada_por = ["S-03", "ADR-0012"]
 propiedad = ["tests/integracion/test_fase3.py", "governance/tareas/TASK-002-rag.md", "governance/tareas/TASK-003-pms-mcp.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase3.py (agente + herramientas + PMS + RAG con corpus real en PostgreSQL/pgvector); RNF-02 medido; arnés Exit Code 0"
+entorno_arbitro = "doble_fake_pms_y_modelo_test"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase3.py"
 ```
-Entregables: prueba E2E en `tests/integracion/test_fase3.py`, indexación del corpus comercial real (`S-03`) sobre el almacén vectorial elegido (`ADR-0012`) y medición de latencia P95 `RNF-02` con el modelo en vivo. **Hecho cuando** TASK-002 y TASK-003 pasan a `sellada`.
+Entregables: prueba E2E en `tests/integracion/test_fase3.py`, indexación del corpus comercial real (`S-03`) sobre el almacén vectorial elegido (`ADR-0012`) y medición de latencia P95 `RNF-02` con el modelo en vivo. **Estado:** Pendiente de integración real contra API de Gemini/Claude en producción y PMS en vivo (validada previamente con FakePMS y corpus de prueba). **Hecho cuando** TASK-002 y TASK-003 pasan a `sellada`.
 
 ### T-311 — Comprobación Cloud Fase 4 (PostgreSQL RLS + Multi-Propiedad): check-in autónomo y handoff con dos propiedades
 `¤bbap-glamping`
@@ -797,7 +815,7 @@ Entregables: prueba E2E en `tests/integracion/test_fase3.py`, indexación del co
 id = "T-311"
 ola = 10
 fase = 4
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["US-03", "US-09", "US-10", "US-13"]
@@ -806,8 +824,11 @@ bloqueada_por = []
 propiedad = ["tests/integracion/test_fase4.py", "governance/tareas/TASK-004-multipropiedad.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase4.py contra PostgreSQL real con RLS activo; arnés Exit Code 0"
+entorno_arbitro = "doble_crm_y_postgresql_local"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase4.py"
 ```
-Entregables: prueba de integración multi-propiedad en `tests/integracion/test_fase4.py` verificando aislamiento RLS en motor PostgreSQL real, disparo de check-in autónomo y handoff por zona. **Hecho cuando** TASK-004 pasa a `sellada`.
+Entregables: prueba de integración multi-propiedad en `tests/integracion/test_fase4.py` verificando aislamiento RLS en motor PostgreSQL real, disparo de check-in autónomo y handoff por zona. **Estado:** Pendiente de integración real en entorno multi-propiedad productivo (validada contra PostgreSQL local con RLS y dobles de CRM). **Hecho cuando** TASK-004 pasa a `sellada`.
 
 ### T-410 — Comprobación de Infraestructura Beta: prueba de carga (200 msg/min), aislamiento de red `agent-net` y alertas CI
 `¤infra-hibrida`
@@ -815,7 +836,7 @@ Entregables: prueba de integración multi-propiedad en `tests/integracion/test_f
 id = "T-410"
 ola = 10
 fase = 5
-estado = "sellada"
+estado = "pendiente"
 sala = "infraestructura"
 rol = "¤¤devops-engineer"
 requisitos = ["RNF-05", "RNF-06", "RNF-10", "INV_RED_AISLADA"]
@@ -824,8 +845,11 @@ bloqueada_por = []
 propiedad = ["tests/integracion/carga/**", ".github/**", "scripts/verificar_secretos.py"]
 consume = ["todas las compuertas"]
 arbitro = "prueba de carga (50 conversaciones, 200 msg/min) con RNF-01 dentro de umbral; prueba de conexión negativa desde agent-net; sondeo de salud; arnés Exit Code 0"
+entorno_arbitro = "carga_sintetica_local"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/carga/"
 ```
-Entregables: suite de carga en `tests/integracion/carga/`, pipeline en `.github/` con prueba de conexión negativa desde `agent-net`, sondeo externo de `/health` y alertas conectadas al canal del administrador.
+Entregables: suite de carga en `tests/integracion/carga/`, pipeline en `.github/` con prueba de conexión negativa desde `agent-net`, sondeo externo de `/health` y alertas conectadas al canal del administrador. **Estado:** Pendiente de prueba de carga sobre infraestructura final en Cloud Run / Cloud SQL (validada en simulación local).
 
 ---
 
@@ -837,7 +861,7 @@ Entregables: suite de carga en `tests/integracion/carga/`, pipeline en `.github/
 id = "T-411"
 ola = 11
 fase = 5
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["OP-10", "RNF-06", "RNF-10", "RNF-13", "US-11", "US-17"]
@@ -846,8 +870,11 @@ bloqueada_por = []
 propiedad = ["tests/integracion/test_fase5.py", "governance/tareas/TASK-005-seguridad-observabilidad.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase5.py; arnés Exit Code 0 con las cuatro suites de evaluación sobre umbral; métricas anotadas en TASK-005; aprobación del propietario"
+entorno_arbitro = "evaluaciones_sinteticas_locales"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase5.py"
 ```
-Entregables: verificación integral de seguridad y observabilidad en `tests/integracion/test_fase5.py` y acta de métricas en `TASK-005-seguridad-observabilidad.md`. **Hecho cuando** TASK-005 pasa a `sellada` y el propietario aprueba la salida de beta.
+Entregables: verificación integral de seguridad y observabilidad en `tests/integracion/test_fase5.py` y acta de métricas en `TASK-005-seguridad-observabilidad.md`. **Estado:** Pendiente de evaluación de salida de beta con tráfico y usuarios reales (validada previamente en simulación local). **Hecho cuando** TASK-005 pasa a `sellada` y el propietario aprueba la salida de beta.
 
 ### T-511 — Comprobación Cloud Fase 6 (Meta Canal de Vendedores y Plantillas): venta de extremo a extremo y medición OP-08
 `¤bbap-glamping`
@@ -855,7 +882,7 @@ Entregables: verificación integral de seguridad y observabilidad en `tests/inte
 id = "T-511"
 ola = 11
 fase = 6
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["US-05", "US-06", "US-07", "US-15", "OP-07", "OP-08"]
@@ -864,8 +891,11 @@ bloqueada_por = ["S-01"]
 propiedad = ["tests/integracion/test_fase6.py", "governance/tareas/TASK-006-arm-jarvis.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase6.py (vendedor → ticket → validación en el panel → notificación con plantilla comision_validada aprobada en Meta); OP-08 medido; arnés Exit Code 0"
+entorno_arbitro = "doble_meta_vendedores_y_fake_crm"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase6.py"
 ```
-Entregables: prueba E2E de venta en `tests/integracion/test_fase6.py`, verificación con la plantilla `comision_validada` aprobada en Meta Cloud API y medición de `OP-08` documentada en `TASK-006-arm-jarvis.md`. **Hecho cuando** TASK-006 pasa a `sellada`.
+Entregables: prueba E2E de venta en `tests/integracion/test_fase6.py`, verificación con la plantilla `comision_validada` aprobada en Meta Cloud API y medición de `OP-08` documentada en `TASK-006-arm-jarvis.md`. **Estado:** Pendiente de verificación con canal de vendedores de Meta y plantilla aprobada en vivo (validada previamente con simulador). **Hecho cuando** TASK-006 pasa a `sellada`.
 
 ### T-610 — Despliegue en Servidor de Producción: `compose.production.yaml`, aislamiento del flujo contable y backups cifrados
 `¤infra-hibrida`
@@ -873,7 +903,7 @@ Entregables: prueba E2E de venta en `tests/integracion/test_fase6.py`, verificac
 id = "T-610"
 ola = 11
 fase = 7
-estado = "sellada"
+estado = "pendiente"
 sala = "infraestructura"
 rol = "¤¤devops-engineer"
 requisitos = ["RNF-14", "RNF-15", "INV_RED_AISLADA", "INV_MISMO_COMPOSE", "S-08"]
@@ -882,8 +912,11 @@ bloqueada_por = ["S-08"]
 propiedad = ["compose.production.yaml", "infra/backups/**", "tests/integracion/test_aislamiento_produccion.py"]
 consume = ["todas las compuertas"]
 arbitro = "stack levantado en el servidor propio con compose.production.yaml; tests/integracion/test_aislamiento_produccion.py verifica conexión negativa hacia servicios contables; restauración de backup documentada; arnés Exit Code 0"
+entorno_arbitro = "compose_local"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_aislamiento_produccion.py"
 ```
-Entregables: configuración productiva en `compose.production.yaml`, scripts de backup cifrado y restauración en `infra/backups/**`, y prueba de aislamiento de red contable en `tests/integracion/test_aislamiento_produccion.py`.
+Entregables: configuración productiva en `compose.production.yaml`, scripts de backup cifrado y restauración en `infra/backups/**`, y prueba de aislamiento de red contable en `tests/integracion/test_aislamiento_produccion.py`. **Estado:** Pendiente de despliegue en servidor productivo en Google Cloud Platform (ADR-0019); validada en compose local.
 
 ### T-810 — Despliegue Cloud/HTTPS de la Terminal Móvil: proxy TLS, cabeceras `no-store` y claves VAPID Web Push
 `¤infra-hibrida`
@@ -891,7 +924,7 @@ Entregables: configuración productiva en `compose.production.yaml`, scripts de 
 id = "T-810"
 ola = 11
 fase = 8
-estado = "sellada"
+estado = "pendiente"
 sala = "infraestructura"
 rol = "¤¤devops-engineer"
 requisitos = ["RF-PAN-11", "RF-PAN-12", "INV_SIN_SECRETOS_EN_REPO"]
@@ -900,8 +933,11 @@ bloqueada_por = []
 propiedad = ["infra/proxy/**", "tests/integracion/test_terminal_movil_despliegue.py"]
 consume = ["panel_operativo_service"]
 arbitro = "tests/integracion/test_terminal_movil_despliegue.py (HTTPS, manifiesto y cabecera no-store); arnés Exit Code 0"
+entorno_arbitro = "proxy_test_local"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_terminal_movil_despliegue.py"
 ```
-Entregables: configuración del proxy inverso en `infra/proxy/**` para servir manifiesto y service worker por HTTPS conservando `Cache-Control: no-store`, variables VAPID declaradas sin secretos en el repositorio y prueba en `tests/integracion/test_terminal_movil_despliegue.py`.
+Entregables: configuración del proxy inverso en `infra/proxy/**` para servir manifiesto y service worker por HTTPS conservando `Cache-Control: no-store`, variables VAPID declaradas sin secretos en el repositorio y prueba en `tests/integracion/test_terminal_movil_despliegue.py`. **Estado:** Pendiente de verificación bajo dominio HTTPS y Web Push VAPID en producción (validada con servidor de pruebas local).
 
 ---
 
@@ -913,7 +949,7 @@ Entregables: configuración del proxy inverso en `infra/proxy/**` para servir ma
 id = "T-611"
 ola = 12
 fase = 7
-estado = "sellada"
+estado = "pendiente"
 sala = "pasillo_central"
 rol = "¤¤qa-engineer"
 requisitos = ["RNF-09", "RNF-10", "US-08", "US-14", "US-16", "ON-03"]
@@ -922,8 +958,11 @@ bloqueada_por = ["ADR-0008", "S-05"]
 propiedad = ["tests/integracion/test_fase7.py", "governance/tareas/TASK-007-integracion-crm.md"]
 consume = ["todas las compuertas"]
 arbitro = "tests/integracion/test_fase7.py (venta validada → CRM real firmado e idempotente → tablero → cierre → exportación); aprobación del propietario"
+entorno_arbitro = "doble_fake_crm"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/integracion/test_fase7.py"
 ```
-Entregables: prueba E2E de producción en `tests/integracion/test_fase7.py` contra el proveedor CRM elegido (`ADR-0008`/`S-05`) y cierre de `TASK-007-integracion-crm.md`. **Hecho cuando** TASK-007 pasa a `sellada` y el propietario aprueba el hito de producción.
+Entregables: prueba E2E de producción en `tests/integracion/test_fase7.py` contra el proveedor CRM elegido (`ADR-0008`/`S-05`) y cierre de `TASK-007-integracion-crm.md`. **Estado:** Pendiente de integración real contra SaaS de CRM en vivo (validada contra FakeCRM). **Hecho cuando** TASK-007 pasa a `sellada` y el propietario aprueba el hito de producción.
 
 ### T-701 — Panel operativo (condicional ADR-0010): inbox completo de conversaciones de huéspedes
 `¤panel-operativo`
@@ -931,7 +970,7 @@ Entregables: prueba E2E de producción en `tests/integracion/test_fase7.py` cont
 id = "T-701"
 ola = 12
 fase = 8
-estado = "sellada"
+estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
 requisitos = ["RF-PAN-07 (extensión)", "TASK-008"]
@@ -940,8 +979,11 @@ bloqueada_por = []
 propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
 consume = ["agente_service", "seguridad_service", "canal_whatsapp_service", "observabilidad_service"]
 arbitro = "tests/e2e/test_inbox_huespedes.py; arnés Exit Code 0"
+entorno_arbitro = "doble_testclient_fastapi"
+fecha_arbitro = "2026-11-03"
+comando_arbitro = "pytest tests/e2e/test_inbox_huespedes.py"
 ```
-Entregables: vista de inbox completo de conversaciones de huéspedes si se activa el disparador de volumen definido en `ADR-0010`.
+Entregables: vista de inbox completo de conversaciones de huéspedes si se activa el disparador de volumen definido en `ADR-0010`. **Estado:** Pendiente de validación e2e con navegador real (Playwright) y tráfico real de WhatsApp (validada con TestClient).
 
 ---
 
