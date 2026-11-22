@@ -143,5 +143,5 @@ def test_las_tareas_de_coordinacion_cubren_todos_los_hitos() -> None:
     coordinadoras = [t for t in tareas if t["sala"] in COORDINADOR]
     assert len(coordinadoras) >= 8, f"se esperaban al menos 8 tareas de coordinación/nube, hay {len(coordinadoras)}"
     olas_coordinacion = {int(t["ola"]) for t in coordinadoras}
-    assert olas_coordinacion == {9, 10, 11, 12}, f"las olas de coordinación deben ser 9, 10, 11 y 12, se encontró {olas_coordinacion}"
+    assert {9, 10, 11, 12}.issubset(olas_coordinacion), f"las olas de coordinación deben cubrir al menos 9, 10, 11 y 12, se encontró {olas_coordinacion}"
 

@@ -64,6 +64,7 @@
 | **Ola 10** | `T-111` (Meta WhatsApp Cloud API) · `T-211` (Claude + RAG Corpus Real) · `T-311` (PostgreSQL RLS + Multi-propiedad) · `T-410` (Carga 200 msg/min + `agent-net`) | TASK-001, TASK-002, TASK-003, TASK-004 y carga beta |
 | **Ola 11** | `T-411` (Salida de Beta) · `T-511` (Meta Canal Vendedores + Plantillas) · `T-610` (Servidor Producción + Backups `S-08`) · `T-810` (Proxy HTTPS + Claves VAPID) | TASK-005, TASK-006, servidor propio y despliegue móvil |
 | **Ola 12** | `T-611` (Proveedor CRM Cloud Real + Cierre Producción) · `T-701` (Inbox Huéspedes condicional `ADR-0010`) | TASK-007 y TASK-008 |
+| **Ola 13** | `T-901` (C1 — Fail-fast en montaje de panel operativo y CRM) | Calidad pasillo central (`app_core`) |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -984,6 +985,31 @@ fecha_arbitro = "2026-11-03"
 comando_arbitro = "pytest tests/e2e/test_inbox_huespedes.py"
 ```
 Entregables: vista de inbox completo de conversaciones de huéspedes si se activa el disparador de volumen definido en `ADR-0010`. **Estado:** Pendiente de validación e2e con navegador real (Playwright) y tráfico real de WhatsApp (validada con TestClient).
+
+---
+
+## Ola 13 — Tanda 13 Corrección C1 Pasillo Central
+
+### T-901 — Pasillo central: fail-fast en montaje de panel operativo y CRM sin captura silenciosa de excepciones
+`¤pasillo-central`
+```toml
+id = "T-901"
+ola = 13
+fase = 9
+estado = "sellada"
+sala = "pasillo_central"
+rol = "¤¤solutions-architect"
+requisitos = ["RF-PAN-01", "RF-CRM-01"]
+depende_de = ["T-611"]
+bloqueada_por = []
+propiedad = ["app_core/main.py", "tests/app_core/test_error_montaje_panel.py"]
+consume = ["panel_operativo_service", "crm_conector_service"]
+arbitro = "tests/app_core/test_error_montaje_panel.py; arnés Exit Code 0"
+entorno_arbitro = "local_pytest"
+fecha_arbitro = "2026-11-22"
+comando_arbitro = "pytest tests/app_core/test_error_montaje_panel.py"
+```
+Entregables: remoción de captura silenciosa `try/except Exception` en `app_core/main.py` para montaje de panel operativo y CRM, garantizando fallo explícito de `crear_app` ante error de montaje, y prueba unitaria en `tests/app_core/test_error_montaje_panel.py`.
 
 ---
 

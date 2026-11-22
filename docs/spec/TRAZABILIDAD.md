@@ -35,7 +35,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PMS-06 | T-202 | plataforma.feature: Validar al titular sin llamar al PMS |
 | RF-PMS-07 | T-212 | plataforma.feature: Dos huéspedes piden la misma noche<br>plataforma.feature: Noche sin tarifa |
 | RF-PMS-08 | T-212, T-404, T-306 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
-| RF-CRM-01 | T-302 | plataforma.feature: Contrato del conector CRM |
+| RF-CRM-01 | T-302, T-901 | plataforma.feature: Contrato del conector CRM |
 | RF-CRM-02 | T-302, T-601 | plataforma.feature: Cambio de proveedor de CRM |
 | RF-CRM-03 | T-601 | plataforma.feature: Publicar dos veces la misma venta<br>ventas.feature: Anular una venta publicada |
 | RF-CRM-04 | T-601, T-602 | ventas.feature: El CRM no acepta la venta |
@@ -82,7 +82,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-MCP-07 | T-203 | plataforma.feature: Herramientas internas de CRM |
 | RF-MCP-08 | T-504 | plataforma.feature: El vendedor no se declara en la entrada |
 | RF-MCP-09 | T-504 | plataforma.feature: Consulta sin período |
-| RF-PAN-01 | T-303 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
+| RF-PAN-01 | T-303, T-901 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
 | RF-PAN-02 | T-505 | ventas.feature: Validar una venta<br>ventas.feature: Conflicto entre dos usuarios |
 | RF-PAN-03 | T-505 | plataforma.feature: Detalle de venta<br>plataforma.feature: Desglose de comisión |
 | RF-PAN-04 | T-604 | comisiones.feature: Tablero que cuadra<br>plataforma.feature: Estado de cuenta por vendedor |
