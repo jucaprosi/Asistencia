@@ -31,3 +31,5 @@ transcriptor_tiktok/
 # Sistema
 .DS_Store
 Thumbs.db
+*.bak
+.agents/estado/
