@@ -12,6 +12,8 @@ COPY pyproject.toml README.md ./
 COPY app_core ./app_core
 COPY features ./features
 COPY docs/prompts ./docs/prompts
+COPY docs/spec/esquema.sql ./docs/spec/esquema.sql
+COPY scripts ./scripts
 
 RUN pip install --upgrade pip && pip install .
 

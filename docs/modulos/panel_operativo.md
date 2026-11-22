@@ -309,4 +309,21 @@ CREATE TABLE panel.sesiones (
 - `tests/panel_operativo/test_idempotencia.py`: cabecera `Idempotency-Key` en acciones mutadoras del panel, protección contra doble toque y reintentos, y persistencia en `panel.acciones_idempotentes` (RF-PAN-14, INV_ACCION_IDEMPOTENTE).
 - `tests/e2e/test_inbox_huespedes.py`: Inbox completo de huéspedes nativo en el panel operativo (T-701, TASK-008, ADR-0010), aislamiento por rol (`INV_PANEL_POR_ROL`), detalle cronológico con rehidratación de PII, gestión de etiquetas y notas internas, y respuesta manual por canal de WhatsApp oficial sin intermediarios CRM.
 
+### Arnés de interfaz en el navegador (`ui/`, Playwright TypeScript)
+`¤panel-arnes-ui`
+
+Complementa las suites anteriores: verifica lo que la interfaz servida en `/panel` hace en Chromium con cada respuesta del BFF, sin backend real. Adaptado de la configuración del equipo de EVYDENTIA (2026-11-22) a esta arquitectura: el servidor que levanta es uvicorn con el pasillo central y entorno aislado (dobles), y el BFF se simula con `page.route` sobre `/panel/api/**`; toda ruta no declarada responde 404 `NO_SIMULADA` y queda registrada.
+
+| Pieza | Ruta |
+| :--- | :--- |
+| Workspace Node y scripts (`typecheck`, `test:e2e`) | `features/panel_operativo/ui/package.json` |
+| Configuración (proyectos `escritorio` y `movil-360`, puerto `PLAYWRIGHT_PORT`, por omisión 8101) | `features/panel_operativo/ui/playwright.config.ts` |
+| Helpers: BFF simulado, centinela de consola, contraste WCAG 4,5:1, utilidades de P-01 | `features/panel_operativo/ui/tests/{bffSimulado,consoleSentinel,contraste,utiles}.ts` |
+| Specs por pantalla | `features/panel_operativo/ui/tests/acceso/acceso.spec.ts` (P-01), `tests/inicio/inicio.spec.ts` (P-02) |
+| Guía para quien escriba pruebas | `features/panel_operativo/ui/tests/GUIA_PLAYWRIGHT.md` |
+
+Reglas: selectores por rol y nombre accesible; nunca `waitForTimeout`; cada prueba parte limpia; una prueba por pantalla exige cero errores de consola y contraste 4,5:1; ninguna pantalla muestra marcadores de gobernanza. Ejecución local: `cd features/panel_operativo/ui` y `npx playwright test`. Aún no corre en CI (`.github/**` es ruta del coordinador): un Playwright en verde se pega en el PR con comando y puerto. Sin regresión visual por píxel ni axe-core, a propósito (ver guía §5).
+
+`¤panel-arnes-ui/`
+
 `¤panel-operativo/`

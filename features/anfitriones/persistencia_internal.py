@@ -23,6 +23,7 @@ from features.anfitriones.tipos import (
     LineaCuenta,
     Solicitud,
 )
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["PersistenciaAnfitriones"]
 
@@ -31,13 +32,12 @@ __all__ = ["PersistenciaAnfitriones"]
 class PersistenciaAnfitriones:
     """Acceso a datos para el esquema anfitriones."""
 
-    def __init__(self, origen: str | sqlite3.Connection = ":memory:") -> None:
-        if isinstance(origen, sqlite3.Connection):
-            self._con = origen
-        else:
-            self._con = sqlite3.connect(origen, check_same_thread=False)
+    def __init__(self, origen: Any = None) -> None:
+        # None: DATABASE_URL (PostgreSQL, esquema anfitriones) o SQLite en memoria; también URL, ruta o conexión.
+        self._con = envolver(origen, ruta_busqueda="anfitriones")
         self._con.row_factory = sqlite3.Row
-        self._inicializar_tablas()
+        if not self._con.es_postgres:
+            self._inicializar_tablas()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     def _inicializar_tablas(self) -> None:
         with self._con:
@@ -133,22 +133,13 @@ class PersistenciaAnfitriones:
             year = datetime.now(timezone.utc).year
         nombre_sec = f"solicitud_{year}"
         with self._con:
-            cursor = self._con.execute(
-                "SELECT valor FROM secuencias WHERE nombre = ?", (nombre_sec,)
-            )
-            fila = cursor.fetchone()
-            if fila is None:
-                valor = 1
-                self._con.execute(
-                    "INSERT INTO secuencias (nombre, valor) VALUES (?, ?)",
-                    (nombre_sec, valor),
-                )
-            else:
-                valor = int(fila["valor"]) + 1
-                self._con.execute(
-                    "UPDATE secuencias SET valor = ? WHERE nombre = ?",
-                    (valor, nombre_sec),
-                )
+            # Incremento atómico: dos instancias concurrentes nunca obtienen el mismo número.
+            fila = self._con.execute(
+                "INSERT INTO secuencias (nombre, valor) VALUES (?, 1) "
+                "ON CONFLICT (nombre) DO UPDATE SET valor = secuencias.valor + 1 RETURNING valor",
+                (nombre_sec,),
+            ).fetchone()
+            valor = int(fila["valor"])
         return f"PL-{year}-{valor:04d}"
 
     def guardar_anfitrion(self, anfitrion: Anfitrion) -> None:
@@ -559,14 +550,15 @@ class PersistenciaAnfitriones:
         return cursor.fetchone() is not None
 
     def listar_estadias_completadas_por_periodo(self, periodo: str) -> tuple[Solicitud, ...]:
-        prefijo = f"{periodo}-%"
+        anio, mes = (int(parte) for parte in periodo.split("-")[:2])
+        siguiente = f"{anio + 1:04d}-01-01" if mes == 12 else f"{anio:04d}-{mes + 1:02d}-01"
         cursor = self._con.execute(
             """
             SELECT solicitud FROM solicitudes
-            WHERE estado = 'completada' AND hasta LIKE ?
+            WHERE estado = 'completada' AND hasta >= ? AND hasta < ?
             ORDER BY hasta ASC, creado_en ASC
             """,
-            (prefijo,),
+            (f"{anio:04d}-{mes:02d}-01", siguiente),
         )
         filas = cursor.fetchall()
         return tuple(self.obtener_solicitud(f["solicitud"]) for f in filas if self.obtener_solicitud(f["solicitud"]))

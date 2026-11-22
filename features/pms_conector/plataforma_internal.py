@@ -67,24 +67,26 @@ class PlataformaPMS(PMSConnector):
             # 1. Propiedades canónicas
             self._conn.execute(
                 """
-                INSERT OR IGNORE INTO pms.propiedades (
+                INSERT INTO pms.propiedades (
                     propiedad_id, tipo, nombre, zona_id, direccion, pms_ref, prompt_variante, activa
                 ) VALUES
-                ('glamping_imbabura', 'glamping', 'Glamping Imbabura', 'imbabura_norte', 'Sector San Pablo del Lago, Otavalo', 'pms_glamping_01', 'glamping', 1),
-                ('dep_ibarra_centro', 'departamento', 'Departamentos Ibarra Centro', 'ibarra_centro', 'Calle Bolívar y Flores, Ibarra', 'pms_dep_02', 'departamentos', 1)
+                ('glamping_imbabura', 'glamping', 'Glamping Imbabura', 'imbabura_norte', 'Sector San Pablo del Lago, Otavalo', 'pms_glamping_01', 'glamping', TRUE),
+                ('dep_ibarra_centro', 'departamento', 'Departamentos Ibarra Centro', 'ibarra_centro', 'Calle Bolívar y Flores, Ibarra', 'pms_dep_02', 'departamentos', TRUE)
+                ON CONFLICT DO NOTHING
                 """
             )
 
             # 2. Unidades canónicas
             self._conn.execute(
                 """
-                INSERT OR IGNORE INTO pms.unidades (
+                INSERT INTO pms.unidades (
                     unidad_id, propiedad_id, nombre, capacidad, edificio, piso, acceso_ref, wifi_ref
                 ) VALUES
                 ('domo_lago', 'glamping_imbabura', 'Domo Lago', 2, NULL, NULL, 'Cerradura digital', 'WIFI_DOMO_LAGO'),
                 ('domo_bosque', 'glamping_imbabura', 'Domo Bosque', 4, NULL, NULL, 'Cerradura digital', 'WIFI_DOMO_BOSQUE'),
                 ('suite_101', 'dep_ibarra_centro', 'Suite 101', 2, 'Torre Central', '1', 'Tarjeta magnética', 'WIFI_SUITE_101'),
                 ('fam_201', 'dep_ibarra_centro', 'Departamento Familiar 201', 5, 'Torre Central', '2', 'Tarjeta magnética', 'WIFI_FAM_201')
+                ON CONFLICT DO NOTHING
                 """
             )
 
@@ -107,8 +109,9 @@ class PlataformaPMS(PMSConnector):
 
                 self._conn.executemany(
                     """
-                    INSERT OR IGNORE INTO pms.tarifas_noche (unidad_id, noche, precio, minimo_noches)
+                    INSERT INTO pms.tarifas_noche (unidad_id, noche, precio, minimo_noches)
                     VALUES (?, ?, ?, ?)
+                    ON CONFLICT DO NOTHING
                     """,
                     filas_tarifas,
                 )
@@ -120,7 +123,7 @@ class PlataformaPMS(PMSConnector):
                 """
                 SELECT propiedad_id, tipo, nombre, zona_id, direccion, activa, pms_ref, prompt_variante
                 FROM pms.propiedades
-                WHERE activa = 1
+                WHERE activa = TRUE
                 ORDER BY propiedad_id
                 """
             )
@@ -149,7 +152,7 @@ class PlataformaPMS(PMSConnector):
         with self._lock:
             # Validar existencia de propiedad
             cursor_prop = self._conn.execute(
-                "SELECT propiedad_id FROM pms.propiedades WHERE propiedad_id = ? AND activa = 1",
+                "SELECT propiedad_id FROM pms.propiedades WHERE propiedad_id = ? AND activa = TRUE",
                 (propiedad_id,),
             )
             if not cursor_prop.fetchone():
@@ -560,7 +563,7 @@ class PlataformaPMS(PMSConnector):
                 """
                 INSERT INTO pms.secuencia_incidencias (anio, ultimo)
                 VALUES (?, 1)
-                ON CONFLICT(anio) DO UPDATE SET ultimo = ultimo + 1
+                ON CONFLICT(anio) DO UPDATE SET ultimo = secuencia_incidencias.ultimo + 1
                 RETURNING ultimo
                 """,
                 (anio,),

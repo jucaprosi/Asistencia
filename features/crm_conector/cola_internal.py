@@ -54,9 +54,10 @@ def registrar_o_recuperar_publicacion(
     with conexion:
         cursor = conexion.execute(
             """
-            INSERT OR IGNORE INTO crm.publicaciones (
+            INSERT INTO crm.publicaciones (
                 venta_id, evento, payload_json, estado, intentos, ultima_respuesta, proximo_intento, creado_en
             ) VALUES (?, ?, ?, 'pendiente', 0, NULL, NULL, ?)
+            ON CONFLICT DO NOTHING
             """,
             (venta_id, evento, payload_json, ahora_iso),
         )

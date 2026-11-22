@@ -91,6 +91,9 @@ def comprobar_interfaz_purificada(ruta_build: Path | None = None) -> list[str]:
     for ruta in rutas_a_escanear:
         if not ruta.is_file() or ruta.suffix not in {".html", ".js", ".css", ".ts"}:
             continue
+        # Las dependencias del arnés de interfaz (ui/node_modules) no son texto de cara al equipo.
+        if "node_modules" in ruta.parts:
+            continue
         contenido = ruta.read_text(encoding="utf-8", errors="replace")
         for linea_idx, linea in enumerate(contenido.splitlines(), start=1):
             for m in marcadores_prohibidos:
@@ -499,13 +502,13 @@ class PanelOperativoService:
                 if memoria and hasattr(memoria, "_obtener_conexion"):
                     with memoria._obtener_conexion() as con:
                         cur = con.execute(
-                            "SELECT conversacion_id, identidad_token, propiedad_id, estado, modo, creada, actualizada FROM agente_conversaciones WHERE canal = 'huespedes'"
+                            "SELECT conversacion_id, identidad_token, propiedad_id, estado, modo, creada, actualizada FROM conversaciones WHERE canal = 'huespedes'"
                         )
                         for row in cur.fetchall():
                             cid, id_token, prop_id, est, mod, cr, act = row
                             if cid not in mapa_convs:
                                 cur_m = con.execute(
-                                    "SELECT direccion, contenido_token, instante FROM agente_mensajes WHERE conversacion_id = ? ORDER BY instante ASC",
+                                    "SELECT direccion, contenido_token, instante FROM mensajes WHERE conversacion_id = ? ORDER BY instante ASC",
                                     (cid,),
                                 )
                                 msgs = [{"remitente": "huesped" if d == "in" else "asistente", "texto": ct, "instante": inst} for d, ct, inst in cur_m.fetchall()]

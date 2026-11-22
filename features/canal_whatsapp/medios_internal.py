@@ -51,7 +51,7 @@ class GestorMedios:
         self,
         medio_id: str,
         *,
-        mensaje_id: str,
+        mensaje_id: str | None,
         remitente: str | None,
         cliente_meta: Any,
         repositorio: RepositorioCanal,

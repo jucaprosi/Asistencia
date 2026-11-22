@@ -61,6 +61,7 @@ def main(argumentos: list[str] | None = None) -> int:
     analizador = argparse.ArgumentParser(description="Pasillo central de glamping-imbabura-agent")
     analizador.add_argument("--comprobar", action="store_true", help="Valida config_app.yaml y termina")
     analizador.add_argument("--worker", action="store_true", help="Modo worker de tareas programadas (TASK-004)")
+    analizador.add_argument("--migrar-db", action="store_true", help="Aplica el esquema canónico a PostgreSQL")
     opciones = analizador.parse_args(argumentos)
     if opciones.comprobar:
         salas = cargar_config_app().get("salas", [])
@@ -69,6 +70,9 @@ def main(argumentos: list[str] | None = None) -> int:
     if opciones.worker:
         print("worker: las tareas programadas se activan en TASK-004; nada que ejecutar")
         return 0
+    if opciones.migrar_db:
+        from scripts.migrar_db import main as migrar_main
+        return migrar_main()
     analizador.print_help()
     return 0
 

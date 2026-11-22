@@ -7,9 +7,10 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterator, Literal
+from typing import Any, Iterator, Literal
 
 from features.agente.tipos import ContextoConversacion, MensajeMemoria, ModoAgente
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["MemoriaConversacion"]
 
@@ -39,14 +40,15 @@ class MemoriaConversacion:
 
     def __init__(self, db_path: Path | str | None = None) -> None:
         if db_path is None or str(db_path) == ":memory:":
+            # None: DATABASE_URL (PostgreSQL, esquema agente) o SQLite en memoria; ":memory:" fuerza SQLite.
             self._ruta_db = ":memory:"
-            self._con_memoria: sqlite3.Connection | None = sqlite3.connect(":memory:", check_same_thread=False)
-            self._con_memoria.execute("PRAGMA foreign_keys = ON;")
+            self._con_memoria: Any = envolver(None if db_path is None else ":memory:", ruta_busqueda="agente")
         else:
             self._ruta_db = str(db_path)
             self._con_memoria = None
             Path(self._ruta_db).parent.mkdir(parents=True, exist_ok=True)
-        self._inicializar_tablas()
+        if not getattr(self._con_memoria, "es_postgres", False):
+            self._inicializar_tablas()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     # ¤agente-enrutador
     @contextmanager
@@ -73,7 +75,7 @@ class MemoriaConversacion:
         with self._obtener_conexion() as con:
             con.executescript(
                 """
-                CREATE TABLE IF NOT EXISTS agente_conversaciones (
+                CREATE TABLE IF NOT EXISTS conversaciones (
                   conversacion_id  TEXT PRIMARY KEY,
                   identidad_token  TEXT NOT NULL,
                   rol              TEXT NOT NULL DEFAULT 'huesped_potencial',
@@ -88,9 +90,9 @@ class MemoriaConversacion:
                   actualizada      TEXT NOT NULL
                 );
 
-                CREATE TABLE IF NOT EXISTS agente_mensajes (
+                CREATE TABLE IF NOT EXISTS mensajes (
                   mensaje_id       TEXT PRIMARY KEY,
-                  conversacion_id  TEXT NOT NULL REFERENCES agente_conversaciones(conversacion_id),
+                  conversacion_id  TEXT NOT NULL REFERENCES conversaciones(conversacion_id),
                   direccion        TEXT NOT NULL CHECK (direccion IN ('in','out')),
                   tipo             TEXT NOT NULL,
                   contenido_token  TEXT NOT NULL,
@@ -98,7 +100,7 @@ class MemoriaConversacion:
                   instante         TEXT NOT NULL
                 );
 
-                CREATE TABLE IF NOT EXISTS agente_cache_semantico (
+                CREATE TABLE IF NOT EXISTS cache_semantico (
                   hash_consulta    TEXT PRIMARY KEY,
                   embedding        TEXT NOT NULL,
                   respuesta        TEXT NOT NULL,
@@ -106,7 +108,7 @@ class MemoriaConversacion:
                   expira_en        TEXT NOT NULL
                 );
 
-                CREATE TABLE IF NOT EXISTS agente_envios_programados (
+                CREATE TABLE IF NOT EXISTS envios_programados (
                   codigo_reserva   TEXT NOT NULL,
                   plantilla        TEXT NOT NULL,
                   fecha            TEXT NOT NULL,
@@ -130,7 +132,7 @@ class MemoriaConversacion:
         with self._obtener_conexion() as con:
             con.execute(
                 """
-                INSERT INTO agente_conversaciones (
+                INSERT INTO conversaciones (
                     conversacion_id, identidad_token, rol, canal, propiedad_id, estado, modo, resultado,
                     abstenciones_seguidas, ventana_24h_hasta, creada, actualizada
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
@@ -162,7 +164,7 @@ class MemoriaConversacion:
             cur = con.execute(
                 """
                 SELECT conversacion_id, identidad_token, rol, propiedad_id, modo, ventana_24h_hasta
-                FROM agente_conversaciones
+                FROM conversaciones
                 WHERE conversacion_id = ?;
                 """,
                 (conversacion_id,),
@@ -185,7 +187,7 @@ class MemoriaConversacion:
         ahora = datetime.now(timezone.utc).isoformat()
         with self._obtener_conexion() as con:
             con.execute(
-                "UPDATE agente_conversaciones SET modo = ?, actualizada = ? WHERE conversacion_id = ?;",
+                "UPDATE conversaciones SET modo = ?, actualizada = ? WHERE conversacion_id = ?;",
                 (modo.value if isinstance(modo, ModoAgente) else str(modo), ahora, conversacion_id),
             )
 
@@ -194,7 +196,7 @@ class MemoriaConversacion:
         ahora = datetime.now(timezone.utc).isoformat()
         with self._obtener_conexion() as con:
             con.execute(
-                "UPDATE agente_conversaciones SET propiedad_id = ?, actualizada = ? WHERE conversacion_id = ?;",
+                "UPDATE conversaciones SET propiedad_id = ?, actualizada = ? WHERE conversacion_id = ?;",
                 (propiedad_id, ahora, conversacion_id),
             )
 
@@ -215,7 +217,7 @@ class MemoriaConversacion:
         with self._obtener_conexion() as con:
             con.execute(
                 """
-                INSERT INTO agente_mensajes (
+                INSERT INTO mensajes (
                     mensaje_id, conversacion_id, direccion, tipo, contenido_token, traza_id, instante
                 ) VALUES (?, ?, ?, ?, ?, ?, ?);
                 """,
@@ -237,7 +239,7 @@ class MemoriaConversacion:
             cur = con.execute(
                 """
                 SELECT mensaje_id, conversacion_id, direccion, tipo, contenido_token, traza_id, instante
-                FROM agente_mensajes
+                FROM mensajes
                 WHERE conversacion_id = ? AND instante >= ?
                 ORDER BY instante DESC
                 LIMIT ?;
@@ -275,7 +277,7 @@ class MemoriaConversacion:
         with self._obtener_conexion() as con:
             cur = con.execute(
                 """
-                INSERT INTO agente_envios_programados (codigo_reserva, plantilla, fecha, mensaje_id, creado_en)
+                INSERT INTO envios_programados (codigo_reserva, plantilla, fecha, mensaje_id, creado_en)
                 VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(codigo_reserva, plantilla, fecha) DO NOTHING;
                 """,
@@ -288,7 +290,7 @@ class MemoriaConversacion:
         """Verifica si ya fue enviado."""
         with self._obtener_conexion() as con:
             cur = con.execute(
-                "SELECT 1 FROM agente_envios_programados WHERE codigo_reserva = ? AND plantilla = ? AND fecha = ?;",
+                "SELECT 1 FROM envios_programados WHERE codigo_reserva = ? AND plantilla = ? AND fecha = ?;",
                 (codigo_reserva, plantilla, fecha),
             )
             return cur.fetchone() is not None

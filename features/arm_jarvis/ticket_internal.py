@@ -33,10 +33,12 @@ class GeneradorTickets:
         """
         with self._lock:
             self._con.execute(
-                "INSERT OR IGNORE INTO arm.secuencia_tickets (anio, ultimo) VALUES (?, 0);",
+                "INSERT INTO arm.secuencia_tickets (anio, ultimo) VALUES (?, 0) ON CONFLICT (anio) DO NOTHING;",
                 (anio,),
             )
-            self._con.execute("BEGIN IMMEDIATE;")
+            self._con.commit()
+            # El UPDATE ... RETURNING bloquea la fila del año hasta el commit (PostgreSQL) o toma el
+            # candado de escritura (SQLite): dos asignaciones concurrentes nunca leen el mismo número.
             try:
                 cur = self._con.execute(
                     "UPDATE arm.secuencia_tickets SET ultimo = ultimo + 1 WHERE anio = ? RETURNING ultimo;",
@@ -46,8 +48,8 @@ class GeneradorTickets:
                 nuevo_numero = fila[0] if isinstance(fila, (tuple, list)) else fila["ultimo"]
                 ticket = f"V-{anio}-{nuevo_numero:04d}"
                 resultado = accion_insercion(ticket)
-                self._con.execute("COMMIT;")
+                self._con.commit()
                 return ticket, resultado
             except Exception:
-                self._con.execute("ROLLBACK;")
+                self._con.rollback()
                 raise

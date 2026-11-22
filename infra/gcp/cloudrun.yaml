@@ -1,0 +1,94 @@
+# ¤infra-cloud
+# Manifest declarativo de Google Cloud Run para Glamping Imbabura Agent & Panel Operativo.
+# Conexión persistente a Cloud SQL PostgreSQL 16 con pgvector mediante socket UNIX.
+# Cumple ADR-0019 y APORTES_INEDITOS.md (min-instances: 1 para latencia WhatsApp < 50ms).
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: glamping-service
+  labels:
+    cloud.googleapis.com/location: ${GCP_LOCATION:-us-central1}
+    app.kubernetes.io/name: glamping-imbabura
+  annotations:
+    run.googleapis.com/launch-stage: GA
+    run.googleapis.com/ingress: all
+    run.googleapis.com/description: "Glamping Imbabura Asistente y Panel Operativo"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Enlace nativo a Cloud SQL (Auth Proxy gestionado por Cloud Run)
+        run.googleapis.com/cloudsql-instances: ${GCP_PROJECT_ID:-glamping-imbabura}:${GCP_LOCATION:-us-central1}:glamping-db
+        # Garantía anti arranques en frío (Cold Starts) para WhatsApp Webhook
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "5"
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: sa-cloud-run@${GCP_PROJECT_ID:-glamping-imbabura}.iam.gserviceaccount.com
+      containers:
+        - image: ${GCP_LOCATION:-us-central1}-docker.pkg.dev/${GCP_PROJECT_ID:-glamping-imbabura}/glamping-imbabura-repo/glamping-app:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          env:
+            - name: APP_ENV
+              value: "produccion"
+            - name: LOG_NIVEL
+              value: "INFO"
+            - name: PROVEEDOR_LLM
+              value: "google"
+            - name: GCP_PROJECT_ID
+              value: "${GCP_PROJECT_ID:-glamping-imbabura}"
+            - name: GCP_LOCATION
+              value: "${GCP_LOCATION:-us-central1}"
+            - name: MODELO_PRINCIPAL
+              value: "gemini-3.8-flash"
+            - name: MODELO_ECONOMICO
+              value: "gemini-3.5-flash-lite"
+            # Conexión persistente PostgreSQL mediante Socket UNIX de Cloud SQL
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: DATABASE_URL
+                  key: latest
+            - name: META_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: META_ACCESS_TOKEN
+                  key: latest
+            - name: META_VERIFY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: META_VERIFY_TOKEN
+                  key: latest
+            - name: META_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: META_APP_SECRET
+                  key: latest
+            - name: PANEL_SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: PANEL_SESSION_SECRET
+                  key: latest
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 6
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            periodSeconds: 30
+            timeoutSeconds: 5

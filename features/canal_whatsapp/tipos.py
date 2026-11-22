@@ -126,7 +126,7 @@ class PlantillaMeta:
 @dataclass(frozen=True)
 class MedioMeta:
     medio_id: str
-    mensaje_id: str
+    mensaje_id: str | None
     medio_ref: str
     tipo: Literal["imagen", "audio", "documento", "ubicacion"]
     bytes: int

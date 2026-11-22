@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping, Sequence
 
 from features.observabilidad.tipos import Metrica, Span, Traza, TrazaDesconocida
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["GestorTrazas", "AlmacenTrazas", "calcular_costo_tokens"]
 
@@ -57,14 +58,15 @@ class AlmacenTrazas:
 
     def __init__(self, db_path: Path | str | None = None) -> None:
         if db_path is None or str(db_path) == ":memory:":
+            # None: DATABASE_URL (PostgreSQL, esquema observabilidad) o SQLite en memoria; ":memory:" fuerza SQLite.
             self._ruta_db = ":memory:"
-            self._con_memoria: sqlite3.Connection | None = sqlite3.connect(":memory:", check_same_thread=False)
-            self._con_memoria.execute("PRAGMA foreign_keys = ON;")
+            self._con_memoria: Any = envolver(None if db_path is None else ":memory:", ruta_busqueda="observabilidad")
         else:
             self._ruta_db = str(db_path)
             self._con_memoria = None
             Path(self._ruta_db).parent.mkdir(parents=True, exist_ok=True)
-        self._inicializar_tablas()
+        if not getattr(self._con_memoria, "es_postgres", False):
+            self._inicializar_tablas()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     # ¤observabilidad
     @contextmanager
@@ -91,7 +93,7 @@ class AlmacenTrazas:
         with self._obtener_conexion() as con:
             con.executescript(
                 """
-                CREATE TABLE IF NOT EXISTS observabilidad_trazas (
+                CREATE TABLE IF NOT EXISTS trazas (
                   traza_id         TEXT PRIMARY KEY,
                   mensaje_id       TEXT,
                   conversacion_id  TEXT,
@@ -101,9 +103,9 @@ class AlmacenTrazas:
                   cerrada          TEXT
                 );
 
-                CREATE TABLE IF NOT EXISTS observabilidad_spans (
+                CREATE TABLE IF NOT EXISTS spans (
                   span_id          TEXT PRIMARY KEY,
-                  traza_id         TEXT NOT NULL REFERENCES observabilidad_trazas(traza_id) ON DELETE CASCADE,
+                  traza_id         TEXT NOT NULL REFERENCES trazas(traza_id) ON DELETE CASCADE,
                   sala             TEXT NOT NULL,
                   nombre           TEXT NOT NULL,
                   inicio           TEXT NOT NULL,
@@ -130,7 +132,7 @@ class AlmacenTrazas:
         with self._obtener_conexion() as con:
             con.execute(
                 """
-                INSERT INTO observabilidad_trazas (
+                INSERT INTO trazas (
                     traza_id, mensaje_id, conversacion_id, canal, resultado, iniciada, cerrada
                 ) VALUES (?, ?, ?, ?, NULL, ?, NULL);
                 """,
@@ -140,7 +142,7 @@ class AlmacenTrazas:
     # ¤observabilidad
     def existe_traza(self, traza_id: str) -> bool:
         with self._obtener_conexion() as con:
-            cur = con.execute("SELECT 1 FROM observabilidad_trazas WHERE traza_id = ?;", (traza_id,))
+            cur = con.execute("SELECT 1 FROM trazas WHERE traza_id = ?;", (traza_id,))
             return cur.fetchone() is not None
 
     # ¤observabilidad
@@ -148,7 +150,7 @@ class AlmacenTrazas:
         cerrada_str = cerrada.isoformat()
         with self._obtener_conexion() as con:
             cur = con.execute(
-                "UPDATE observabilidad_trazas SET resultado = ?, cerrada = ? WHERE traza_id = ?;",
+                "UPDATE trazas SET resultado = ?, cerrada = ? WHERE traza_id = ?;",
                 (resultado, cerrada_str, traza_id),
             )
             if cur.rowcount == 0:
@@ -163,7 +165,7 @@ class AlmacenTrazas:
         with self._obtener_conexion() as con:
             con.execute(
                 """
-                INSERT INTO observabilidad_spans (
+                INSERT INTO spans (
                     span_id, traza_id, sala, nombre, inicio, duracion_ms, modelo, tokens_in, tokens_out, costo_usd, atributos
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
@@ -186,7 +188,7 @@ class AlmacenTrazas:
     def obtener_traza(self, traza_id: str) -> Traza:
         with self._obtener_conexion() as con:
             cur_t = con.execute(
-                "SELECT traza_id, mensaje_id, conversacion_id, canal, iniciada, cerrada, resultado FROM observabilidad_trazas WHERE traza_id = ?;",
+                "SELECT traza_id, mensaje_id, conversacion_id, canal, iniciada, cerrada, resultado FROM trazas WHERE traza_id = ?;",
                 (traza_id,),
             )
             fila_t = cur_t.fetchone()
@@ -198,7 +200,7 @@ class AlmacenTrazas:
             cur_s = con.execute(
                 """
                 SELECT span_id, traza_id, sala, nombre, inicio, duracion_ms, modelo, tokens_in, tokens_out, costo_usd, atributos
-                FROM observabilidad_spans
+                FROM spans
                 WHERE traza_id = ?
                 ORDER BY inicio ASC;
                 """,
@@ -239,7 +241,7 @@ class AlmacenTrazas:
     # ¤observabilidad
     def listar_trazas(self) -> tuple[Traza, ...]:
         with self._obtener_conexion() as con:
-            cur = con.execute("SELECT traza_id FROM observabilidad_trazas ORDER BY iniciada ASC;")
+            cur = con.execute("SELECT traza_id FROM trazas ORDER BY iniciada ASC;")
             ids = [fila[0] for fila in cur.fetchall()]
         return tuple(self.obtener_traza(tid) for tid in ids)
 

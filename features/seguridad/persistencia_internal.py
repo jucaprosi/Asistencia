@@ -6,14 +6,15 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
+from features.persistencia_sql.persistencia_sql_service import Conexion, envolver
+
 
 # ¤seguridad-canal
-def inicializar_base_datos(conexion: sqlite3.Connection | None = None) -> sqlite3.Connection:
+def inicializar_base_datos(conexion: Any = None) -> Conexion:
     """Inicializa el esquema seguridad y sus tablas protegidas."""
-    if conexion is None:
-        conexion = sqlite3.connect(":memory:", check_same_thread=False)
-
-    conexion.row_factory = sqlite3.Row
+    conexion = envolver(conexion, esquemas=("seguridad",))
+    if conexion.es_postgres:
+        return conexion  # el esquema lo aplica scripts/migrar_db.py (docs/spec/esquema.sql)
 
     # Verificar si la base de datos 'seguridad' ya está adjunta
     bases_adjuntas = [fila[1] for fila in conexion.execute("PRAGMA database_list").fetchall()]

@@ -58,8 +58,8 @@ class RateLimiter:
             self._conn.execute(
                 """
                 INSERT INTO seguridad.rate_limit (remitente_hash, ventana, inicio, contador, aviso_enviado)
-                VALUES (?, ?, ?, 1, 0)
-                ON CONFLICT(remitente_hash, ventana, inicio) DO UPDATE SET contador = contador + 1
+                VALUES (?, ?, ?, 1, FALSE)
+                ON CONFLICT(remitente_hash, ventana, inicio) DO UPDATE SET contador = rate_limit.contador + 1
                 """,
                 (remitente_hash, nombre_ventana, inicio_str),
             )
@@ -82,7 +82,7 @@ class RateLimiter:
                         aviso_necesario = True
                         self._conn.execute(
                             """
-                            UPDATE seguridad.rate_limit SET aviso_enviado = 1
+                            UPDATE seguridad.rate_limit SET aviso_enviado = TRUE
                             WHERE remitente_hash = ? AND ventana = ? AND inicio = ?
                             """,
                             (remitente_hash, nombre_ventana, inicio_str),

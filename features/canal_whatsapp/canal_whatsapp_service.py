@@ -263,13 +263,18 @@ class CanalWhatsappService:
         """RF-GW-02 (a): Actualiza el estado (sent, delivered, read, failed) del mensaje."""
         self._repositorio.actualizar_estado_mensaje(mensaje_id, estado)
 
-    def descargar_medio(self, medio_id: str, remitente: str | None = None) -> str:
-        """RF-GW-05: Descarga un medio respetando bloqueo de seguridad y devuelve medio_ref (nunca bytes)."""
+    def descargar_medio(
+        self, medio_id: str, remitente: str | None = None, mensaje_id: str | None = None
+    ) -> str:
+        """RF-GW-05: Descarga un medio respetando bloqueo de seguridad y devuelve medio_ref (nunca bytes).
+
+        ``mensaje_id`` enlaza el medio con su mensaje en ``canal.mensajes_meta``; sin él el medio queda sin
+        mensaje asociado (la clave foránea no admite un identificador inventado).
+        """
         medio = self._repositorio.obtener_medio(medio_id)
         if medio:
             return medio.medio_ref
 
-        mensaje_id = f"in_msg_{medio_id}"
         return self._gestor_medios.descargar_medio(
             medio_id,
             mensaje_id=mensaje_id,

@@ -21,21 +21,30 @@ from features.comisiones.tipos import (
     ReglaComision,
     TipoRegla,
 )
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["PersistenciaComisiones"]
+
+
+
+# ¤comisiones
+def _limites_mes(mes: str) -> tuple[str, str]:
+    """'2026-03' -> ('2026-03-01', '2026-04-01'): rango portable en SQLite (texto ISO) y PostgreSQL (date)."""
+    anio, numero = (int(parte) for parte in mes.split("-")[:2])
+    siguiente = (anio + 1, 1) if numero == 12 else (anio, numero + 1)
+    return f"{anio:04d}-{numero:02d}-01", f"{siguiente[0]:04d}-{siguiente[1]:02d}-01"
 
 
 # ¤comisiones
 class PersistenciaComisiones:
     """Acceso a datos SQLite para comisiones, reglas y periodos."""
 
-    def __init__(self, origen: str | sqlite3.Connection = ":memory:") -> None:
-        if isinstance(origen, sqlite3.Connection):
-            self._con = origen
-        else:
-            self._con = sqlite3.connect(origen, check_same_thread=False)
+    def __init__(self, origen: Any = None) -> None:
+        # None: DATABASE_URL (PostgreSQL, esquema comisiones) o SQLite en memoria; también URL, ruta o conexión.
+        self._con = envolver(origen, ruta_busqueda="comisiones")
         self._con.row_factory = sqlite3.Row
-        self._inicializar_tablas()
+        if not self._con.es_postgres:
+            self._inicializar_tablas()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     def _inicializar_tablas(self) -> None:
         with self._con:
@@ -226,7 +235,7 @@ class PersistenciaComisiones:
             return periodo
         with self._con:
             self._con.execute(
-                "INSERT OR IGNORE INTO periodos (periodo_id, cerrado_en, cerrado_por, resumen_json) VALUES (?, NULL, NULL, NULL)",
+                "INSERT INTO periodos (periodo_id, cerrado_en, cerrado_por, resumen_json) VALUES (?, NULL, NULL, NULL) ON CONFLICT (periodo_id) DO NOTHING",
                 (periodo_id,),
             )
         return self.obtener_periodo(periodo_id) or Periodo(periodo_id=periodo_id)
@@ -364,10 +373,10 @@ class PersistenciaComisiones:
             FROM comisiones
             WHERE vendedor_id = ?
               AND regla_id = ?
-              AND strftime('%Y-%m', fecha_venta) = ?
+              AND fecha_venta >= ? AND fecha_venta < ?
               AND estado IN ('fijada', 'pagada', 'ajustada')
             """,
-            (vendedor_id, regla_id, mes_fecha_venta),
+            (vendedor_id, regla_id, *_limites_mes(mes_fecha_venta)),
         )
         row = cursor.fetchone()
         return Decimal(str(row["total_base"])).quantize(Decimal("0.01")) if row else Decimal("0.00")

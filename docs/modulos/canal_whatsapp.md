@@ -92,7 +92,7 @@ class CanalWhatsappService:
 - `canal.eventos_entrantes`: `(evento_id PK, mensaje_id UNIQUE, conversacion_clave, cuerpo_cifrado, estado, intentos, recibido_en, procesado_en)`
 - `canal.mensajes_meta`: `(mensaje_id PK, direccion, remitente_token, canal, tipo, estado, plantilla, enviado_en, actualizado_en)`
 - `canal.plantillas`: `(nombre PK, idioma, categoria, variables_csv, aprobada, actualizada_en)`
-- `canal.medios`: `(medio_id PK, mensaje_id FK, medio_ref, tipo, bytes, expira_en)`
+- `canal.medios`: `(medio_id PK, mensaje_id FK nullable (ADR-0020), medio_ref, tipo, bytes, expira_en)`
 
 ## Invariantes
 | Código | Predicado | Mecanismo |

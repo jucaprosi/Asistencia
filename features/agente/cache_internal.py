@@ -16,6 +16,7 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterator, Mapping, Sequence
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = [
     "PATRONES_PRECIO_DISPONIBILIDAD",
@@ -231,13 +232,15 @@ class CacheSemantico:
             self._con_memoria = conexion
             self._ruta_db = None
         elif db_path is None or str(db_path) == ":memory:":
-            self._con_memoria = sqlite3.connect(":memory:", check_same_thread=False)
+            # None: DATABASE_URL (PostgreSQL, esquema agente) o SQLite en memoria; ":memory:" fuerza SQLite.
+            self._con_memoria = envolver(None if db_path is None else ":memory:", ruta_busqueda="agente")
             self._ruta_db = None
         else:
             self._con_memoria = None
             self._ruta_db = str(db_path)
 
-        self._inicializar_tabla()
+        if not getattr(self._con_memoria, "es_postgres", False):
+            self._inicializar_tabla()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     # ¤agente-enrutador
     @contextmanager
@@ -257,7 +260,7 @@ class CacheSemantico:
         with self._con() as con:
             con.execute(
                 """
-                CREATE TABLE IF NOT EXISTS agente_cache_semantico (
+                CREATE TABLE IF NOT EXISTS cache_semantico (
                   hash_consulta    TEXT PRIMARY KEY,
                   propiedad_id     TEXT NOT NULL DEFAULT 'glamping',
                   embedding        TEXT NOT NULL,
@@ -268,7 +271,7 @@ class CacheSemantico:
                 """
             )
             try:
-                con.execute("ALTER TABLE agente_cache_semantico ADD COLUMN propiedad_id TEXT NOT NULL DEFAULT 'glamping';")
+                con.execute("ALTER TABLE cache_semantico ADD COLUMN propiedad_id TEXT NOT NULL DEFAULT 'glamping';")
             except Exception:
                 pass
 
@@ -296,7 +299,7 @@ class CacheSemantico:
         mejor_respuesta: str | None = None
         mejor_similitud = 0.0
 
-        query = "SELECT embedding, respuesta FROM agente_cache_semantico WHERE expira_en > ?"
+        query = "SELECT embedding, respuesta FROM cache_semantico WHERE expira_en > ?"
         params: list[Any] = [ahora]
         if propiedad_id:
             query += " AND (propiedad_id = ? OR propiedad_id = 'glamping')"
@@ -350,7 +353,7 @@ class CacheSemantico:
         with self._con() as con:
             con.execute(
                 """
-                INSERT INTO agente_cache_semantico (hash_consulta, propiedad_id, embedding, respuesta, creado_en, expira_en)
+                INSERT INTO cache_semantico (hash_consulta, propiedad_id, embedding, respuesta, creado_en, expira_en)
                 VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(hash_consulta) DO UPDATE SET
                   propiedad_id = excluded.propiedad_id,
@@ -366,11 +369,11 @@ class CacheSemantico:
     # ¤agente-enrutador
     def tamano(self) -> int:
         with self._con() as con:
-            cursor = con.execute("SELECT COUNT(*) FROM agente_cache_semantico")
+            cursor = con.execute("SELECT COUNT(*) FROM cache_semantico")
             fila = cursor.fetchone()
             return int(fila[0]) if fila else 0
 
     # ¤agente-enrutador
     def limpiar(self) -> None:
         with self._con() as con:
-            con.execute("DELETE FROM agente_cache_semantico")
+            con.execute("DELETE FROM cache_semantico")

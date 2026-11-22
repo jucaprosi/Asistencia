@@ -584,7 +584,7 @@ def test_escenario_orden_validacion_no_cambia_total() -> None:
     Y ninguna comisión fijada se recalcula
     """
     def ejecutar_orden(orden: list[str]) -> tuple[Decimal, list[Decimal]]:
-        persistencia = PersistenciaComisiones()
+        persistencia = PersistenciaComisiones(":memory:")  # cada orden en una base nueva
         servicio = ComisionesService(
             config={},
             seguridad=None,
@@ -636,7 +636,7 @@ def test_escenario_modo_graduado() -> None:
     Entonces el total del mes es 110.00 en cualquier orden de validación
     """
     for orden in [("v1", "v2", "v3"), ("v3", "v2", "v1"), ("v2", "v1", "v3")]:
-        persistencia = PersistenciaComisiones()
+        persistencia = PersistenciaComisiones(":memory:")  # cada orden en una base nueva
         servicio = ComisionesService(
             config={},
             seguridad=None,
@@ -680,7 +680,7 @@ def test_escenario_modo_volumen() -> None:
     Entonces el total del mes es 160.00 en cualquier orden de validación
     """
     for orden in [("v1", "v2", "v3"), ("v3", "v2", "v1"), ("v2", "v3", "v1")]:
-        persistencia = PersistenciaComisiones()
+        persistencia = PersistenciaComisiones(":memory:")  # cada orden en una base nueva
         servicio = ComisionesService(
             config={},
             seguridad=None,

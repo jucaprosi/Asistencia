@@ -9,12 +9,13 @@ from datetime import datetime, timezone
 from typing import Any, Sequence
 from uuid import uuid4
 
+from features.persistencia_sql.persistencia_sql_service import Conexion, abrir_conexion
 from features.canal_whatsapp.tipos import (
     Canal, EventoEntrante, MedioMeta, MensajeMeta, PlantillaMeta,
 )
 
 DDL_CANAL = """
-CREATE TABLE IF NOT EXISTS [canal.eventos_entrantes] (
+CREATE TABLE IF NOT EXISTS canal.eventos_entrantes (
   evento_id          TEXT PRIMARY KEY,
   mensaje_id         TEXT NOT NULL UNIQUE,
   conversacion_clave TEXT NOT NULL,
@@ -25,7 +26,7 @@ CREATE TABLE IF NOT EXISTS [canal.eventos_entrantes] (
   procesado_en       TEXT
 );
 
-CREATE TABLE IF NOT EXISTS [canal.mensajes_meta] (
+CREATE TABLE IF NOT EXISTS canal.mensajes_meta (
   mensaje_id         TEXT PRIMARY KEY,
   direccion          TEXT NOT NULL CHECK (direccion IN ('in','out')),
   remitente_token    TEXT NOT NULL,
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS [canal.mensajes_meta] (
   actualizado_en     TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS [canal.plantillas] (
+CREATE TABLE IF NOT EXISTS canal.plantillas (
   nombre             TEXT PRIMARY KEY,
   idioma             TEXT NOT NULL DEFAULT 'es',
   categoria          TEXT NOT NULL CHECK (categoria IN ('utility','authentication','marketing')),
@@ -46,14 +47,14 @@ CREATE TABLE IF NOT EXISTS [canal.plantillas] (
   actualizada_en     TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS [canal.medios] (
+CREATE TABLE IF NOT EXISTS canal.medios (
   medio_id           TEXT PRIMARY KEY,
-  mensaje_id         TEXT NOT NULL,
+  mensaje_id         TEXT,
   medio_ref          TEXT NOT NULL,
   tipo               TEXT NOT NULL CHECK (tipo IN ('imagen','audio','documento','ubicacion')),
   bytes              INTEGER NOT NULL CHECK (bytes >= 0),
   expira_en          TEXT NOT NULL,
-  FOREIGN KEY (mensaje_id) REFERENCES [canal.mensajes_meta](mensaje_id)
+  FOREIGN KEY (mensaje_id) REFERENCES mensajes_meta(mensaje_id)
 );
 """
 
@@ -83,23 +84,20 @@ def formatear_iso(dt: datetime | None) -> str | None:
 class RepositorioCanal:
     """Repositorio thread-safe para las tablas del esquema canal."""
 
-    def __init__(self, conexion: sqlite3.Connection | str | None = None) -> None:
+    def __init__(self, conexion: Conexion | sqlite3.Connection | str | None = None) -> None:
         self._lock = threading.RLock()
-        if conexion is None:
-            self._conexion = sqlite3.connect(":memory:", check_same_thread=False)
-            self._conexion.row_factory = sqlite3.Row
-        elif isinstance(conexion, str):
-            self._conexion = sqlite3.connect(conexion, check_same_thread=False)
-            self._conexion.row_factory = sqlite3.Row
+        if conexion is None or isinstance(conexion, str):
+            # None: DATABASE_URL (PostgreSQL) o SQLite en memoria; str: URL o ruta SQLite explícita.
+            self._conexion: Any = abrir_conexion(conexion, esquemas=("canal",))
+        elif isinstance(conexion, sqlite3.Connection):
+            self._conexion = Conexion.desde_sqlite(conexion, esquemas=("canal",))
         else:
             self._conexion = conexion
-            self._conexion.row_factory = sqlite3.Row
         self._inicializar_esquema()
 
     def _inicializar_esquema(self) -> None:
         with self._lock:
-            self._conexion.executescript(DDL_CANAL)
-            self._conexion.commit()
+            self._conexion.asegurar_esquema(DDL_CANAL)
 
     def guardar_evento(
         self,
@@ -116,7 +114,7 @@ class RepositorioCanal:
         evento_id = evento_id or str(uuid4())
         recibido_en_iso = formatear_iso(recibido_en or datetime.now(timezone.utc))
         consulta = """
-        INSERT INTO [canal.eventos_entrantes]
+        INSERT INTO canal.eventos_entrantes
           (evento_id, mensaje_id, conversacion_clave, cuerpo_cifrado, estado, intentos, recibido_en, procesado_en)
         VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
         ON CONFLICT (mensaje_id) DO NOTHING;
@@ -130,7 +128,7 @@ class RepositorioCanal:
             return cursor.rowcount > 0
 
     def obtener_evento(self, mensaje_id: str) -> EventoEntrante | None:
-        consulta = "SELECT * FROM [canal.eventos_entrantes] WHERE mensaje_id = ?;"
+        consulta = "SELECT * FROM canal.eventos_entrantes WHERE mensaje_id = ?;"
         with self._lock:
             fila = self._conexion.execute(consulta, (mensaje_id,)).fetchone()
             if not fila:
@@ -138,7 +136,7 @@ class RepositorioCanal:
             return self._fila_a_evento(fila)
 
     def obtener_evento_por_id(self, evento_id: str) -> EventoEntrante | None:
-        consulta = "SELECT * FROM [canal.eventos_entrantes] WHERE evento_id = ?;"
+        consulta = "SELECT * FROM canal.eventos_entrantes WHERE evento_id = ?;"
         with self._lock:
             fila = self._conexion.execute(consulta, (evento_id,)).fetchone()
             if not fila:
@@ -162,19 +160,19 @@ class RepositorioCanal:
             campos.append("procesado_en = ?")
             valores.append(formatear_iso(procesado_en))
         valores.append(evento_id)
-        consulta = f"UPDATE [canal.eventos_entrantes] SET {', '.join(campos)} WHERE evento_id = ?;"
+        consulta = f"UPDATE canal.eventos_entrantes SET {', '.join(campos)} WHERE evento_id = ?;"
         with self._lock:
             self._conexion.execute(consulta, tuple(valores))
             self._conexion.commit()
 
     def obtener_eventos_pendientes(self) -> list[EventoEntrante]:
-        consulta = "SELECT * FROM [canal.eventos_entrantes] WHERE estado = 'pendiente' ORDER BY recibido_en ASC;"
+        consulta = "SELECT * FROM canal.eventos_entrantes WHERE estado = 'pendiente' ORDER BY recibido_en ASC;"
         with self._lock:
             filas = self._conexion.execute(consulta).fetchall()
             return [self._fila_a_evento(f) for f in filas]
 
     def obtener_eventos_procesando(self) -> list[EventoEntrante]:
-        consulta = "SELECT * FROM [canal.eventos_entrantes] WHERE estado = 'procesando' ORDER BY recibido_en ASC;"
+        consulta = "SELECT * FROM canal.eventos_entrantes WHERE estado = 'procesando' ORDER BY recibido_en ASC;"
         with self._lock:
             filas = self._conexion.execute(consulta).fetchall()
             return [self._fila_a_evento(f) for f in filas]
@@ -197,7 +195,7 @@ class RepositorioCanal:
         enviado_iso = formatear_iso(enviado_en) if enviado_en else ahora_iso
         actualizado_iso = formatear_iso(actualizado_en) if actualizado_en else ahora_iso
         consulta = """
-        INSERT INTO [canal.mensajes_meta]
+        INSERT INTO canal.mensajes_meta
           (mensaje_id, direccion, remitente_token, canal, tipo, estado, plantilla, enviado_en, actualizado_en)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (mensaje_id) DO UPDATE SET
@@ -213,13 +211,13 @@ class RepositorioCanal:
 
     def actualizar_estado_mensaje(self, mensaje_id: str, estado: str, actualizado_en: datetime | None = None) -> None:
         actualizado_iso = formatear_iso(actualizado_en or datetime.now(timezone.utc))
-        consulta = "UPDATE [canal.mensajes_meta] SET estado = ?, actualizado_en = ? WHERE mensaje_id = ?;"
+        consulta = "UPDATE canal.mensajes_meta SET estado = ?, actualizado_en = ? WHERE mensaje_id = ?;"
         with self._lock:
             self._conexion.execute(consulta, (estado, actualizado_iso, mensaje_id))
             self._conexion.commit()
 
     def obtener_mensaje_meta(self, mensaje_id: str) -> MensajeMeta | None:
-        consulta = "SELECT * FROM [canal.mensajes_meta] WHERE mensaje_id = ?;"
+        consulta = "SELECT * FROM canal.mensajes_meta WHERE mensaje_id = ?;"
         with self._lock:
             fila = self._conexion.execute(consulta, (mensaje_id,)).fetchone()
             if not fila:
@@ -238,7 +236,7 @@ class RepositorioCanal:
 
     def ultimo_mensaje_entrante(self, remitente_token: str) -> datetime | None:
         consulta = """
-        SELECT max(enviado_en) as ultimo FROM [canal.mensajes_meta]
+        SELECT max(enviado_en) as ultimo FROM canal.mensajes_meta
         WHERE remitente_token = ? AND direccion = 'in';
         """
         with self._lock:
@@ -260,7 +258,7 @@ class RepositorioCanal:
         vars_csv = ",".join(variables)
         actualizada_iso = formatear_iso(actualizada_en or datetime.now(timezone.utc))
         consulta = """
-        INSERT INTO [canal.plantillas]
+        INSERT INTO canal.plantillas
           (nombre, idioma, categoria, variables_csv, aprobada, actualizada_en)
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT (nombre) DO UPDATE SET
@@ -273,19 +271,19 @@ class RepositorioCanal:
         with self._lock:
             self._conexion.execute(
                 consulta,
-                (nombre, idioma, categoria, vars_csv, 1 if aprobada else 0, actualizada_iso),
+                (nombre, idioma, categoria, vars_csv, bool(aprobada), actualizada_iso),
             )
             self._conexion.commit()
 
     def aprobar_plantilla(self, nombre: str, aprobada: bool = True) -> None:
         actualizada_iso = formatear_iso(datetime.now(timezone.utc))
-        consulta = "UPDATE [canal.plantillas] SET aprobada = ?, actualizada_en = ? WHERE nombre = ?;"
+        consulta = "UPDATE canal.plantillas SET aprobada = ?, actualizada_en = ? WHERE nombre = ?;"
         with self._lock:
-            self._conexion.execute(consulta, (1 if aprobada else 0, actualizada_iso, nombre))
+            self._conexion.execute(consulta, (bool(aprobada), actualizada_iso, nombre))
             self._conexion.commit()
 
     def obtener_plantilla(self, nombre: str) -> PlantillaMeta | None:
-        consulta = "SELECT * FROM [canal.plantillas] WHERE nombre = ?;"
+        consulta = "SELECT * FROM canal.plantillas WHERE nombre = ?;"
         with self._lock:
             fila = self._conexion.execute(consulta, (nombre,)).fetchone()
             if not fila:
@@ -301,7 +299,7 @@ class RepositorioCanal:
             )
 
     def listar_plantillas(self) -> list[PlantillaMeta]:
-        consulta = "SELECT * FROM [canal.plantillas] ORDER BY nombre ASC;"
+        consulta = "SELECT * FROM canal.plantillas ORDER BY nombre ASC;"
         with self._lock:
             filas = self._conexion.execute(consulta).fetchall()
             resultado: list[PlantillaMeta] = []
@@ -322,7 +320,7 @@ class RepositorioCanal:
     def guardar_medio(
         self,
         medio_id: str,
-        mensaje_id: str,
+        mensaje_id: str | None,
         medio_ref: str,
         tipo: str,
         bytes_len: int,
@@ -330,7 +328,7 @@ class RepositorioCanal:
     ) -> None:
         expira_iso = formatear_iso(expira_en)
         consulta = """
-        INSERT INTO [canal.medios] (medio_id, mensaje_id, medio_ref, tipo, bytes, expira_en)
+        INSERT INTO canal.medios (medio_id, mensaje_id, medio_ref, tipo, bytes, expira_en)
         VALUES (?, ?, ?, ?, ?, ?)
         ON CONFLICT (medio_id) DO NOTHING;
         """
@@ -339,7 +337,7 @@ class RepositorioCanal:
             self._conexion.commit()
 
     def obtener_medio(self, medio_id: str) -> MedioMeta | None:
-        consulta = "SELECT * FROM [canal.medios] WHERE medio_id = ?;"
+        consulta = "SELECT * FROM canal.medios WHERE medio_id = ?;"
         with self._lock:
             fila = self._conexion.execute(consulta, (medio_id,)).fetchone()
             if not fila:

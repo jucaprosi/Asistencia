@@ -11,17 +11,18 @@ import sqlite3
 from datetime import datetime, timezone
 from typing import Any, Mapping, Sequence
 
+from features.persistencia_sql.persistencia_sql_service import envolver
+
 
 # ¤panel-operativo
 class PersistenciaPanel:
     """Acceso a datos para el esquema panel según docs/spec/esquema.sql."""
 
-    def __init__(self, origen: str | sqlite3.Connection = ":memory:") -> None:
-        if isinstance(origen, sqlite3.Connection):
-            self._con = origen
-        else:
-            self._con = sqlite3.connect(origen, check_same_thread=False)
-        self._inicializar_tablas()
+    def __init__(self, origen: Any = None) -> None:
+        # None: DATABASE_URL (PostgreSQL, esquema panel) o SQLite en memoria; también URL, ruta o conexión.
+        self._con = envolver(origen, ruta_busqueda="panel")
+        if not self._con.es_postgres:
+            self._inicializar_tablas()  # en PostgreSQL el esquema lo aplica scripts/migrar_db.py
 
     def _inicializar_tablas(self) -> None:
         with self._con:
@@ -384,8 +385,9 @@ class PersistenciaPanel:
         with self._con:
             self._con.execute(
                 """
-                INSERT OR IGNORE INTO conversaciones_etiquetas (conversacion_id, etiqueta, creada_en)
-                VALUES (?, ?, ?);
+                INSERT INTO conversaciones_etiquetas (conversacion_id, etiqueta, creada_en)
+                VALUES (?, ?, ?)
+                ON CONFLICT DO NOTHING;
                 """,
                 (conversacion_id, etiqueta.strip(), creada_str),
             )

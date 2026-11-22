@@ -28,6 +28,7 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 | `panel_operativo` (ADR-0013) | `features/panel_operativo` (BFF, `ui/`, `estaticos/`) | `panel_operativo_service.py` (por crear, TASK-004) | `¤panel-operativo` | `¤¤frontend-developer` | RF-PAN-01..10 |
 | `anfitriones` (ADR-0018) | `features/anfitriones` | `anfitriones_service.py` | `¤anfitriones` | `¤¤backend-developer` | RF-ANF-01..08 |
 | `web_huespedes` (ADR-0017) | `features/web_huespedes` | `web_huespedes_service.py` | `¤web-huespedes` | — | — |
+| `persistencia_sql` (ADR-0020) | `features/persistencia_sql`, `scripts/migrar_db.py`, `docs/spec/migraciones/` | `persistencia_sql_service.py` | `¤persistencia-sql` | `¤¤data-engineer` | RNF de durabilidad (ADR-0002, ADR-0019) |
 | *pasillo central* | `app_core/` | `main.py`, `contenedor.py` (por crear, TASK-000) | `¤pasillo-central` | `¤¤solutions-architect` | orquestación; sin requisitos propios |
 | *infraestructura* | `compose.yaml`, `compose.production.yaml`, `ejecutar_arnes_glamping.*`, `.env.example`, Google Cloud Platform (ADR-0019) | — | `¤infra-hibrida` `¤infra-cloud` | `¤¤devops-engineer` | RNF-10, RNF-14, RNF-15 |
 

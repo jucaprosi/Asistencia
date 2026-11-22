@@ -99,7 +99,7 @@ class IdentidadManager:
         cursor = self._conn.execute(
             """
             SELECT usuario_id, rol, sujeto_id, activo FROM seguridad.usuarios
-            WHERE numero_hash = ? AND activo = 1
+            WHERE numero_hash = ? AND activo = TRUE
             """,
             (num_hash,),
         )
@@ -233,10 +233,10 @@ class IdentidadManager:
                 """
                 INSERT INTO seguridad.usuarios (
                     usuario_id, correo_hash, numero_hash, rol, sujeto_id, activo, alta_por
-                ) VALUES (?, ?, ?, ?, ?, 1, ?)
+                ) VALUES (?, ?, ?, ?, ?, TRUE, ?)
                 ON CONFLICT(numero_hash) DO UPDATE SET
                     rol = excluded.rol,
-                    activo = 1,
+                    activo = TRUE,
                     baja_en = NULL,
                     sujeto_id = excluded.sujeto_id
                 """,
@@ -247,7 +247,7 @@ class IdentidadManager:
             self._conn.execute(
                 """
                 UPDATE seguridad.usuarios
-                SET activo = 0, baja_en = ?
+                SET activo = FALSE, baja_en = ?
                 WHERE numero_hash = ?
                 """,
                 (ahora, num_hash),

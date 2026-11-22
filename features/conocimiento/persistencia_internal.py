@@ -11,9 +11,10 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from features.conocimiento.tipos import ConsultaSinPropiedad, Documento, Fragmento
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 SQL_ESQUEMA = """
-CREATE TABLE IF NOT EXISTS conocimiento_documentos (
+CREATE TABLE IF NOT EXISTS documentos (
   documento_id     TEXT PRIMARY KEY,
   ruta             TEXT NOT NULL UNIQUE,
   propiedad_id     TEXT NOT NULL,
@@ -24,9 +25,9 @@ CREATE TABLE IF NOT EXISTS conocimiento_documentos (
   indexado_en      TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS conocimiento_chunks (
+CREATE TABLE IF NOT EXISTS chunks (
   chunk_id         TEXT PRIMARY KEY,
-  documento_id     TEXT NOT NULL REFERENCES conocimiento_documentos(documento_id) ON DELETE CASCADE,
+  documento_id     TEXT NOT NULL REFERENCES documentos(documento_id) ON DELETE CASCADE,
   propiedad_id     TEXT NOT NULL,
   encabezado       TEXT NOT NULL,
   texto            TEXT NOT NULL,
@@ -34,8 +35,8 @@ CREATE TABLE IF NOT EXISTS conocimiento_chunks (
   orden            INTEGER NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_chunks_propiedad ON conocimiento_chunks(propiedad_id);
-CREATE INDEX IF NOT EXISTS idx_chunks_doc ON conocimiento_chunks(documento_id);
+CREATE INDEX IF NOT EXISTS idx_chunks_propiedad ON chunks(propiedad_id);
+CREATE INDEX IF NOT EXISTS idx_chunks_doc ON chunks(documento_id);
 """
 
 
@@ -45,15 +46,16 @@ class RepositorioConocimiento:
 
     def __init__(self, conexion: sqlite3.Connection | None = None, ruta_bd: Path | str | None = None) -> None:
         if conexion is not None:
-            self._conexion = conexion
+            self._conexion = envolver(conexion, ruta_busqueda="conocimiento")
         elif ruta_bd is not None:
             Path(ruta_bd).parent.mkdir(parents=True, exist_ok=True)
-            self._conexion = sqlite3.connect(str(ruta_bd), check_same_thread=False)
+            self._conexion = envolver(str(ruta_bd))
         else:
-            self._conexion = sqlite3.connect(":memory:", check_same_thread=False)
-        self._conexion.execute("PRAGMA foreign_keys = ON;")
-        self._conexion.executescript(SQL_ESQUEMA)
-        self._conexion.commit()
+            # DATABASE_URL (PostgreSQL, esquema conocimiento) o SQLite en memoria.
+            self._conexion = envolver(None, ruta_busqueda="conocimiento")
+        if not self._conexion.es_postgres:
+            self._conexion.executescript(SQL_ESQUEMA)
+            self._conexion.commit()
 
     @property
     def conexion(self) -> sqlite3.Connection:
@@ -63,7 +65,7 @@ class RepositorioConocimiento:
     def obtener_documento_por_ruta(self, ruta: str) -> Documento | None:
         cur = self._conexion.cursor()
         cur.execute(
-            "SELECT documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash FROM conocimiento_documentos WHERE ruta = ?",
+            "SELECT documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash FROM documentos WHERE ruta = ?",
             (ruta,),
         )
         fila = cur.fetchone()
@@ -102,18 +104,18 @@ class RepositorioConocimiento:
                 return doc_id, False, 0
             # Reemplazo por version_hash cambiada
             cur.execute(
-                """UPDATE conocimiento_documentos
+                """UPDATE documentos
                    SET propiedad_id = ?, tipo = ?, dueno = ?, revisado = ?, version_hash = ?, indexado_en = ?
                    WHERE documento_id = ?""",
                 (propiedad_id, tipo, dueno, revisado.isoformat(), version_hash, ahora, doc_id),
             )
             # Eliminar chunks antiguos (CASCADE manual si el pragma no bastara)
-            cur.execute("DELETE FROM conocimiento_chunks WHERE documento_id = ?", (doc_id,))
+            cur.execute("DELETE FROM chunks WHERE documento_id = ?", (doc_id,))
             es_nuevo = False
         else:
             doc_id = str(uuid.uuid4())
             cur.execute(
-                """INSERT INTO conocimiento_documentos (documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash, indexado_en)
+                """INSERT INTO documentos (documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash, indexado_en)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (doc_id, ruta, propiedad_id, tipo, dueno, revisado.isoformat(), version_hash, ahora),
             )
@@ -124,7 +126,7 @@ class RepositorioConocimiento:
             chunk_id = str(uuid.uuid4())
             emb_json = json.dumps(item.get("embedding", []))
             cur.execute(
-                """INSERT INTO conocimiento_chunks (chunk_id, documento_id, propiedad_id, encabezado, texto, embedding, orden)
+                """INSERT INTO chunks (chunk_id, documento_id, propiedad_id, encabezado, texto, embedding, orden)
                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
                 (
                     chunk_id,
@@ -147,14 +149,14 @@ class RepositorioConocimiento:
         if propiedad_id:
             cur.execute(
                 """SELECT documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash
-                   FROM conocimiento_documentos WHERE propiedad_id = ? OR propiedad_id = 'global'
+                   FROM documentos WHERE propiedad_id = ? OR propiedad_id = 'global'
                    ORDER BY ruta ASC""",
                 (propiedad_id,),
             )
         else:
             cur.execute(
                 """SELECT documento_id, ruta, propiedad_id, tipo, dueno, revisado, version_hash
-                   FROM conocimiento_documentos ORDER BY ruta ASC"""
+                   FROM documentos ORDER BY ruta ASC"""
             )
         filas = cur.fetchall()
         docs = []
@@ -181,7 +183,7 @@ class RepositorioConocimiento:
         cur = self._conexion.cursor()
         cur.execute(
             """SELECT chunk_id, documento_id, propiedad_id, encabezado, texto, embedding, orden
-               FROM conocimiento_chunks
+               FROM chunks
                WHERE propiedad_id = ? OR propiedad_id = 'global'""",
             (propiedad_id,),
         )
@@ -202,6 +204,6 @@ class RepositorioConocimiento:
     # ¤conocimiento-rag
     def total_chunks(self) -> int:
         cur = self._conexion.cursor()
-        cur.execute("SELECT count(*) FROM conocimiento_chunks")
+        cur.execute("SELECT count(*) FROM chunks")
         fila = cur.fetchone()
         return fila[0] if fila else 0

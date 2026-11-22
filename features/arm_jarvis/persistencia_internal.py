@@ -21,6 +21,7 @@ from features.arm_jarvis.tipos import (
     VentaExtraida,
     VentaNoEncontrada,
 )
+from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["RepositorioArm", "inicializar_esquema_arm"]
 
@@ -28,6 +29,8 @@ __all__ = ["RepositorioArm", "inicializar_esquema_arm"]
 # ¤arm-jarvis
 def inicializar_esquema_arm(conexion: sqlite3.Connection) -> None:
     """Crea y valida las tablas del esquema arm en SQLite."""
+    if getattr(conexion, "es_postgres", False):
+        return  # el esquema lo aplica scripts/migrar_db.py (docs/spec/esquema.sql)
     conexion.row_factory = sqlite3.Row
 
     # Verificar si el esquema 'arm' está adjunto; si no, adjuntar en memoria
@@ -149,14 +152,11 @@ def _con_cerrojo(cls):
 class RepositorioArm:
     """Manejo de consultas y transacciones sobre las tablas de arm."""
 
-    def __init__(self, conexion: sqlite3.Connection | None = None) -> None:
+    def __init__(self, conexion: Any = None) -> None:
         self._lock = threading.RLock()
         with self._lock:
-            if conexion is None:
-                self._con = sqlite3.connect(":memory:", check_same_thread=False)
-                self._con.isolation_level = None  # Autocommit control manual
-            else:
-                self._con = conexion
+            # None: DATABASE_URL (PostgreSQL) o SQLite en memoria. Transacciones explícitas con commit/rollback.
+            self._con = envolver(conexion, esquemas=("arm",))
             inicializar_esquema_arm(self._con)
 
     @property
@@ -186,7 +186,7 @@ class RepositorioArm:
                     vendedor.vendedor_id,
                     vendedor.telefono_token,
                     vendedor.nombre,
-                    1 if vendedor.activo else 0,
+                    bool(vendedor.activo),
                     vendedor.regla_comision_default_id,
                 ),
             )
@@ -195,7 +195,7 @@ class RepositorioArm:
     def obtener_vendedor_por_telefono(self, telefono_token: str) -> Vendedor | None:
         """Busca vendedor activo por su token de teléfono."""
         cur = self._con.execute(
-            "SELECT vendedor_id, telefono_token, nombre, activo, regla_comision_default_id FROM arm.vendedores WHERE telefono_token = ? AND activo = 1;",
+            "SELECT vendedor_id, telefono_token, nombre, activo, regla_comision_default_id FROM arm.vendedores WHERE telefono_token = ? AND activo = TRUE;",
             (telefono_token,),
         )
         fila = cur.fetchone()
@@ -230,7 +230,7 @@ class RepositorioArm:
     # ¤arm-jarvis
     def listar_vendedores_activos(self) -> tuple[Vendedor, ...]:
         cur = self._con.execute(
-            "SELECT vendedor_id, telefono_token, nombre, activo, regla_comision_default_id FROM arm.vendedores WHERE activo = 1 ORDER BY nombre ASC;"
+            "SELECT vendedor_id, telefono_token, nombre, activo, regla_comision_default_id FROM arm.vendedores WHERE activo = TRUE ORDER BY nombre ASC;"
         )
         return tuple(
             Vendedor(
@@ -285,7 +285,7 @@ class RepositorioArm:
             SELECT venta_id FROM arm.ventas
             WHERE producto = ?
               AND monto = ?
-              AND (cliente_token = ? OR (? IS NULL AND cliente_token IS NULL))
+              AND (cliente_token = ? OR (CAST(? AS TEXT) IS NULL AND cliente_token IS NULL))
               AND fecha_venta BETWEEN ? AND ?
               AND estado NOT IN ('rechazada', 'anulada')
             ORDER BY creada ASC
@@ -478,7 +478,7 @@ class RepositorioArm:
             parametros.append(vendedor_id)
 
         if periodo is not None:
-            clausulas.append("(substr(fecha_venta, 1, 7) = ? OR substr(fecha_llegada, 1, 7) = ?)")
+            clausulas.append("(substr(CAST(fecha_venta AS TEXT), 1, 7) = ? OR substr(CAST(fecha_llegada AS TEXT), 1, 7) = ?)")
             parametros.extend([periodo, periodo])
 
         where = ("WHERE " + " AND ".join(clausulas)) if clausulas else ""
@@ -499,7 +499,7 @@ class RepositorioArm:
         params: list[Any] = [vendedor_id]
         filtro_periodo = ""
         if periodo:
-            filtro_periodo = "AND substr(fecha_venta, 1, 7) = ?"
+            filtro_periodo = "AND substr(CAST(fecha_venta AS TEXT), 1, 7) = ?"
             params.append(periodo)
 
         # 1. Validadas / Publicadas
@@ -545,7 +545,7 @@ class RepositorioArm:
                 SUM(CASE WHEN estado = 'por_validar' THEN CAST(comision_estimada AS NUMERIC) ELSE 0 END) as com_pend,
                 SUM(CASE WHEN estado = 'por_validar' THEN 1 ELSE 0 END) as cnt_por_validar
             FROM arm.ventas
-            WHERE substr(fecha_venta, 1, 7) = ?;
+            WHERE substr(CAST(fecha_venta AS TEXT), 1, 7) = ?;
             """,
             (periodo,),
         )
@@ -558,9 +558,9 @@ class RepositorioArm:
         anio = periodo.split("-")[0]
         cur_mes = self._con.execute(
             """
-            SELECT substr(fecha_venta, 1, 7) as mes, SUM(CAST(monto AS NUMERIC)) as total
+            SELECT substr(CAST(fecha_venta AS TEXT), 1, 7) as mes, SUM(CAST(monto AS NUMERIC)) as total
             FROM arm.ventas
-            WHERE substr(fecha_venta, 1, 4) = ? AND estado IN ('validada', 'publicada', 'no_publicada')
+            WHERE substr(CAST(fecha_venta AS TEXT), 1, 4) = ? AND estado IN ('validada', 'publicada', 'no_publicada')
             GROUP BY mes ORDER BY mes ASC;
             """,
             (anio,),
@@ -576,7 +576,7 @@ class RepositorioArm:
             SELECT v.nombre, SUM(CAST(vt.monto AS NUMERIC)) as total, COUNT(*) as cnt
             FROM arm.ventas vt
             JOIN arm.vendedores v ON vt.vendedor_id = v.vendedor_id
-            WHERE substr(vt.fecha_venta, 1, 7) = ? AND vt.estado IN ('validada', 'publicada', 'no_publicada')
+            WHERE substr(CAST(vt.fecha_venta AS TEXT), 1, 7) = ? AND vt.estado IN ('validada', 'publicada', 'no_publicada')
             GROUP BY v.nombre ORDER BY total DESC;
             """,
             (periodo,),
@@ -591,7 +591,7 @@ class RepositorioArm:
             """
             SELECT COALESCE(propiedad_id, 'sin_propiedad') as prop, SUM(CAST(monto AS NUMERIC)) as total
             FROM arm.ventas
-            WHERE substr(fecha_venta, 1, 7) = ? AND estado IN ('validada', 'publicada', 'no_publicada')
+            WHERE substr(CAST(fecha_venta AS TEXT), 1, 7) = ? AND estado IN ('validada', 'publicada', 'no_publicada')
             GROUP BY prop ORDER BY total DESC;
             """,
             (periodo,),

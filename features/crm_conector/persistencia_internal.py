@@ -8,15 +8,18 @@ from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from features.crm_conector.tipos import Handoff, HandoffExistente, ReferenciaCRM, Zona
+from features.persistencia_sql.persistencia_sql_service import Conexion, envolver
 
 
 # ¤crm-conector
-def inicializar_base_datos(conexion: sqlite3.Connection | None = None) -> sqlite3.Connection:
+def inicializar_base_datos(conexion: Any = None) -> Conexion:
     """Inicializa el esquema crm y sus tablas protegidas."""
-    if conexion is None:
-        conexion = sqlite3.connect(":memory:", check_same_thread=False)
-
-    conexion.row_factory = sqlite3.Row
+    conexion = envolver(conexion, esquemas=("crm",))
+    if conexion.es_postgres:
+        # El esquema lo aplica scripts/migrar_db.py; las zonas semilla son datos y se aseguran igual.
+        _sembrar_zonas_defecto(conexion)
+        conexion.commit()
+        return conexion
 
     # Verificar si la base de datos 'crm' ya está adjunta
     bases_adjuntas = [fila[1] for fila in conexion.execute("PRAGMA database_list").fetchall()]
@@ -133,8 +136,9 @@ def _sembrar_zonas_defecto(conexion: sqlite3.Connection) -> None:
     for zid, nom, g_p, g_r in zonas_semilla:
         conexion.execute(
             """
-            INSERT OR IGNORE INTO crm.zonas (zona_id, nombre, gestor_principal_id, gestor_respaldo_id)
+            INSERT INTO crm.zonas (zona_id, nombre, gestor_principal_id, gestor_respaldo_id)
             VALUES (?, ?, ?, ?)
+            ON CONFLICT (zona_id) DO NOTHING
             """,
             (zid, nom, g_p, g_r),
         )
@@ -144,8 +148,11 @@ def _sembrar_zonas_defecto(conexion: sqlite3.Connection) -> None:
 def insertar_zona(conexion: sqlite3.Connection, zona: Zona) -> None:
     conexion.execute(
         """
-        INSERT OR REPLACE INTO crm.zonas (zona_id, nombre, gestor_principal_id, gestor_respaldo_id)
+        INSERT INTO crm.zonas (zona_id, nombre, gestor_principal_id, gestor_respaldo_id)
         VALUES (?, ?, ?, ?)
+        ON CONFLICT (zona_id) DO UPDATE SET
+            nombre = excluded.nombre, gestor_principal_id = excluded.gestor_principal_id,
+            gestor_respaldo_id = excluded.gestor_respaldo_id
         """,
         (zona.zona_id, zona.nombre, zona.gestor_principal_id, zona.gestor_respaldo_id),
     )
@@ -318,7 +325,8 @@ def listar_handoffs(
 # ¤crm-conector
 def guardar_referencia(conexion: sqlite3.Connection, ref: ReferenciaCRM) -> None:
     conexion.execute(
-        "INSERT OR REPLACE INTO crm.referencias (entidad, id_local, crm_ref) VALUES (?, ?, ?)",
+        "INSERT INTO crm.referencias (entidad, id_local, crm_ref) VALUES (?, ?, ?) "
+        "ON CONFLICT (entidad, id_local) DO UPDATE SET crm_ref = excluded.crm_ref",
         (ref.entidad, ref.id_local, ref.crm_ref),
     )
     conexion.commit()

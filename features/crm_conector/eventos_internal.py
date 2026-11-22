@@ -71,9 +71,12 @@ def procesar_evento_entrante(
     with conexion:
         conexion.execute(
             """
-            INSERT OR REPLACE INTO crm.eventos (
+            INSERT INTO crm.eventos (
                 evento_id, tipo, referencia, datos_json, recibido_en, procesado_en
             ) VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT (evento_id) DO UPDATE SET
+                tipo = excluded.tipo, referencia = excluded.referencia, datos_json = excluded.datos_json,
+                recibido_en = excluded.recibido_en, procesado_en = excluded.procesado_en
             """,
             (evento_id, tipo, referencia, datos_json, ahora_iso, ahora_iso),
         )

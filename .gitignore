@@ -33,3 +33,8 @@ transcriptor_tiktok/
 Thumbs.db
 *.bak
 .agents/estado/
+
+# Arnés de interfaz Playwright (features/panel_operativo/ui): se regeneran en cada corrida
+features/panel_operativo/ui/test-results/
+features/panel_operativo/ui/playwright-report/
+features/panel_operativo/ui/.last-run.json
