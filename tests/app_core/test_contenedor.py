@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """El pasillo central construye las once compuertas con secretos resueltos y enlaza los receptores del canal."""
 from __future__ import annotations
 

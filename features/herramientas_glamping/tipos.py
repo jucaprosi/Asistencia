@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio y errores de la sala herramientas_glamping."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Memoria y persistencia de conversaciones de la sala agente (RF-AG-06, esquema agente)."""
 from __future__ import annotations
 

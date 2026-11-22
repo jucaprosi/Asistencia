@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Adaptador HTTP configurable con firma HMAC-SHA256 y soporte para fixtures simulados (RF-CRM-03)."""
 from __future__ import annotations
 

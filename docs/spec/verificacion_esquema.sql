@@ -1,6 +1,7 @@
 -- ¤spec-glamping
 -- Prueba negativa de las leyes que viven en la base de datos. Cada bloque debe fallar con el error esperado:
 -- si la operación prohibida se ejecuta, el bloque lanza AssertionError y psql termina con Exit Code distinto de 0.
+-- © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 BEGIN;
 
 INSERT INTO arm.vendedores (vendedor_id, telefono_token, nombre)

@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de carga concurrente y escalabilidad (RNF-01, RNF-06, T-410).
 
 Evalúa:

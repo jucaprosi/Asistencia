@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """BFF interno del panel operativo (/panel/api/*).
 
 Rutas de Ola 2: sesión, handoffs por zona e incidencias.

@@ -34,3 +34,7 @@ Las salas persistían en SQLite en memoria. En Cloud Run cada instancia perdía 
 - Cada instancia abre alrededor de 16 conexiones (una por repositorio). `db-f1-micro` admite pocas conexiones, así que hace falta un pool o una instancia mayor antes de escalar.
 - `canal.medios.mensaje_id` ahora admite nulo: un medio puede descargarse sin un mensaje registrado, en lugar de inventar un identificador.
 - Revertir es posible: sin `DATABASE_URL` el sistema vuelve a SQLite sin cambios de código.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -39,3 +39,7 @@ RF-RAG-01..06. Invariantes: `INV_SIN_FUGA_ENTRE_PROPIEDADES`, `INV_NO_LO_SE`.
 - Suite `evals/set_dorado.jsonl` y benchmark RNF-04 cumplidos.
 - Indexación de corpus comercial e integración E2E comprobada en `tests/integracion/test_fase3.py`.
 - Bloqueos S-03 y ADR-0012 superados.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

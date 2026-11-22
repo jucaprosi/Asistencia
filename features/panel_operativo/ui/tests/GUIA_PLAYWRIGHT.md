@@ -123,3 +123,7 @@ rama estás: el servidor sirve lo que hay en disco.
 3. Las pruebas nuevas, con la comprobación de que fallan cuando rompes lo que verifican.
 4. `ejecutar_arnes_glamping.bat` en Exit Code 0.
 5. Si algo no se pudo comprobar, dilo como «no verificado»; no lo omitas.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

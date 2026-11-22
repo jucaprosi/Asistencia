@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * P-11 Administración Completa.
  * Requisitos: RF-PAN-09, RF-ANF-08, RF-PRIV-05, OP-01..10.

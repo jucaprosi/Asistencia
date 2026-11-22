@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Worker de tareas programadas del pasillo central (T-310, TASK-004).
 
 Ejecuta tareas en segundo plano de acuerdo con config_app.yaml:

@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-SEC-07: Row-Level Security por propiedad_id y rol NOBYPASSRLS."""
 from __future__ import annotations
 

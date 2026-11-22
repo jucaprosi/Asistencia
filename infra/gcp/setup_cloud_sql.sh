@@ -3,6 +3,7 @@
 # ¤¤devops-engineer
 # Script de aprovisionamiento de Cloud SQL PostgreSQL 16 con extensión pgvector.
 # Proyecto: Glamping Imbabura
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 set -euo pipefail
 
 PROJECT_ID="${GCP_PROJECT_ID:-glamping-imbabura}"

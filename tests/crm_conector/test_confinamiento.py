@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tests de confinamiento ADPA y pureza de tipos para la sala crm_conector."""
 from __future__ import annotations
 

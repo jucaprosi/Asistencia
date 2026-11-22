@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-06: Memoria de conversación, límite de 30 mensajes / 24h e INV_PII_FUERA_DEL_MODELO tras reinicio."""
 from __future__ import annotations
 

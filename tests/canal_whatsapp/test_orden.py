@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-08: Orden secuencial y agrupación de mensajes en ráfaga (ventana de 3 s)."""
 from __future__ import annotations
 

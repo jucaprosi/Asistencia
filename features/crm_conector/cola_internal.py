@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Cola persistente de publicaciones con backoff exponencial y ventana de 24 horas (RF-CRM-04, INV_VENTA_NO_SE_PIERDE)."""
 from __future__ import annotations
 

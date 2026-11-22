@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Interfaz abstracta base del conector CRM (RF-CRM-01)."""
 from __future__ import annotations
 

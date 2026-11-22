@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala comisiones."""
 from __future__ import annotations
 

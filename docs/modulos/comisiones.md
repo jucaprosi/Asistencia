@@ -69,3 +69,7 @@ Genera la salida del período ordenando las comisiones de forma determinista por
 - **JSON:** Estructura con `periodo_id`, `moneda`, `lineas` (con `ajuste_de` y `motivo` admitiendo `null` o `string`) y `totales` (`total_comisiones`, `total_ventas`, `numero_lineas`), validada contractualmente con `Draft202012Validator` contra `features/comisiones/esquema_exportacion.json`. Lanza `ExportacionInvalida` ante cualquier no conformidad.
 
 `¤comisiones/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

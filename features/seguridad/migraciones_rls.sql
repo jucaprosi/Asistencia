@@ -2,6 +2,7 @@
 -- ¤¤security-engineer
 -- Migraciones de Row-Level Security por propiedad_id (RF-SEC-07, T-304)
 -- Rol de aplicación NOBYPASSRLS e invariantes de aislamiento multi-inquilino.
+-- © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'app_glamping') THEN

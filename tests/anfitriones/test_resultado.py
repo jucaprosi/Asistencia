@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-ANF-06: Resultado de la estadía y liquidación de comisión.
 
 Verifica el reporte de cancelada y no_show dentro del plazo de 3 días sin generar comisión,

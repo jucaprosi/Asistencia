@@ -1,4 +1,5 @@
 # ¤agente-enrutador
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 proveedor: ${PROVEEDOR_LLM:-google}
 modelos:
   principal: ${MODELO_PRINCIPAL:-claude-opus-5-5}

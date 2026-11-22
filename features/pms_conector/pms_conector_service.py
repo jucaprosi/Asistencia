@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala pms_conector (RF-PMS-01..06, INV_ESCRITURA_PMS_EXPLICITA).
 
 Provee acceso desacoplado a disponibilidad, tarifas, reservas y contingencias locales.

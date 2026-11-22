@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Montaje HTTP de las rutas de panel_operativo y crm_conector en el pasillo central (T-310).
 
 Registra:

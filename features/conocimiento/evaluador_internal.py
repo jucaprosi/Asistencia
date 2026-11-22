@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Evaluación continua del motor RAG frente al set dorado (RF-RAG-04, RF-RAG-06, INV_NO_LO_SE)."""
 from __future__ import annotations
 

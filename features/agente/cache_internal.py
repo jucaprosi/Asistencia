@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Caché semántico y enrutamiento de modelos (RF-AG-07, INV_CACHE_SIN_PRECIOS, RNF-16).
 
 Implementa la exclusión estricta de precios y disponibilidad antes de escribir o servir del caché,

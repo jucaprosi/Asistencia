@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Incidencias y atención humana por zona
 
   @US-04 @CU-03 @RF-MCP-05

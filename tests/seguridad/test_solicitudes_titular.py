@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PRIV-05 (Solicitudes del titular ARCOP y plazo operativo de 15 días).
 
 Verifica:

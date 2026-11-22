@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro E2E de validación de ventas, corrección de campos dudosos y componentes UI (RF-PAN-02, US-06)."""
 from __future__ import annotations
 

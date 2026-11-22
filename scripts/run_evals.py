@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Ejecuta las suites de evaluación (RF-OBS-03) y falla bajo umbral.
 
 Despacha a evaluar(...) de cada compuerta y aplica umbrales de config_observabilidad.yaml.

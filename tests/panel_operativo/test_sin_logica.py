@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_PANEL_SIN_LOGICA y RF-PAN-03.
 
 Verifica por AST que la sala panel_operativo no contiene cálculos de negocio propios

@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala panel_operativo (RF-PAN-01..10).
 
 El panel no contiene lógica de negocio: cada caso de uso delega en la compuerta de la sala dueña tras autorizar.

@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del tablero de métricas y marcado de publicación en CRM (T-602, RF-ARM-08, RF-CRM-04)."""
 from __future__ import annotations
 

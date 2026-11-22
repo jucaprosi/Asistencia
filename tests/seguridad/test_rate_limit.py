@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de rate limit no anulable por remitente (RF-SEC-03, INV_RATE_LIMIT_NO_ANULABLE)."""
 from __future__ import annotations
 

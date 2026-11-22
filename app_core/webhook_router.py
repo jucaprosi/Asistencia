@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Rutas HTTP del webhook de Meta (WhatsApp Cloud API) para verificación y recepción (RF-GW-01, RF-GW-07)."""
 from __future__ import annotations
 

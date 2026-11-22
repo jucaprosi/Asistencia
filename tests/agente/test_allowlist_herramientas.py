@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-03: Exposición selectiva de herramientas e INV_ALLOWLIST_POR_ACCION."""
 from __future__ import annotations
 

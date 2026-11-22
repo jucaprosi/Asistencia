@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-07, RF-PAN-08, INV_PANEL_POR_ROL e INV_ACCION_IDEMPOTENTE.
 
 Verifica la bandeja de handoffs por zona, aislamiento estricto (403 para otras zonas),

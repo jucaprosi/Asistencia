@@ -1,4 +1,5 @@
 // Pantalla P-09: Detalle de conversación (hilo de mensajes, respuesta WhatsApp, devolver al asistente)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface MensajeChat {
   remitente: string;

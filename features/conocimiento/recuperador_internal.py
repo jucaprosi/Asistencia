@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Recuperación híbrida (Vectorial + BM25) con aislamiento estricto por propiedad y control de abstención (RF-RAG-03, INV_SIN_FUGA_ENTRE_PROPIEDADES, INV_NO_LO_SE)."""
 from __future__ import annotations
 

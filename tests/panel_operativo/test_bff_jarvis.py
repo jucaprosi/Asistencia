@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-06, RF-ARM-09, US-15 y chat con Jarvis en panel_operativo."""
 from __future__ import annotations
 

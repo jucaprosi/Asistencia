@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tests de asignación de handoffs por zona e invariante INV_HANDOFF_UNICO (RF-CRM-06, RF-MCP-06)."""
 from __future__ import annotations
 

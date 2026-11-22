@@ -1,5 +1,6 @@
 # ¤persistencia-sql
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Consultas portadas a SQL común (ON CONFLICT, rangos) de crm_conector y seguridad, en SQLite."""
 from __future__ import annotations
 

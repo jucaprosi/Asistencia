@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de indexación idempotente del corpus y version_hash (RF-RAG-01, US-12)."""
 from __future__ import annotations
 

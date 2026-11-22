@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba de integración integral de la Fase 5: evaluación de salida de beta.
 
 Cubre:

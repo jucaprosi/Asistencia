@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Extractor estructurado de ventas en lenguaje natural (RF-ARM-02)."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para la sala canal_whatsapp (seguridad, observabilidad y API simulada de Meta)."""
 from __future__ import annotations
 

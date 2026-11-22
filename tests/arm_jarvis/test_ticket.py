@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del generador de tickets numerados y prueba de concurrencia (RF-ARM-05, INV_TICKET_UNICO)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas unitarias y de contrato para reglas de comisiones (RF-COM-01, INV_COMISION_REPRODUCIBLE)."""
 from __future__ import annotations
 

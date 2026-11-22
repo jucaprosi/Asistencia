@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-WEB-04, INV_WEB_SIN_PII, INV_WEB_SOLO_LECTURA y US-18.
 
 Verifica el paso a WhatsApp con código de contexto sin PII, la resolución del contexto para el asistente

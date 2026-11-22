@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del pasillo central: canal de vendedores y receptores ARM (RF-GW-06, RF-ARM-06).
 
 Verifica:

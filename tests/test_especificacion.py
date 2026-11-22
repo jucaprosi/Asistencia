@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de la especificación ejecutable (INV_ESPECIFICACION_VIVA, INV_CORPUS_FUERA_DEL_REPO).
 
 Lee los tipos como texto para no acoplar esta prueba a las salas: compara lo que declaran con los contratos.

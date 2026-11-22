@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba de fail-fast en montaje de panel operativo y CRM en pasillo central (T-901, C1)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-ANF-07 y RF-ANF-08: Estado de cuenta mensual, cobro, ajustes y pausa por mora.
 
 Verifica:

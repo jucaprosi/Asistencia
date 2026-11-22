@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala web_huespedes (RF-WEB-01..06). Solo lectura: la reserva termina en WhatsApp."""
 from __future__ import annotations
 

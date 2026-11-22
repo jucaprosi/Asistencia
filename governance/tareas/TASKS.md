@@ -1074,3 +1074,7 @@ Entregables: prueba `tests/test_escritura_conforme.py` que audita UTF-8 sin BOM,
 5. **Comprobación con plataformas de nube al final:** Solo cuando las 8 tandas de salas están selladas y enlazadas en `app_core` (Ola 9), se ejecutan las tandas de comprobación contra plataformas de nube y producción (Olas 10 a 12).
 
 `¤tareas-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

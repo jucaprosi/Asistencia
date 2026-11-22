@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Capa de persistencia relacional y almacenamiento vectorial de la sala conocimiento (RF-RAG-01..03)."""
 from __future__ import annotations
 

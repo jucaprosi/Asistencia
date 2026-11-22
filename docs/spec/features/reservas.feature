@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Disponibilidad y reserva por WhatsApp
 
   @US-01 @CU-01 @RF-MCP-01 @RF-MCP-02

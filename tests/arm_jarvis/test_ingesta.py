@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de ingesta y validación de remitentes en el canal de vendedores (RF-ARM-01)."""
 from __future__ import annotations
 

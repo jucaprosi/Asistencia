@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Implementación en memoria FakePMS para pruebas y desarrollo (RF-PMS-01, RF-PMS-02)."""
 from __future__ import annotations
 

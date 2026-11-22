@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-01, INV_PROPIEDAD_RESUELTA e INV_SIN_FUGA_ENTRE_PROPIEDADES."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-WEB-06 e INV_INTERFAZ_PURIFICADA.
 
 Auditoría de calidad pública: móvil primero, WCAG 2.1 AA, títulos y datos estructurados para buscadores,

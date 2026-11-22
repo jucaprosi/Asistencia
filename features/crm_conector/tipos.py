@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio y excepciones de la sala crm_conector (RF-CRM-01..06, RF-MCP-06)."""
 from __future__ import annotations
 

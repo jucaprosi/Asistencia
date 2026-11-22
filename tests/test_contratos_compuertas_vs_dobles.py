@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de contrato profundas: El doble de cada sala se comporta como su compuerta real (T-902, C2).
 
 Verifica que para cada compuerta _service.py consumida por otra sala:

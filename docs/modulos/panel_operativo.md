@@ -327,3 +327,7 @@ Reglas: selectores por rol y nombre accesible; nunca `waitForTimeout`; cada prue
 `¤panel-arnes-ui/`
 
 `¤panel-operativo/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Enrutamiento del canal de vendedores y separación de flujos ARM vs Huéspedes (RF-GW-06).
 
 Parametrizable por modo (grupo o 1:1 según S-01). Garantiza que:

@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para caché semántico y enrutamiento de modelos (RF-AG-07, INV_CACHE_SIN_PRECIOS, RNF-16)."""
 from __future__ import annotations
 

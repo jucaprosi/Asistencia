@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestor de retención y purga automática periódica (RF-PRIV-03, INV_AUDIT_APPEND_ONLY)."""
 from __future__ import annotations
 

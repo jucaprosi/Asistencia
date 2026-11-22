@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión interna de registro y publicación de anfitriones y hospedajes (RF-ANF-01, RF-ANF-02)."""
 from __future__ import annotations
 

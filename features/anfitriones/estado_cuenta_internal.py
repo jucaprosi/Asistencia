@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión interna de estados de cuenta, liquidación de comisión, registro de pagos y pausa por mora (RF-ANF-07, RF-ANF-08)."""
 from __future__ import annotations
 

@@ -34,3 +34,7 @@ Medir en las fases 4–7: handoffs por semana, tiempo de atención, número de g
 - Métrica de handoffs/semana disponible en trazas desde la fase 4 (PRD §15.4, punto 3).
 
 `¤panel-handoff/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

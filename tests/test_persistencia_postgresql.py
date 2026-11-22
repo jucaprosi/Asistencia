@@ -1,5 +1,6 @@
 # ¤infra-cloud
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de persistencia PostgreSQL y preparación para Cloud Run / Cloud SQL (ADR-0019).
 
 Verifica la disponibilidad de psycopg, la normalización de cadenas de conexión,

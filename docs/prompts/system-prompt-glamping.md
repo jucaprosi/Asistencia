@@ -29,3 +29,7 @@ La persona pregunta por el **glamping en {{ubicacion_glamping}}**. Atiéndela co
 - Contacto humano de respaldo: {{nombre_gestor_glamping}}
 
 `¤prompts-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

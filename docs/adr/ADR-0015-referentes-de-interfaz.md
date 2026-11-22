@@ -32,3 +32,7 @@ Un informe externo propuso referentes por superficie: PMS, inbox de WhatsApp, co
 - Un cambio de stack o de alcance exige otro ADR.
 
 `¤frontend-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

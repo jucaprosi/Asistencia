@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Genera docs/spec/TRAZABILIDAD.md: requisito, tareas y escenarios. Con --check falla si el archivo está desactualizado."""
 from __future__ import annotations
 

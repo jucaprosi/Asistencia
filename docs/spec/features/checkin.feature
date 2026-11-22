@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Check-in autónomo sin fuga de acceso
 
   @US-03 @CU-02 @RF-MCP-04 @INV_SIN_FUGA_ENTRE_PROPIEDADES

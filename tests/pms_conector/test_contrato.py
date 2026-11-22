@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba de contrato abstracto del conector PMS (RF-PMS-01).
 
 Parametrizada para verificar que cualquier implementación (FakePMS, proveedor real de plataforma)

@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para T-310: pasillo central (worker y panel_crm_router).
 
 Cubre:

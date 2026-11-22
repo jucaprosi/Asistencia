@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para las compuertas consumidas por panel_operativo."""
 from __future__ import annotations
 

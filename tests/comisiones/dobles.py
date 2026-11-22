@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para la sala comisiones (seguridad y observabilidad)."""
 from __future__ import annotations
 

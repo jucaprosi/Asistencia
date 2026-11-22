@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Indexador idempotente de corpus Markdown con seguimiento de version_hash (RF-RAG-01)."""
 from __future__ import annotations
 

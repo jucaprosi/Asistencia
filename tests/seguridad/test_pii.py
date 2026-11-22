@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de redacción de PII, bóveda cifrada y rehidratación (RF-SEC-05, INV_PII_FUERA_DEL_MODELO)."""
 from __future__ import annotations
 

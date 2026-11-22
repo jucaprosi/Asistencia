@@ -61,3 +61,7 @@ Orden de construcción (una compuerta solo recibe las ya construidas): `observab
 `tests/test_estructura_adpa.py` (solo importa `_service`), `tests/app_core/test_contenedor.py` (construye con `Fake*` y variables de entorno de prueba; falla si falta una variable), `tests/app_core/test_salud.py`.
 
 `¤pasillo-central/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

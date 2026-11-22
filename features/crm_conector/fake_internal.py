@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Implementación FakeCRM en memoria para desarrollo Clean-Room y tests de contrato (RF-CRM-01)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Orquestación del bucle de tool use, control de iteraciones y degradación (RF-AG-04, RF-AG-05)."""
 from __future__ import annotations
 

@@ -1,4 +1,5 @@
 // Pantalla P-13: Inbox Completo de Huéspedes (TASK-008, T-701, ADR-0010)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface ConversacionInboxItem {
   conversacion_id: string;

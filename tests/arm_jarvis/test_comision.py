@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del cálculo y fijación reproducible de comisiones (RF-ARM-04, INV_COMISION_REPRODUCIBLE)."""
 from __future__ import annotations
 

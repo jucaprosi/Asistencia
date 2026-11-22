@@ -45,3 +45,7 @@ RF-ARM-01..07, RF-ARM-09 (asistente del líder), RF-COM-01, 02, RF-MCP-08, 09, R
   - `INV_VENTA_NO_SE_PIERDE`: Registro y persistencia garantizada en la cola de publicaciones al CRM con alertas tras 24h y reintento exitoso.
   - `INV_TICKET_UNICO`: Numeración atómica secuencial V-AAAA-NNNN sin duplicados bajo concurrencia.
 - **Suite E2E:** 21/21 escenarios aprobados en `tests/integracion/test_fase6.py`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

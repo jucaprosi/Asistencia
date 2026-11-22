@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del filtro de prompt injection multilingüe (RF-SEC-04, INV_INYECCION_CERO)."""
 from __future__ import annotations
 

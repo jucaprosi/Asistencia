@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio y excepciones de la sala pms_conector. Nunca objetos del SDK del proveedor."""
 from __future__ import annotations
 

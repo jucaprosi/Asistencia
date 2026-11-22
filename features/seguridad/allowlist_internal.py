@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Mapeo y verificación de allowlist de acciones por rol (RF-SEC-02)."""
 from __future__ import annotations
 

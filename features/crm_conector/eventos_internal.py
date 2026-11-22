@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Procesamiento y verificación de eventos entrantes firmados desde el CRM (RF-CRM-03)."""
 from __future__ import annotations
 

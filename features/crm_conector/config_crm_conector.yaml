@@ -1,4 +1,5 @@
 # ¤crm-conector
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 proveedor: ${CRM_PROVEEDOR:-fake}        # fake | ghl | chatwoot_attio  (ADR-0008)
 admin_id: "00000000-0000-0000-0000-000000000001"
 contacto_humano_escalamiento: "+593999999999"

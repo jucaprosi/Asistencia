@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para la sala seguridad (RF-SEC-05, RF-OBS-01)."""
 from __future__ import annotations
 

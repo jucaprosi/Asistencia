@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-10 e INV_INTERFAZ_PURIFICADA.
 
 Verifica la calidad integral de la interfaz:

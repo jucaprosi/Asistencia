@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de sondeo de salud y disponibilidad externa (RNF-05, RF-OBS-04, T-410).
 
 Evalúa:

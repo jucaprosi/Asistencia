@@ -1,4 +1,5 @@
 // Pantalla P-04: Detalle de venta y desglose de comisión (RF-PAN-03, US-06)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 import { DialogoMotivo } from './p03_ventas';
 

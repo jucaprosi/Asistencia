@@ -1,6 +1,7 @@
 # ¤infra-cloud
 # Pipeline de CI/CD en Google Cloud Build
 # Compila contenedor, ejecuta migraciones idempotentes de PostgreSQL y despliega en Cloud Run
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 steps:
   # 1. Compilar imagen OCI
   - name: 'gcr.io/cloud-builders/docker'

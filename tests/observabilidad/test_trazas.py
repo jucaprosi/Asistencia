@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-OBS-02: Trazas por mensaje, persistencia de spans, cálculo de tokens/costo y métricas operativas."""
 from __future__ import annotations
 

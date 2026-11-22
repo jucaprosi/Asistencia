@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Rutas web públicas para huéspedes (FastAPI + Jinja2).
 
 Rutas de Ola 1:

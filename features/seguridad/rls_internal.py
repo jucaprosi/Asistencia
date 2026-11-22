@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Row-Level Security por propiedad_id y aislamiento de inquilinos (RF-SEC-07, INV_SIN_FUGA_ENTRE_PROPIEDADES).
 
 Define el rol de aplicación NOBYPASSRLS, las migraciones de políticas RLS para todas las

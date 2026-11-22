@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Arranque HTTP del submarino. Fábrica para uvicorn: ``uvicorn app_core.main:crear_app --factory``.
 
 Incluye GET /health, rutas del webhook de Meta (/webhook) y montaje de las rutas públicas de web_huespedes.

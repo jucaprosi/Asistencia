@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Componentes de la UI del panel operativo: TarjetaVenta, HojaCorreccion, DialogoMotivo, ChatJarvis (RF-PAN-02, RF-PAN-06)."""
 from __future__ import annotations
 

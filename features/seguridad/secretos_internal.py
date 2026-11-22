@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión de secretos operativos cifrados en bóveda (RF-SEC-08, INV_SECRETO_OPERATIVO).
 
 Las claves de WiFi y códigos de acceso viven cifrados en la bóveda de tokens.

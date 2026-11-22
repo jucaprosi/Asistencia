@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Protección de datos personales
 
   @US-17 @RF-PRIV-01

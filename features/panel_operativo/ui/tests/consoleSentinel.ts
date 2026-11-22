@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * Centinela de consola: hace fallar la prueba si la página emitió errores.
  * Detecta regresiones silenciosas que solo aparecen en la consola del navegador.

@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Implementación del conector GoHighLevel (GHL) mediante webhooks y API REST (RF-CRM-02)."""
 from __future__ import annotations
 

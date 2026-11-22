@@ -1,4 +1,5 @@
 # ¤observabilidad
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 logs:
   nivel: ${LOG_NIVEL:-INFO}
   destino: stdout            # stdout | archivo

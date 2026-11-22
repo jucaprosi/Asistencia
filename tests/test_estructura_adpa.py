@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_SALA_CONFORME, INV_PANEL_SIN_LOGICA (estructura) y de las reglas ADPA/huellas en código.
 
 Replica localmente lo que el adpa_linter y el huellas_linter de ZERAG exigen, para que el arnés sea autosuficiente:

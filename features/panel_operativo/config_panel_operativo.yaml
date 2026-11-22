@@ -1,4 +1,5 @@
 # ¤panel-operativo
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 url_base: ${PANEL_URL:-http://localhost:8080/panel}
 sesion:
   duracion_h: 12

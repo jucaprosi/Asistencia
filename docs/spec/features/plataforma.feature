@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Comportamiento técnico de canal, agente, conectores y observabilidad
 
   @RF-GW-02

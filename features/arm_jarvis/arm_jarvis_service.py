@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala arm_jarvis (RF-ARM-01..10, INV_ESTADOS_VENTA, INV_COMISION_PROPIA, INV_TICKET_UNICO)."""
 from __future__ import annotations
 

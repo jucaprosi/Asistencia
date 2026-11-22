@@ -1,4 +1,5 @@
 # ¤herramientas-mcp
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 transporte: ${MCP_TRANSPORTE:-stdio}     # stdio | http
 puerto: 8090                             # solo en agent-net
 timeout_por_herramienta_s: 8

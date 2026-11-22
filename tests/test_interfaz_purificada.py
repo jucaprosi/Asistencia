@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para INV_INTERFAZ_PURIFICADA (RF-PAN-10, RF-WEB-06).
 
 Ley: ∀ t ∈ textos_de_usuario : t ∩ {¤, ¦} = ∅

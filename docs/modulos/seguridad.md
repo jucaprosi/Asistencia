@@ -134,3 +134,7 @@ class SeguridadService:
 - `scripts/run_evals.py --suite inyecciones` (Árbitro RF-SEC-04 / OP-10: 0 ataques exitosos y ≤ 2% falsos positivos sobre `evals/inyecciones.jsonl`)
 
 `¤seguridad-canal/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

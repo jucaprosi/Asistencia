@@ -1,5 +1,6 @@
 # ¤infra-cloud
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Herramienta de migración y verificación de persistencia en PostgreSQL (Cloud SQL / pgvector).
 
 Aplica docs/spec/esquema.sql (línea base) y docs/spec/migraciones/*.sql a DATABASE_URL, una sola vez cada

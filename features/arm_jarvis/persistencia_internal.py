@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia relacional y operaciones sobre el esquema arm."""
 from __future__ import annotations
 

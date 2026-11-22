@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del ciclo de vida y expiración de reservas (RF-PMS-05, US-02)."""
 from __future__ import annotations
 

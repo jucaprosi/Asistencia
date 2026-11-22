@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia local y gestión de tablas del esquema pms (RF-PMS-06, INV_SIN_DOBLE_RESERVA)."""
 from __future__ import annotations
 

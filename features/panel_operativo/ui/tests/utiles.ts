@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * Utilidades compartidas del arnés de interfaz del panel operativo.
  *

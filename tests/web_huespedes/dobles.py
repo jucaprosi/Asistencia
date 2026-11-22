@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para compuertas consumidas por la sala web_huespedes (T-405)."""
 from __future__ import annotations
 

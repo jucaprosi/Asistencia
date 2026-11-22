@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de herramientas MCP de solicitud y anfitrión (T-306).
 
 Cubre:

@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas unitarias de la allowlist de acciones por rol (RF-SEC-02, INV_ALLOWLIST_POR_ACCION)."""
 from __future__ import annotations
 

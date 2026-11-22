@@ -60,3 +60,7 @@ Las condiciones de pago en destino de Booking.com no se confirmaron en fuente of
 - T-105 sigue válida: usa datos sintéticos y solo lectura. T-405 limita el catálogo a lo publicado.
 
 `¤spec-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

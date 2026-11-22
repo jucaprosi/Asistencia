@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de consulta de comisión propia y aislamiento entre vendedores (RF-ARM-07, INV_COMISION_PROPIA)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de aviso de privacidad y trazabilidad del consentimiento LOPDP (RF-PRIV-01)."""
 from __future__ import annotations
 

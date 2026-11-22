@@ -52,3 +52,7 @@ RF-SEC-02, 04, 06, 07; RF-OBS-03, 04; RF-AG-07; RNF-05, 06, 10, 13; US-11, US-17
 
 ## Pantallas del panel operativo en esta tarea (ADR-0013)
 `¤panel-operativo` · Sala adicional: `panel_operativo`. Entregables: P-11 Whitelist y roles, Auditoría, Salud del sistema (RF-PAN-09) y accesibilidad AA / interfaz purificada (RF-PAN-10).
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

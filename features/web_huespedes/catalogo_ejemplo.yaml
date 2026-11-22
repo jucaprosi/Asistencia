@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # Datos sintéticos. El catálogo real vive en CORPUS_DIR
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 propiedades:
   - propiedad_id: EJ-01
     tipo: glamping

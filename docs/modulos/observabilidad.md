@@ -129,3 +129,7 @@ Despacha la ejecución de las suites de evaluación (`rag`, `enrutador`, `ventas
 - `tests/observabilidad/test_evaluaciones.py`: falla de evaluación bajo umbral con exit code ≠ 0 y omisión sin falsos verdes.
 
 `¤observabilidad/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

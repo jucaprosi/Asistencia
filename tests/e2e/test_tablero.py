@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro E2E de tablero de comisiones, estado de cuenta y exportación (RF-PAN-04, US-08, CU-07, RF-ARM-08)."""
 from __future__ import annotations
 

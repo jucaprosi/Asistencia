@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia local y base de datos para la sala seguridad."""
 from __future__ import annotations
 

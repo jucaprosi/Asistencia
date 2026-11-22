@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas para exportación de comisiones a CSV y JSON validado (RF-COM-03)."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-04: Catálogo de plantillas, validación de variables y estado de aprobación."""
 from __future__ import annotations
 

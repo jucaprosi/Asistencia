@@ -658,3 +658,7 @@ El propietario revisó el PRD y señaló que no había módulos escritos ni dise
 ---
 
 `¤contexto-maestro/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

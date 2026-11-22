@@ -157,3 +157,7 @@ class CRMConectorService:
 - `tests/crm_conector/test_confinamiento.py`: Confinamiento ADPA y pureza de compuerta.
 
 `¤crm-conector/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

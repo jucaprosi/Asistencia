@@ -32,3 +32,7 @@ Pendiente. Fecha límite: antes de indexar o almacenar datos reales (fase 2).
 - `tests/seguridad/test_pii.py`: ningún valor de PII en claro sale hacia servicios fuera de la ubicación aprobada.
 
 `¤infra-hibrida/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

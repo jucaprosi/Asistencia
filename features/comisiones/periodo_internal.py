@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión de períodos mensuales, cierre inmutable y enrutamiento de ventas tardías (RF-COM-02).
 
 Garantiza que un período cerrado quede inmutable y que ventas tardías o ajustes

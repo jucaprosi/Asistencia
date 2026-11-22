@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Firma y verificación criptográfica HMAC-SHA256 de webhooks y eventos CRM (RF-CRM-03, RNF-09)."""
 from __future__ import annotations
 

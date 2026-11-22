@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión de sesiones, códigos de acceso de un solo uso y CSRF para el panel operativo."""
 from __future__ import annotations
 

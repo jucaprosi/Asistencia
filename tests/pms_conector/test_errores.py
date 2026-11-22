@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de manejo de errores, reintentos y timeouts (RF-PMS-03, INV_ESCRITURA_PMS_EXPLICITA)."""
 from __future__ import annotations
 

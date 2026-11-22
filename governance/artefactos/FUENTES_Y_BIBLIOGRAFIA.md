@@ -103,3 +103,7 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | Fuente | Función | Nota |
 | :--- | :--- | :--- |
 | [WebKit: Web Push para apps web en iOS y iPadOS](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/) | ADR-0016 | Web Push para apps en la pantalla de inicio desde 16.4. |
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

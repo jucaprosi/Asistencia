@@ -30,3 +30,7 @@ Opción 3. Ninguna alternativa es verificable, integrable con Claude/MCP ni expo
 - `tests/arm_jarvis/test_estados.py`, `test_ticket.py` (concurrencia), `test_consulta_comision.py` (sin fuga entre vendedores).
 
 `¤arm-jarvis/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

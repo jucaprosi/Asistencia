@@ -1,5 +1,6 @@
 # ¤persistencia-sql
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Contrato de la sala persistencia_sql y de los repositorios portados, en SQLite y en PostgreSQL real.
 
 Las pruebas de PostgreSQL se ejecutan solo si ``TEST_DATABASE_URL`` apunta a una base con el esquema de

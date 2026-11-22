@@ -1,4 +1,5 @@
 // Pantalla P-07: Chat con Jarvis (RF-PAN-06, RF-ARM-09)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface MensajeJarvis {
   autor: 'usuario' | 'jarvis';

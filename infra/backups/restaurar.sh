@@ -3,6 +3,7 @@
 # ¤¤devops-engineer
 # Script de restauracion desde backup cifrado (RNF-15, S-08).
 # Uso: ./restaurar.sh <archivo_cifrado.enc> [clave_o_passphrase]
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 set -euo pipefail
 

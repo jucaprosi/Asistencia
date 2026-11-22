@@ -73,3 +73,7 @@ gcloud run services replace infra/gcp/cloudrun.yaml
 - `autoscaling.knative.dev/minScale: "1"`: Contenedor siempre activo para eliminar arranques en frío (Cold Starts) en webhooks de Meta.
 - `run.googleapis.com/cloudsql-instances`: Enlace gestionado al socket de Cloud SQL.
 - Inyección de credenciales directamente desde Secret Manager sin archivos `.env` en disco.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

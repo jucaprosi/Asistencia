@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala observabilidad (RF-OBS-01..04)."""
 from __future__ import annotations
 

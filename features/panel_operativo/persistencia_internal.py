@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia interna para la sala panel_operativo (tablas del esquema panel).
 
 Gestiona codigos_acceso, dispositivos, acciones_idempotentes y sesiones.

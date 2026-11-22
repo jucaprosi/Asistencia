@@ -162,3 +162,7 @@ class PMSConectorService:
 - `tests/test_sin_clientes_ota.py`: Cero clientes OTA.
 
 `¤pms-conector/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

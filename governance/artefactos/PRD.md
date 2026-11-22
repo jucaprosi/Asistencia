@@ -74,3 +74,7 @@ Catálogo en [`INVARIANTS.md`](INVARIANTS.md).
 [`docs/PRD.md` §11](../../docs/PRD.md#11-fuera-de-alcance-versión-02).
 
 `¤prd-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

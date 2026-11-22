@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-02: Envío de texto, botones, listas, estados y reintentos con backoff."""
 from __future__ import annotations
 

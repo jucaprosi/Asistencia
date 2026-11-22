@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala panel_operativo (vistas que consume la UI)."""
 from __future__ import annotations
 

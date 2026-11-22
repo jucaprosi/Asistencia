@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Segmentación de documentos Markdown por secciones preservando encabezados y metadatos (RF-RAG-02)."""
 from __future__ import annotations
 

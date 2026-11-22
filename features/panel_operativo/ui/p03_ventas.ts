@@ -1,4 +1,5 @@
 // Pantalla P-03: Bandeja de ventas por validar (US-06, RF-PAN-02)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface VentaItem {
   venta_id: string;

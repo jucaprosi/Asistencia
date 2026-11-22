@@ -202,3 +202,7 @@
   - *Resultado Observado:* `[PENDIENTE]`
   - *Fecha:* `[AAAA-MM-DD]`
   - *Ejecutor:* `[Nombre/Rol]`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

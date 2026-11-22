@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de la máquina de estados de las ventas (RF-ARM-03, INV_ESTADOS_VENTA)."""
 from __future__ import annotations
 

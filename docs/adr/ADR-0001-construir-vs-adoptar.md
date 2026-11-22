@@ -31,3 +31,7 @@ Opción 3. Se construyen: motor conversacional (Claude + MCP), RAG, conectores P
 - `tests/test_sin_clientes_ota.py` en verde.
 
 `¤adr-construir-adoptar/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

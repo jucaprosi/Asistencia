@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Generación de embeddings deterministas de 1024 dimensiones y cálculo de similitud (RF-RAG-03)."""
 from __future__ import annotations
 

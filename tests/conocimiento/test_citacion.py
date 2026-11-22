@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de citación interna en traza y preservación de privacidad frente al huésped (RF-RAG-05)."""
 from __future__ import annotations
 

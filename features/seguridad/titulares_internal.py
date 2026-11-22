@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión de derechos de los titulares ARCO y criptoborrado (RF-PRIV-04, RF-PRIV-05, INV_CRIPTOBORRADO)."""
 from __future__ import annotations
 

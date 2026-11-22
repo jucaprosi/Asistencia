@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Comisiones, tablero y cierre
 
   @US-07 @CU-06 @RF-ARM-07 @INV_COMISION_PROPIA

@@ -32,3 +32,7 @@ Extensión de RF-PAN-07 (conversaciones fuera de handoff); US-09 y US-10 siguen 
 
 ## Estado
 Sellada tras la aprobación de ADR-0010 (Opción 2: inbox nativo en panel operativo propio). Implementada la compuerta en `PanelOperativoService`, rutas en `bff_internal.py`, persistencia en `persistencia_internal.py`, componente UI `p13_inbox_huespedes.ts` y verificada con `tests/e2e/test_inbox_huespedes.py` con Exit Code 0 en `ejecutar_arnes_glamping.bat`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

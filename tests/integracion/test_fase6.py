@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro E2E de Fase 6: Meta Canal de Vendedores, Plantillas, ARM Jarvis y medición OP-08 (T-511, TASK-006).
 
 Cubre el flujo integral:

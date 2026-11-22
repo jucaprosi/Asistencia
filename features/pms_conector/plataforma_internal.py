@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Implementación de plataforma propia para calendario, tarifas y reservas (RF-PMS-02, RF-PMS-07, RF-PMS-08)."""
 from __future__ import annotations
 

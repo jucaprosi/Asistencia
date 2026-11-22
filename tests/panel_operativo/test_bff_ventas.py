@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-02, RF-PAN-03, US-06, CU-05 e invariantes de ventas en panel_operativo."""
 from __future__ import annotations
 

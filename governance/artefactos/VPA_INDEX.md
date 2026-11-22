@@ -52,3 +52,7 @@
 `¤¤solutions-architect`, `¤¤integration-engineer`, `¤¤security-engineer`, `¤¤machine-learning-engineer`, `¤¤data-engineer`, `¤¤backend-developer`, `¤¤frontend-developer`, `¤¤devops-engineer`, `¤¤qa-engineer`. Títulos de industria (ESCO/O*NET); sin roles genéricos.
 
 `¤vpa-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

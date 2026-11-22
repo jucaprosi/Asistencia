@@ -31,3 +31,7 @@ revisado: 2026-11-15
 Un cambio en cualquier documento exige reindexar (`scripts/seed_knowledge.py`) y pasar el set dorado; el arnés lo hace. Si cambia un precio o una política, se añade o actualiza una pregunta del set dorado que lo cubra.
 
 `¤negocio-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

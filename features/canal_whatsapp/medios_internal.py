@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Manejo de medios entrantes y salientes para Meta Cloud API (RF-GW-05)."""
 from __future__ import annotations
 

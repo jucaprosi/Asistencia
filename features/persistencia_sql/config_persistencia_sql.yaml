@@ -1,5 +1,6 @@
 # ¤persistencia-sql
 # Selección del motor por DATABASE_URL: vacía = SQLite en memoria (pruebas); postgresql://... = PostgreSQL.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 database_url: ${DATABASE_URL:-}
 # Cada repositorio abre su propia conexión: dimensionar max_connections de PostgreSQL en consecuencia.
 conexiones_por_instancia_estimadas: 16

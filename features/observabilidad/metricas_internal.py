@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Cálculo de métricas operativas del PRD (OP-01..OP-10) directamente desde trazas y spans."""
 from __future__ import annotations
 

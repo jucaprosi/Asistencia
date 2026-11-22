@@ -1,5 +1,6 @@
 # ¤bbap-glamping
 # ¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Suite de humo de extremo a extremo con Playwright (Punto 8).
 
 Ejecuta 4 flujos críticos con 0 reintentos contra una instancia de servidor real y base de datos aislada:

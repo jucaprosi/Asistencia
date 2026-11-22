@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas para el cierre de período y venta tardía (RF-COM-02, INV_COMISION_REPRODUCIBLE)."""
 from __future__ import annotations
 

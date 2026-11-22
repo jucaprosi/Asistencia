@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas E2E del Inbox Completo de Huéspedes en el panel operativo propio (T-701, TASK-008, ADR-0010).
 
 Verifica:

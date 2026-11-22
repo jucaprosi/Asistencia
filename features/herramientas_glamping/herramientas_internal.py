@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Implementación interna del catálogo, validación y ejecución de herramientas MCP (RF-MCP-01..07)."""
 from __future__ import annotations
 

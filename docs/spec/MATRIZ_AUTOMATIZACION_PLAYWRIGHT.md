@@ -34,3 +34,7 @@
 # Ejecución directa de la suite de humo con Playwright (0 reintentos, parada al primer fallo):
 pytest tests/e2e/test_humo_playwright.py -q --maxfail=1
 ```
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala comisiones (RF-COM-01..04, INV_COMISION_REPRODUCIBLE).
 
 Proporciona cálculo reproducible con reglas versionadas vigentes a la fecha de venta,

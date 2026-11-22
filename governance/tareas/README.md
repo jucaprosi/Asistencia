@@ -45,3 +45,7 @@ arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0) + tests/evals listados"
 Las pantallas del panel por fase están en [`../../docs/FRONTEND.md` §12](../../docs/FRONTEND.md#12-entrega-por-fases); cada tarea de las fases 4–7 incluye las suyas como entregable con sus pruebas e2e.
 
 `¤tareas-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

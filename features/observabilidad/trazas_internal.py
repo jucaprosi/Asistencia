@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión, cálculo de tokens/costo y persistencia de trazas y spans (RF-OBS-02, INV_TRAZA_POR_MENSAJE)."""
 from __future__ import annotations
 

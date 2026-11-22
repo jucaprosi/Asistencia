@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Redacción y rehidratación de PII con bóveda cifrada AES-256-GCM (RF-SEC-05, INV_PII_FUERA_DEL_MODELO)."""
 from __future__ import annotations
 

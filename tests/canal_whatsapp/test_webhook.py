@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-01 e INV_FIRMA_WEBHOOK_META (desafío, firma HMAC, persistencia previa y dedup)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Notificaciones privadas a vendedores vía WhatsApp (RF-ARM-06)."""
 from __future__ import annotations
 

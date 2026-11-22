@@ -37,3 +37,7 @@ RF-AG-01, RF-AG-03, RF-MCP-04 (completo), RF-MCP-06, RF-CRM-01 (interfaz) y `asi
 
 ## Pantallas del panel operativo en esta tarea (ADR-0013)
 `¤panel-operativo` · Sala adicional: `panel_operativo` (propiedad: `features/panel_operativo/**`, `tests/panel_operativo/**`, `tests/e2e/test_handoff_zona.py`). Entregables: P-01 Acceso, P-02 Inicio, P-08 Handoffs de mi zona, P-09 Detalle de conversación, P-10 Incidencias (RF-PAN-01, 07, 08). La bandeja del panel sustituye a `FakeCRM` como inbox de esta fase. Criterio: US-09 y US-10 en e2e sobre `localhost`. Diseño: `docs/FRONTEND.md` §4.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

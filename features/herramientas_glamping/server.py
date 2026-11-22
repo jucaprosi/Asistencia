@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Servidor MCP para la sala herramientas_glamping (soporta transporte stdio y http)."""
 from __future__ import annotations
 

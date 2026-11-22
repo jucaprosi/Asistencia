@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles propios para pruebas aisladas de comisiones, crm, canal y seguridad."""
 from __future__ import annotations
 

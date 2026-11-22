@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PRIV-04 e INV_CRIPTOBORRADO (Eliminación irreversible por criptoborrado).
 
 Verifica:

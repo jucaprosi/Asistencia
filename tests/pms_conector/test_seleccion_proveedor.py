@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de selección de proveedor y control de escrituras (RF-PMS-02, INV_ESCRITURA_PMS_EXPLICITA)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro E2E de la Terminal Móvil PWA instalable, pantalla P-12 y comportamiento sin red (RF-PAN-11, RF-PAN-13).
 
 Verifica:

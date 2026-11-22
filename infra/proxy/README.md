@@ -29,3 +29,7 @@ Para garantizar que los dispositivos móviles siempre ejecuten la versión más 
 - Las claves VAPID no deben versionarse en el repositorio bajo ninguna circunstancia.
 - El servidor expone la clave pública a través del endpoint del panel operativo (`panel.obtener_vapid_public_key()`).
 - Los avisos móviles cumplen estrictamente con `INV_AVISO_SIN_PII`: la carga útil enviada vía Web Push se restringe exclusivamente a `{tipo, cantidad, ruta}`, omitiendo nombres, números telefónicos, montos o identificadores personales.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para publicación de venta firmada e idempotente (RF-CRM-03, INV_VENTA_FIRMADA_IDEMPOTENTE)."""
 from __future__ import annotations
 

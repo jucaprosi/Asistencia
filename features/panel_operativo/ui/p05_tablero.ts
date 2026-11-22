@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * P-05 Tablero de ventas y comisiones & P-05b Estado de cuenta por vendedor.
  * Requisitos: RF-PAN-04, US-08, CU-07, RF-ARM-08.

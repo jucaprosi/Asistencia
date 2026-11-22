@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de integración del despliegue en servidor de producción (T-610).
 
 Cubre:

@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba de contrato de CRMConnector parametrizada para cualquier proveedor (RF-CRM-01)."""
 from __future__ import annotations
 

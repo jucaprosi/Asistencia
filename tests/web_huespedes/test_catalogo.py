@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-WEB-01 y US-18: Catálogo público y ficha por propiedad.
 
 Verifica que el catálogo y la ficha funcionan sin depender del PMS y sin mostrar precios ni cupos.

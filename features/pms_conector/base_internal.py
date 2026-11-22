@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Interfaz abstracta canónica del conector PMS (RF-PMS-01).
 
 Define el contrato puro que cualquier proveedor (FakePMS, plataforma local, etc.)

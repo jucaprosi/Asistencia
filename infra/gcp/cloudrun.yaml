@@ -2,6 +2,7 @@
 # Manifest declarativo de Google Cloud Run para Glamping Imbabura Agent & Panel Operativo.
 # Conexión persistente a Cloud SQL PostgreSQL 16 con pgvector mediante socket UNIX.
 # Cumple ADR-0019 y APORTES_INEDITOS.md (min-instances: 1 para latencia WhatsApp < 50ms).
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:

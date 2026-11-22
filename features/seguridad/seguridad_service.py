@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala seguridad (RF-SEC-01..07, RF-PRIV-01..02).
 
 Sala ADPA de confinamiento para control de acceso, privacidad, redacción de PII,

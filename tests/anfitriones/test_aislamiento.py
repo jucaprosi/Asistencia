@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_AISLAMIENTO_ANFITRION y RF-ANF-05.
 
 Verifica que nadie pueda responder, reportar o ver solicitudes de otro anfitrión,

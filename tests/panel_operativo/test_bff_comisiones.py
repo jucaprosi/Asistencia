@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-04, RF-PAN-05, RF-ANF-08, US-08, US-14 e INV_PANEL_SIN_LOGICA."""
 from __future__ import annotations
 

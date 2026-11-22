@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Manejo de envíos, reintentos con backoff exponencial y estados para Meta Cloud API (RF-GW-02)."""
 from __future__ import annotations
 

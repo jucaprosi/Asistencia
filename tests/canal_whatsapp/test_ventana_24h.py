@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-03 e INV_VENTANA_24H: Control de la ventana de servicio de 24 horas."""
 from __future__ import annotations
 

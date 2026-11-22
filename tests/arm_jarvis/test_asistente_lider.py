@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del asistente Jarvis para líderes y administradores (RF-ARM-09)."""
 from __future__ import annotations
 

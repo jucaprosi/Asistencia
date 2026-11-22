@@ -25,3 +25,7 @@ Salida:
 
 ## 4. Registro de Ensayos de Recuperación
 Conforme a `RNF-15`, cada hito de producción documenta la prueba de restauración en `governance/artefactos/`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

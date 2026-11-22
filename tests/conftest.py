@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Fixtures compartidas: raíz del repositorio y catálogo de salas (fuente: governance/artefactos/PRD.md §2)."""
 from __future__ import annotations
 

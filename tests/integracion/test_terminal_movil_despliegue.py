@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de integración para T-810: Despliegue Cloud/HTTPS de la Terminal Móvil (RF-PAN-11, RF-PAN-12).
 
 Verifica la infraestructura de proxy inverso TLS, cabeceras no-store para PWA, variables VAPID

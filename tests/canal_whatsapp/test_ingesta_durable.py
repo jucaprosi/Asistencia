@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-07: Ingesta durable, recuperación ante caídas del trabajador y alerta de muerte."""
 from __future__ import annotations
 

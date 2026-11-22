@@ -1,4 +1,5 @@
 // Pantalla P-10: Incidencias por zona (lista y resolución con nota)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface IncidenciaItem {
   incidencia_id: string;

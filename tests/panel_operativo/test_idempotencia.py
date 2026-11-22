@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-14 e INV_ACCION_IDEMPOTENTE: Acciones idempotentes con Idempotency-Key.
 
 Verifica:

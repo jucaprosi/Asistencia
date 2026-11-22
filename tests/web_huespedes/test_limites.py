@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-WEB-05 e INV_WEB_LIMITE_POR_IP.
 
 Verifica la protección de tasa por IP, respuesta 429 ante exceso, ausencia de llamadas al PMS

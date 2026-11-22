@@ -1,5 +1,6 @@
 # ¤bbap-glamping
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Arnés físico del proyecto: único árbitro de «fase completada».
 
 Ejecuta en orden: codificación UTF-8 sin BOM → escáner de secretos → suite de pruebas → evaluaciones → validación

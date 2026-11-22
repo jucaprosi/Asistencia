@@ -103,3 +103,6 @@ Implementado y comprobado en `scripts/generar_prompts.py`, `scripts/generar_traz
 **Alcance en el Modelo de Dominio:**
 - `Comportamiento Preexistente`: Consolidación del ciclo de verificación y compilación de la especificación viva.
 
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

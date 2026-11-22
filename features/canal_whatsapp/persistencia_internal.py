@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia del esquema canal (eventos_entrantes, mensajes_meta, plantillas, medios)."""
 from __future__ import annotations
 

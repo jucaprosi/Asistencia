@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala canal_whatsapp. Solo estos tipos cruzan la compuerta."""
 from __future__ import annotations
 

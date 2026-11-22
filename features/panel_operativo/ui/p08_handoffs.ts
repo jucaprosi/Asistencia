@@ -1,4 +1,5 @@
 // Pantalla P-08: Conversaciones en Handoff por zona (US-09, US-10)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface HandoffItem {
   conversacion_id: string;

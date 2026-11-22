@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia local para la sala web_huespedes (tablas web.enlaces_contacto y web.limites_ip)."""
 from __future__ import annotations
 

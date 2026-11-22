@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-WEB-02, RF-WEB-03, INV_WEB_PRECIO_EN_VIVO, INV_WEB_LIMITE_POR_IP, INV_WEB_SOLO_LECTURA y US-18.
 
 Verifica la búsqueda por fechas, huéspedes, tipo y zona con precios en vivo del PMS,

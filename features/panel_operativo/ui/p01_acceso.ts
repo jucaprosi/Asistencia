@@ -1,5 +1,6 @@
 // Pantalla P-01: Acceso al panel operativo
 // Autenticacion por correo y codigo de un solo uso de 6 digitos enviado por WhatsApp
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface EstadoAcceso {
   paso: 'correo' | 'codigo';

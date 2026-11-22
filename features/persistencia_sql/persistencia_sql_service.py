@@ -1,5 +1,6 @@
 # ¤persistencia-sql
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala persistencia_sql: conexión única a SQLite o PostgreSQL según DATABASE_URL.
 
 Las salas escriben SQL portable (esquemas ``canal.tabla``, ``INSERT ... ON CONFLICT``, parámetros ``?``) y

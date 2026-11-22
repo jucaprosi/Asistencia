@@ -36,3 +36,7 @@ Pendiente por MCP. Mientras no se verifique, la implementación usa la API direc
 - `tests/crm_conector/test_confinamiento.py` y `adpa_linter`: cero imports del MCP fuera de la sala.
 
 `¤pms-conector/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

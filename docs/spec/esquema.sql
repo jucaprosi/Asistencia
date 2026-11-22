@@ -3,6 +3,7 @@
 -- se referencian por identificador y se consultan por compuerta (ADPA). Lo aplica la CI en PostgreSQL real.
 -- Identificadores en text, no uuid: el código genera claves legibles (ANF-..., V-2026-0001) además de UUID;
 -- los valores por defecto siguen siendo UUID aleatorios en texto (ADR-0020).
+-- © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

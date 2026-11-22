@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de las reglas de independencia de governance/tareas/TASKS.md.
 
 Lee cada bloque ```toml``` del archivo y comprueba:

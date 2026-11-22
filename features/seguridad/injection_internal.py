@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Filtro de inyecciones de prompt y heurísticas base (RF-SEC-04, INV_INYECCION_CERO)."""
 from __future__ import annotations
 

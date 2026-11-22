@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia local y gestión de tablas del esquema crm (RF-CRM-06, INV_HANDOFF_UNICO)."""
 from __future__ import annotations
 

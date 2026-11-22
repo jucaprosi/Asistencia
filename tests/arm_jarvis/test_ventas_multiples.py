@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de ventas múltiples, detección de duplicados y reentrega idempotente (RF-ARM-02, RF-ARM-10)."""
 from __future__ import annotations
 

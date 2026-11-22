@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-02: Carga de prompts por propiedad, hash en trazas y aislamiento estricto."""
 from __future__ import annotations
 

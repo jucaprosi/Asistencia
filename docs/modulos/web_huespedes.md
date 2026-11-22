@@ -156,3 +156,7 @@ CREATE TABLE web.limites_ip (
 - `tests/web_huespedes/test_calidad.py`: Auditoría móvil primero, WCAG 2.1 AA, presupuesto LCP, datos estructurados, purificación de interfaz (RF-WEB-06, INV_INTERFAZ_PURIFICADA).
 
 `¤web-huespedes/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

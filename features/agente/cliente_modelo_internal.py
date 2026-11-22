@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Cliente de modelo con timeout configurable, conteo de tokens y estimación de costos (RF-AG-05)."""
 from __future__ import annotations
 

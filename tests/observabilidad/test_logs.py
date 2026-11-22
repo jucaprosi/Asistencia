@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-OBS-01: Logs estructurados en JSON por línea, ausencia de PII y rechazo de teléfonos en claro."""
 from __future__ import annotations
 

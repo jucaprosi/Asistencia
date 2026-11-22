@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Manejo de logs estructurados en JSON por línea sin PII (RF-OBS-01, INV_PII_FUERA_DEL_MODELO)."""
 from __future__ import annotations
 

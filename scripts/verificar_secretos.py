@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Escáner de secretos (INV_SIN_SECRETOS_EN_REPO, RNF-08). Exit 0 si no hay hallazgos; 1 con la lista en stdout.
 
 Busca tokens de Meta, claves de Anthropic, claves AWS, claves privadas PEM, tokens de GitHub/OpenAI

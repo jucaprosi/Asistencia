@@ -69,3 +69,7 @@ class ArmJarvisService:
 `tests/arm_jarvis/test_ingesta.py`, `test_estados.py`, `test_comision.py`, `test_ticket.py` (concurrencia), `test_notificacion.py`, `test_consulta_comision.py`, `test_tablero.py`, `test_asistente_lider.py`; `scripts/run_evals.py --suite ventas`.
 
 `¤arm-jarvis/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

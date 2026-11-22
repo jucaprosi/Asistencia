@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-12 e INV_AVISO_SIN_PII: Avisos al teléfono vía Web Push.
 
 Verifica:

@@ -1,6 +1,7 @@
 # ¤infra-hibrida
 # Compose base: idéntico en beta (PC Ubuntu) y producción (servidor propio). Las diferencias viven en
 # compose.production.yaml y en .env (RNF-14, INV_MISMO_COMPOSE). Solo el proxy publica puertos al exterior.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 name: glamping-imbabura-agent
 
 services:

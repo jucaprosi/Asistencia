@@ -2,6 +2,7 @@
 # ¤¤security-engineer
 # Catálogo canónico de patrones de prompt injection multilingüe y heurísticas (RF-SEC-04, INV_INYECCION_CERO)
 # Mínimo 40 patrones distribuidos en español, inglés, portugués, francés y delimitadores.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 patrones:
   # Español (>= 12)

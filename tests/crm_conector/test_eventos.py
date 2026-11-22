@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para recepción y despacho de eventos firmados desde el CRM (RF-CRM-03, RF-CRM-05)."""
 from __future__ import annotations
 

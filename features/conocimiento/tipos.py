@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio y excepciones de la sala conocimiento."""
 from __future__ import annotations
 

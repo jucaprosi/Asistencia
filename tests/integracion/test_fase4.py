@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de Fase 4: Comprobación Cloud multi-propiedad, RLS, check-in y handoff (T-311, TASK-004).
 
 Verifica la integración cruzada entre compuertas sin violar mamparos ADPA:

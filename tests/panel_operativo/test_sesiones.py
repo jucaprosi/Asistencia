@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-01 y US-13: Acceso y sesión en el panel operativo.
 
 Verifica el ciclo de vida de los códigos de acceso por WhatsApp (6 dígitos, 10 min, 5 intentos),

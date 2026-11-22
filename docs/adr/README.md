@@ -47,3 +47,7 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 ```
 
 `¤adr-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

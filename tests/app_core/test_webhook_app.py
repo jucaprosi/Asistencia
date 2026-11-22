@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del árbitro para T-110: rutas HTTP /webhook (Meta) y montaje del catálogo público de web_huespedes."""
 from __future__ import annotations
 

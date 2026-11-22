@@ -227,3 +227,7 @@ CREATE TABLE anfitriones.lineas_cuenta (
 - `tests/anfitriones/test_estado_cuenta.py`: Cierre mensual con comisión única, cálculo de total exacto con líneas, notificación por WhatsApp, ajustes posteriores, registro de pago por administrador, pausa por morosidad tras 15 días de vencimiento y aislamiento entre anfitriones (RF-ANF-07, RF-ANF-08, INV_COMISION_PLATAFORMA_UNICA, INV_AISLAMIENTO_ANFITRION, US-20).
 
 `¤anfitriones/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -3,6 +3,7 @@
 # ¤¤devops-engineer
 # Script de backup cifrado para base de datos y volumenes criticos (RNF-15, S-08).
 # Uso: ./backup.sh [directorio_salida] [clave_o_passphrase]
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 set -euo pipefail
 

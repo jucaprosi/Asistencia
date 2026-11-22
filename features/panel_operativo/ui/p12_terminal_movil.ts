@@ -1,5 +1,6 @@
 // Pantalla P-12: Terminal movil PWA (RF-PAN-11, RF-PAN-12, RF-PAN-13, RF-PAN-14)
 // Invariantes: INV_MOVIL_SIN_PII_EN_DISCO, INV_MOVIL_SIN_ESCRITURA_SIN_RED, INV_AVISO_SIN_PII, INV_ACCION_IDEMPOTENTE
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface EstadoTerminalMovil {
   conectado: boolean;

@@ -1,4 +1,5 @@
 // Pantalla P-02: Inicio por rol (tarjetas de resumen con la accion principal del rol)
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 export interface TarjetaInicio {
   titulo: string;

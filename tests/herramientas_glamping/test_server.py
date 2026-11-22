@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del servidor MCP de herramientas_glamping (transporte stdio y JSON-RPC 2.0)."""
 from __future__ import annotations
 

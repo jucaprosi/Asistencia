@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 import type { Page } from "@playwright/test";
 
 export interface ElementoIlegible {

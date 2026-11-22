@@ -43,3 +43,7 @@ Se aprueba la **Opción 3**:
 - Suite completa de 665 pruebas y arnés físico pasando con Exit Code 0.
 
 `¤infra-cloud/` `¤agente-enrutador/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

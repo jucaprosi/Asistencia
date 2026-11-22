@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Construye las compuertas de las salas con su configuración resuelta y las enlaza por inyección.
 
 Regla ADPA: este módulo importa únicamente compuertas ``*_service``. Si una sala necesita algo de otra,

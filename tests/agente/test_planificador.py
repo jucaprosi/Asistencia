@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-08, US-03 e INV_ENVIO_UNICO (Planificador idempotente de check-in)."""
 from __future__ import annotations
 

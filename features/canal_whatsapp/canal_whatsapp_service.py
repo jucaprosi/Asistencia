@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala canal_whatsapp para Meta WhatsApp Cloud API (RF-GW-01..06).
 
 Recepción y verificación por webhook, ingesta durable, ventana de 24 h, envío con reintentos,

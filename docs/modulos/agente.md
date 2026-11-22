@@ -80,3 +80,7 @@ class AgenteService:
 `tests/agente/test_prompts.py`, `tests/agente/test_bucle_herramientas.py`, `tests/agente/test_degradacion.py`, `tests/agente/test_memoria.py`, `tests/agente/test_enrutador.py`, `tests/agente/test_allowlist_herramientas.py`, `tests/agente/test_planificador.py`, `tests/agente/test_enrutamiento_modelos.py`. Suite de evaluación: `evals/enrutador.jsonl` (20/20 aciertos en CI).
 
 `¤agente-enrutador/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

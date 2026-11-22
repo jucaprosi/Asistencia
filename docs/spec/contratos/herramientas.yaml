@@ -1,6 +1,7 @@
 # ¤spec-glamping
 # Contrato canónico de herramientas MCP. "contexto_servidor" lo inyecta el agente desde la identidad verificada:
 # el modelo nunca lo envía, y un valor enviado por el modelo se ignora.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 version: "0.2.0"
 definiciones:
   fecha: {type: string, format: date}

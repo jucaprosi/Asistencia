@@ -1,5 +1,6 @@
 # ¤crm-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tests de selección de proveedor de CRM por configuración (RF-CRM-02)."""
 from __future__ import annotations
 

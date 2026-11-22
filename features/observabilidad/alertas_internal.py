@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Motor y detectores de alertas operativas (RF-OBS-04)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Administración y asistente del líder
 
   @US-15 @RF-ARM-09 @RF-PAN-06

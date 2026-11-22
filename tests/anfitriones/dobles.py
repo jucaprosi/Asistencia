@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Dobles de prueba para compuertas consumidas por la sala anfitriones."""
 from __future__ import annotations
 

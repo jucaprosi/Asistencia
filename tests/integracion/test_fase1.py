@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba de integración de extremo a extremo de la Fase 1 (MVP WhatsApp).
 
 Cubre:

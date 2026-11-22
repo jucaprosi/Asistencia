@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PRIV-03 e INV_AUDIT_APPEND_ONLY (Retención y purga automática).
 
 Verifica:

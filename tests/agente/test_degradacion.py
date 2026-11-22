@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-AG-05: Manejo de errores, caídas de herramientas (PMS/RAG), timeout y degradación."""
 from __future__ import annotations
 

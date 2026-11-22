@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas unitarias de resolución de identidad, roles RBAC y bloqueos (RF-SEC-01)."""
 from __future__ import annotations
 

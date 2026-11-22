@@ -2,6 +2,7 @@
 # ¤¤devops-engineer
 # Sobrescritura de producción (servidor propio): endurece, no redefine.
 #   docker compose -f compose.yaml -f compose.production.yaml up -d
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 services:
   app:
     restart: always

@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de completitud del inventario de datos y encargados (RF-PRIV-02, RF-PRIV-06, RNF-18)."""
 from __future__ import annotations
 

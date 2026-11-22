@@ -39,3 +39,7 @@ RF-GW-01, 02, 03, 04, 05 (sin transcripción de audio salvo decisión en esta ta
 
 ## Notas
 El `agente` y el futuro `arm_jarvis` no comparten extractor (DPD): cada uno tiene su cliente de Claude dentro de su sala.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

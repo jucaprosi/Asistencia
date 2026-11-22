@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta del pasillo central: lo único que otros módulos (main.py, pruebas, worker) importan de app_core.
 
 ``contenedor.py`` queda como módulo privado del pasillo; esta compuerta reexporta su interfaz pública.

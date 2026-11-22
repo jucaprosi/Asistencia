@@ -1,4 +1,5 @@
 # ¤conocimiento-rag
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 db_url: ${DATABASE_URL:-}
 corpus_dir: ${CORPUS_DIR:-datos_privados/corpus}   # fuera del repositorio público
 embeddings:

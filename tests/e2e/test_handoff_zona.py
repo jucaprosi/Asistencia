@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Prueba E2E de handoffs por zona y ciclo de vida de conversación (US-09, US-10).
 
 Simula el flujo completo del gestor de zona: autenticación con código WhatsApp, inspección de bandeja,

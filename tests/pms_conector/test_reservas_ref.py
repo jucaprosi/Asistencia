@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de validación local del titular contra pms.reservas_ref (RF-PMS-06)."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Trabajador asíncrono de ingesta durable, recuperación de caídas, orden y agrupación (RF-GW-07, RF-GW-08)."""
 from __future__ import annotations
 

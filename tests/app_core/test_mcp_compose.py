@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del servicio MCP en compose, egreso y paso de semilla sintética del RAG (T-210, RNF-10, RNF-14)."""
 from __future__ import annotations
 

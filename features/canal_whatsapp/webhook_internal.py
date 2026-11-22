@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Manejo interno del webhook de Meta (verificación GET, firma HMAC, deserialización y parsing)."""
 from __future__ import annotations
 

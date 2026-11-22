@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala anfitriones (RF-ANF-01..08): publicación, solicitudes y comisión de plataforma."""
 from __future__ import annotations
 

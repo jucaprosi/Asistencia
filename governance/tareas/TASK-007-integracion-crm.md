@@ -48,3 +48,7 @@ RF-CRM-01..05, RF-ARM-08, RF-COM-03, RF-MCP-07, RNF-09, RNF-14 (producción). In
   - Venta tardía asignada al período abierto con `periodo_origen` del mes cerrado.
 - Cierre inmutable de período mensual con confirmación escrita y respuesta 409 a mutaciones posteriores.
 - Control de acceso RBAC: Líder bloqueado con 403 al intentar acceder a la administración; administrador auditable en `seguridad.audit_log`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

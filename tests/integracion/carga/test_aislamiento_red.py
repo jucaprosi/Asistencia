@@ -1,5 +1,6 @@
 # ¤infra-hibrida
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de aislamiento de red y límites de recursos (RNF-10, INV_RED_AISLADA, T-410).
 
 Verifica:

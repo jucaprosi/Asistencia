@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de recuperación híbrida, aislamiento RLS y rendimiento P95 <= 150 ms (RF-RAG-03, RNF-04, INV_SIN_FUGA_ENTRE_PROPIEDADES)."""
 from __future__ import annotations
 

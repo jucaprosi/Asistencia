@@ -114,3 +114,7 @@ class CanalWhatsappService:
 - `tests/test_canal_oficial.py`: Verificación de uso de Meta Cloud API oficial.
 
 `¤canal-whatsapp/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Indexación del corpus de conocimiento en la base de datos (RF-RAG-01).
 
 Uso: ``python scripts/seed_knowledge.py [--corpus-dir RUTA] [--sintetico]``

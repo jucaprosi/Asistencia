@@ -1,5 +1,6 @@
 # ¤panel-operativo
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-PAN-09, RF-ANF-01, RF-ANF-02, RF-PMS-08 e INV_AISLAMIENTO_ANFITRION.
 
 Verifica:

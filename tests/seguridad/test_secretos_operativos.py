@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-SEC-08 e INV_SECRETO_OPERATIVO: Bóveda de secretos y entrega condicionada."""
 from __future__ import annotations
 

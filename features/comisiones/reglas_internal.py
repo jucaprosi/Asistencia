@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Motor de reglas versionadas y cálculo reproducible (RF-COM-01, INV_COMISION_REPRODUCIBLE).
 
 Calcula comisiones con la regla vigente a la fecha de venta. En modo escalonado:

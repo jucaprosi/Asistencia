@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-ANF-01, RF-ANF-02 e INV_SOLO_PUBLICADO.
 
 Verifica el alta de anfitriones con términos y porcentaje pactado, el guardado de teléfono como token,

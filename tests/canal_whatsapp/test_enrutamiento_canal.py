@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de enrutamiento y separación de canales ARM y Huéspedes (RF-GW-06)."""
 from __future__ import annotations
 

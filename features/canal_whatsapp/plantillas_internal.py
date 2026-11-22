@@ -1,5 +1,6 @@
 # ¤canal-whatsapp
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Validación y armado de plantillas para Meta Cloud API (RF-GW-04)."""
 from __future__ import annotations
 

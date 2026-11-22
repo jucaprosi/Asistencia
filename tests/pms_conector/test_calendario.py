@@ -1,5 +1,6 @@
 # ¤pms-conector
 # ¤¤integration-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de calendario y tarifas propios con concurrencia (RF-PMS-07, RF-PMS-08, INV_SIN_DOBLE_RESERVA, INV_AISLAMIENTO_ANFITRION)."""
 from __future__ import annotations
 

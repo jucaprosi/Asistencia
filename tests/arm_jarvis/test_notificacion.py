@@ -1,5 +1,6 @@
 # ¤arm-jarvis
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de notificaciones privadas al vendedor al validar o rechazar (RF-ARM-06)."""
 from __future__ import annotations
 

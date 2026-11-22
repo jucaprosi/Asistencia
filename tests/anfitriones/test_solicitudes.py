@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-ANF-04, RF-ANF-05, INV_CONTACTO_TRAS_CONFIRMAR y US-19.
 
 Verifica la creación de solicitudes desde reservas del PMS con fechas, total y porcentaje congelados,

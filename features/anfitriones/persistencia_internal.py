@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia interna para la sala anfitriones (tablas del esquema anfitriones).
 
 Gestiona anfitriones, hospedajes, solicitudes, estados_cuenta y lineas_cuenta en SQLite.

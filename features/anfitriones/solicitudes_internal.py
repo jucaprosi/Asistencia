@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Gestión interna de solicitudes de reserva, respuestas y resultados de estadía (RF-ANF-04..06)."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de congelación y crecimiento monotónico de firmas públicas de compuertas ADPA.
 
 Regla 4 de TASKS.md §1:

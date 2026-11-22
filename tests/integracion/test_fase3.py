@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas E2E de Fase 3: RAG real, PMS conector, reserva preliminar e incidencias (T-211, RNF-02).
 
 Cubre:

@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * P-06 Cierre de período y exportación.
  * Requisitos: RF-PAN-05, US-14, CU-07, ADR-0015.

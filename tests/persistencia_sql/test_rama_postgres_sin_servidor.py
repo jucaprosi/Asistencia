@@ -1,5 +1,6 @@
 # ¤persistencia-sql
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Rama PostgreSQL de la sala persistencia_sql y de los repositorios, sin servidor.
 
 Un doble de la conexión de psycopg registra cada sentencia. Así se verifica, en la suite de siempre, que

@@ -1,5 +1,6 @@
 # ¤observabilidad
 # ¤¤devops-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas del despacho de evaluaciones y verificación de umbrales (RF-OBS-03)."""
 from __future__ import annotations
 

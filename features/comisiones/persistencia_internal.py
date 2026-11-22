@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Persistencia interna para la sala comisiones (tablas del esquema comisiones).
 
 Gestiona reglas, periodos y comisiones en SQLite con triggers de inmutabilidad (RF-COM-01, RF-COM-02).

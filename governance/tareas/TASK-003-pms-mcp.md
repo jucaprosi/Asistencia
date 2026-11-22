@@ -37,3 +37,7 @@ RF-PMS-01..04, RF-MCP-01..05 (y esqueleto de 06..09 con `NotImplementedError`). 
 - Contrato validado contra FakePMS y conector plataforma.
 - Flujo E2E de consulta de disponibilidad, cotización, reserva preliminar e incidencias implementado y verificado en `tests/integracion/test_fase3.py`.
 - Medición RNF-02 cumplida (P95 ≤ 10 s).
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

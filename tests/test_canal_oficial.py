@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_CANAL_OFICIAL (ADR-0003): ninguna librería no oficial de WhatsApp entra al repositorio."""
 from __future__ import annotations
 

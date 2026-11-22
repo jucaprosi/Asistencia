@@ -1,5 +1,6 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Carga, inyección y versionado con hash de prompts por propiedad (RF-AG-02)."""
 from __future__ import annotations
 

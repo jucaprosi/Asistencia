@@ -52,3 +52,7 @@ En cumplimiento de los artículos 21 al 27 de la LOPDP, los titulares pueden sol
 - **Portabilidad:** Recibir sus datos personales en un formato estructurado y de lectura mecánica.
 
 **Plazo Operativo de Respuesta:** Conforme a la política interna y `dominio.yaml`, las solicitudes son atendidas dentro de un plazo máximo de 15 días hábiles a través del canal oficial de atención o el correo `privacidad@glampingimbabura.com`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

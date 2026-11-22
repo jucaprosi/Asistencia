@@ -110,3 +110,7 @@ Implementa el protocolo JSON-RPC 2.0 estándar de Model Context Protocol:
 - `tests/herramientas_glamping/test_contratos.py`: Dobles de compuertas, validación de esquemas, invariantes de seguridad y contratos de las herramientas de huéspedes y vendedores (T-203, T-504).
 - `tests/herramientas_glamping/test_server.py`: Transporte stdio y procesamiento JSON-RPC.
 - `tests/herramientas_glamping/test_anfitriones.py`: Árbitro de T-306 (solicitud, confirmación/rechazo, reporte de estadía y actualización de calendario con aislamiento de anfitrión).
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

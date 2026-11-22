@@ -1,5 +1,6 @@
 # ¤bbap-glamping
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de verificación de cobertura del arnés y test de mutante muerto (Punto 6)."""
 from __future__ import annotations
 

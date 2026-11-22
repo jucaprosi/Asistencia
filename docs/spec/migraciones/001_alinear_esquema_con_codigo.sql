@@ -1,6 +1,7 @@
 -- ¤persistencia-sql
 -- Alinea el esquema canónico con las columnas y tablas que las salas ya usan (comparación automática
 -- SQLite ↔ PostgreSQL del 2026-11-22, ADR-0020). Solo agrega; no borra datos.
+-- © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 
 -- pms_conector: la reserva guarda el token del huésped, el número de huéspedes y el total cotizado.
 ALTER TABLE pms.reservas_ref ADD COLUMN IF NOT EXISTS huesped_token text;

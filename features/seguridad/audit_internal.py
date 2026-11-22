@@ -1,5 +1,6 @@
 # ¤seguridad-canal
 # ¤¤security-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Registro append-only de auditoría e informes (RF-SEC-06, INV_AUDIT_APPEND_ONLY)."""
 from __future__ import annotations
 

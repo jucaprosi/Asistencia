@@ -1,5 +1,6 @@
 # ¤conocimiento-rag
 # ¤¤data-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Compuerta pública de la sala conocimiento (RF-RAG-01..06, INV_SIN_FUGA_ENTRE_PROPIEDADES, INV_NO_LO_SE)."""
 from __future__ import annotations
 

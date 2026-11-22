@@ -1,3 +1,4 @@
+// © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 /**
  * Arnés de interfaz de P-02 Inicio por rol (docs/FRONTEND.md, RF-PAN-02).
  *

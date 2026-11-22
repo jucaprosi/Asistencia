@@ -1,5 +1,6 @@
 # ¤pasillo-central
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Configuración de fixtures para pruebas de extremo a extremo con Playwright y uvicorn aislado."""
 from __future__ import annotations
 

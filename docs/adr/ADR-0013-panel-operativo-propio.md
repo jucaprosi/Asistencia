@@ -40,3 +40,7 @@ Qué deja de depender del CRM: validar/rechazar ventas, ver y cerrar comisiones,
 - Presupuesto de rendimiento (LCP ≤ 2,5 s en P-03) medido en CI.
 
 `¤panel-operativo/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

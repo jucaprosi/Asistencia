@@ -1,5 +1,6 @@
 # ¤herramientas-mcp
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de contratos, validación de esquemas y autorización de herramientas MCP (T-203)."""
 from __future__ import annotations
 

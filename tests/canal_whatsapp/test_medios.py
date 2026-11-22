@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Pruebas de RF-GW-05: Recepción, descarga protegida, referencia URI y envío de medios."""
 from __future__ import annotations
 

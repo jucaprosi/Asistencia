@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de RF-ANF-03 e INV_SOLO_PUBLICADO (T-405).
 
 Verifica que la web pública ofrece únicamente hospedajes publicados de anfitriones activos,
