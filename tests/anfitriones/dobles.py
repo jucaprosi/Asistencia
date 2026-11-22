@@ -64,8 +64,11 @@ class DoblePMS:
     def agregar_reserva(self, reserva: ReservaDoble) -> None:
         self.reservas[reserva.codigo] = reserva
 
-    def obtener_reserva(self, codigo: str) -> ReservaDoble | None:
-        return self.reservas.get(codigo)
+    def obtener_reserva(self, codigo: str) -> ReservaDoble:
+        from features.pms_conector.tipos import ReservaInexistente
+        if codigo not in self.reservas:
+            raise ReservaInexistente(f"Reserva con código '{codigo}' no encontrada")
+        return self.reservas[codigo]
 
 
 # ¤anfitriones

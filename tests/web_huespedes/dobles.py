@@ -103,6 +103,10 @@ class DoblePMS:
         self.disponible = disponible
 
     def consultar_disponibilidad(self, propiedad_id: str, desde: date, hasta: date, huespedes: int) -> Any:
+        if hasta <= desde:
+            from features.pms_conector.tipos import FechasInvalidas
+            raise FechasInvalidas("La fecha 'hasta' debe ser posterior a 'desde'")
+
         @dataclass(frozen=True)
         class UnidadDoble:
             unidad_id: str = "U-01"

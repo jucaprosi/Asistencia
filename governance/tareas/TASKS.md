@@ -65,6 +65,7 @@
 | **Ola 11** | `T-411` (Salida de Beta) · `T-511` (Meta Canal Vendedores + Plantillas) · `T-610` (Servidor Producción + Backups `S-08`) · `T-810` (Proxy HTTPS + Claves VAPID) | TASK-005, TASK-006, servidor propio y despliegue móvil |
 | **Ola 12** | `T-611` (Proveedor CRM Cloud Real + Cierre Producción) · `T-701` (Inbox Huéspedes condicional `ADR-0010`) | TASK-007 y TASK-008 |
 | **Ola 13** | `T-901` (C1 — Fail-fast en montaje de panel operativo y CRM) | Calidad pasillo central (`app_core`) |
+| **Ola 14** | `T-902` (C2 — Profundizar pruebas de contrato dobles vs compuertas) | Contratos tipados y mutantes muertos |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1010,6 +1011,31 @@ fecha_arbitro = "2026-11-22"
 comando_arbitro = "pytest tests/app_core/test_error_montaje_panel.py"
 ```
 Entregables: remoción de captura silenciosa `try/except Exception` en `app_core/main.py` para montaje de panel operativo y CRM, garantizando fallo explícito de `crear_app` ante error de montaje, y prueba unitaria en `tests/app_core/test_error_montaje_panel.py`.
+
+---
+
+## Ola 14 — Tanda 14 Corrección C2 Contratos de Compuertas
+
+### T-902 — Contratos profundos: verificación exhaustiva de valores y errores entre dobles y compuertas reales derivados de FIRMAS_COMPUERTAS.json
+`¤pasillo-central`
+```toml
+id = "T-902"
+ola = 14
+fase = 9
+estado = "sellada"
+sala = "pasillo_central"
+rol = "¤¤qa-engineer"
+requisitos = ["RNF-08", "RNF-10"]
+depende_de = ["T-901"]
+bloqueada_por = []
+propiedad = ["tests/test_contratos_compuertas_vs_dobles.py"]
+consume = ["todas las compuertas"]
+arbitro = "tests/test_contratos_compuertas_vs_dobles.py; arnés Exit Code 0"
+entorno_arbitro = "local_pytest"
+fecha_arbitro = "2026-11-22"
+comando_arbitro = "pytest tests/test_contratos_compuertas_vs_dobles.py"
+```
+Entregables: derivación programática de compuertas consumidas desde `FIRMAS_COMPUERTAS.json`, pruebas de contrato con aserciones estrictas de valor y error (no solo tipos), y tests de mutantes muertos con dobles alterados.
 
 ---
 
