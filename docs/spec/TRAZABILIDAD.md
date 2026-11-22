@@ -117,7 +117,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RNF-05 | T-410 | por árbitro de la tabla del PRD |
 | RNF-06 | T-410, T-411 | por árbitro de la tabla del PRD |
 | RNF-07 | T-401 | por árbitro de la tabla del PRD |
-| RNF-08 | T-110, T-902 | por árbitro de la tabla del PRD |
+| RNF-08 | T-110, T-902, T-903 | por árbitro de la tabla del PRD |
 | RNF-09 | T-601, T-611 | por árbitro de la tabla del PRD |
 | RNF-10 | T-210, T-410, T-411, T-611, T-902 | por árbitro de la tabla del PRD |
 | RNF-11 | T-110 | por árbitro de la tabla del PRD |

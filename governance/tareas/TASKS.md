@@ -66,6 +66,7 @@
 | **Ola 12** | `T-611` (Proveedor CRM Cloud Real + Cierre Producción) · `T-701` (Inbox Huéspedes condicional `ADR-0010`) | TASK-007 y TASK-008 |
 | **Ola 13** | `T-901` (C1 — Fail-fast en montaje de panel operativo y CRM) | Calidad pasillo central (`app_core`) |
 | **Ola 14** | `T-902` (C2 — Profundizar pruebas de contrato dobles vs compuertas) | Contratos tipados y mutantes muertos |
+| **Ola 15** | `T-903` (C3 — Árbitro real de escritura conforme y casos sintéticos) | Verificación formal UTF-8, huellas e IP safety |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1036,6 +1037,31 @@ fecha_arbitro = "2026-11-22"
 comando_arbitro = "pytest tests/test_contratos_compuertas_vs_dobles.py"
 ```
 Entregables: derivación programática de compuertas consumidas desde `FIRMAS_COMPUERTAS.json`, pruebas de contrato con aserciones estrictas de valor y error (no solo tipos), y tests de mutantes muertos con dobles alterados.
+
+---
+
+## Ola 15 — Tanda 15 Corrección C3 Escritura Conforme
+
+### T-903 — Gobernanza: formalización de árbitro real para escritura conforme con casos sintéticos
+`¤pasillo-central`
+```toml
+id = "T-903"
+ola = 15
+fase = 9
+estado = "sellada"
+sala = "pasillo_central"
+rol = "¤¤qa-engineer"
+requisitos = ["RNF-08"]
+depende_de = ["T-902"]
+bloqueada_por = []
+propiedad = ["CLAUDE.md", "tests/test_escritura_conforme.py"]
+consume = []
+arbitro = "tests/test_escritura_conforme.py; arnés Exit Code 0"
+entorno_arbitro = "local_pytest"
+fecha_arbitro = "2026-11-22"
+comando_arbitro = "pytest tests/test_escritura_conforme.py"
+```
+Entregables: prueba `tests/test_escritura_conforme.py` que audita UTF-8 sin BOM, ausencia de huellas abiertas e IP safety sobre el repositorio, casos de prueba sintéticos que fallan ante transgresiones, y actualización de `CLAUDE.md` para que los 7 árbitros ejecuten pruebas físicas y `check_arbitros_cliente.py` termine en Exit Code 0.
 
 ---
 

@@ -39,7 +39,9 @@
 
 > **ENFORCE: Confinamiento ADPA.** Todo código vive en `features/<sala>/`; las dependencias cruzadas transitan solo por `<sala>_service.py` (`server.py` del servidor MCP es un ejecutable, no una compuerta); `app_core/` orquesta compuertas y no importa nada privado. Árbitro: `tests/test_estructura_adpa.py` y `scripts/arnes_glamping.py`.
 
-> **ENFORCE: Escritura conforme.** UTF-8 sin BOM, huellas `¦` consolidadas a `¤` antes de sellar, sin reclamos de IP ajena. Árbitro: `scripts/verificar_secretos.py` y `scripts/arnes_glamping.py`.
+> **ENFORCE: Escritura conforme.** UTF-8 sin BOM, huellas `¦` consolidadas a `¤` antes de sellar, sin reclamos de IP ajena. Árbitro: `tests/test_escritura_conforme.py` y `scripts/arnes_glamping.py`.
+
+> **ENFORCE: Ausencia de secretos en repositorio.** Árbitro: `scripts/verificar_secretos.py`.
 
 > **ENFORCE: Nido de artefactos vivos antes del código.** No se escribe `.py` si falta alguno de `governance/artefactos/{PRD.md, INVARIANTS.md, FUENTES_Y_BIBLIOGRAFIA.md, VPA_INDEX.md, PROBLEMS.json}`. Árbitro: test `tests/test_especificacion.py` en el arnés.
 
