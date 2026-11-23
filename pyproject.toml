@@ -18,6 +18,7 @@ dependencies = [
   "jinja2>=3.1",
   "psycopg[binary]>=3.1",
   "cryptography>=42",
+  "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
