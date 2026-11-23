@@ -1,0 +1,24 @@
+{
+  "nombre": "reportar_resultado_estadia",
+  "descripcion": "El anfitrión reporta cancelada, no_show o completada hasta 3 días después de la salida.",
+  "sala_destino": "anfitriones",
+  "roles": ["anfitrion"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["solicitud", "resultado"],
+    "properties": {
+      "solicitud": {"type": "string", "pattern": "^PL-[0-9]{4}-[0-9]{4,}$"},
+      "resultado": {"type": "string", "enum": ["cancelada", "no_show", "completada"]}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["solicitud", "estado"],
+    "properties": {
+      "solicitud": {"type": "string", "pattern": "^PL-[0-9]{4}-[0-9]{4,}$"},
+      "estado": {"type": "string", "enum": ["cancelada", "no_show", "completada"]}
+    }
+  }
+}

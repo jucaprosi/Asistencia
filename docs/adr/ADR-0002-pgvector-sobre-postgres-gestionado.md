@@ -31,3 +31,7 @@ Opción 2. El informe cita latencias P95 de 10–50 ms bajo 10 M de vectores y <
 - Proveedor fijado en la fase 0 con PITR ≥ 7 días documentado en `INVARIANTS.md`.
 
 `¤conocimiento-rag/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

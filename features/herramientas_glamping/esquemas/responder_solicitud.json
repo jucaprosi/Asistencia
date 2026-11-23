@@ -1,0 +1,25 @@
+{
+  "nombre": "responder_solicitud",
+  "descripcion": "El anfitrión confirma o rechaza una solicitud de reserva. Entrega contacto solo si confirma.",
+  "sala_destino": "anfitriones",
+  "roles": ["anfitrion"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["solicitud", "acepta"],
+    "properties": {
+      "solicitud": {"type": "string", "pattern": "^PL-[0-9]{4}-[0-9]{4,}$"},
+      "acepta": {"type": "boolean"},
+      "motivo": {"type": "string", "maxLength": 300}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["solicitud", "estado"],
+    "properties": {
+      "solicitud": {"type": "string", "pattern": "^PL-[0-9]{4}-[0-9]{4,}$"},
+      "estado": {"type": "string", "enum": ["confirmada", "rechazada"]}
+    }
+  }
+}

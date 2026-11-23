@@ -27,3 +27,7 @@ La persona pregunta por **{{nombre_hospedaje}}**, {{tipo_hospedaje}} en {{zona}}
 - Contacto de respaldo: {{nombre_gestor_zona}}
 
 `¤prompts-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

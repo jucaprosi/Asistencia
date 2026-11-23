@@ -1,0 +1,24 @@
+{
+  "nombre": "crear_oportunidad_crm",
+  "descripcion": "Crea una nueva oportunidad en el CRM asociada a un contacto y propiedad.",
+  "sala_destino": "crm_conector",
+  "roles": ["sistema"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["contacto_id", "propiedad_id", "etapa"],
+    "properties": {
+      "contacto_id": {"type": "string"},
+      "propiedad_id": {"type": "string"},
+      "etapa": {"type": "string"},
+      "monto": {"type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$"}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "required": ["oportunidad_id"],
+    "properties": {
+      "oportunidad_id": {"type": "string"}
+    }
+  }
+}

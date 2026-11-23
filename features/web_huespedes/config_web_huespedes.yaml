@@ -1,4 +1,5 @@
 # ¤web-huespedes
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 url_base: ${WEB_PUBLICA_URL:-http://localhost:8080}
 catalogo: ${WEB_CATALOGO_RUTA:-features/web_huespedes/catalogo_ejemplo.yaml}
 whatsapp_numero: ${WEB_WHATSAPP_NUMERO:-}

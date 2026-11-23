@@ -1,5 +1,6 @@
 # ¤comisiones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala comisiones."""
 from __future__ import annotations
 
@@ -67,6 +68,10 @@ class Comision:
     ajuste_de: str | None = None
     base_acumulada: Decimal = Decimal("0")
     periodo_origen: str | None = None
+    vendedor_id: str = ""
+    fecha_venta: date | None = None
+    monto_venta: Decimal = Decimal("0")
+    motivo: str | None = None
 
 
 # ¤comisiones

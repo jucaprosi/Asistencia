@@ -34,12 +34,12 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PMS-05 | T-202 | reservas.feature: Una reserva preliminar sin pago expira |
 | RF-PMS-06 | T-202 | plataforma.feature: Validar al titular sin llamar al PMS |
 | RF-PMS-07 | T-212 | plataforma.feature: Dos huéspedes piden la misma noche<br>plataforma.feature: Noche sin tarifa |
-| RF-PMS-08 | T-212, T-306, T-404 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
-| RF-CRM-01 | T-302 | plataforma.feature: Contrato del conector CRM |
+| RF-PMS-08 | T-212, T-404, T-306 | plataforma.feature: El anfitrión bloquea fechas<br>plataforma.feature: Liberar no toca reservas |
+| RF-CRM-01 | T-302, T-901 | plataforma.feature: Contrato del conector CRM |
 | RF-CRM-02 | T-302, T-601 | plataforma.feature: Cambio de proveedor de CRM |
 | RF-CRM-03 | T-601 | plataforma.feature: Publicar dos veces la misma venta<br>ventas.feature: Anular una venta publicada |
 | RF-CRM-04 | T-601, T-602 | ventas.feature: El CRM no acepta la venta |
-| RF-CRM-05 | T-310, T-601 | plataforma.feature: Confinamiento de MCP de comunidad |
+| RF-CRM-05 | T-601, T-310 | plataforma.feature: Confinamiento de MCP de comunidad |
 | RF-CRM-06 | T-302 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Handoff sin zona resuelta<br>incidencias_handoff.feature: Nadie toma el handoff<br>incidencias_handoff.feature: La atención queda abandonada |
 | RF-ARM-01 | T-502 | ventas.feature: Remitente no registrado en el canal de vendedores |
 | RF-ARM-02 | T-502 | ventas.feature: Venta completa<br>ventas.feature: Falta un campo obligatorio<br>ventas.feature: No es una venta |
@@ -82,7 +82,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-MCP-07 | T-203 | plataforma.feature: Herramientas internas de CRM |
 | RF-MCP-08 | T-504 | plataforma.feature: El vendedor no se declara en la entrada |
 | RF-MCP-09 | T-504 | plataforma.feature: Consulta sin período |
-| RF-PAN-01 | T-303 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
+| RF-PAN-01 | T-303, T-901 | seguridad.feature: Acceso al panel<br>seguridad.feature: Correo no registrado<br>seguridad.feature: Demasiados intentos |
 | RF-PAN-02 | T-505 | ventas.feature: Validar una venta<br>ventas.feature: Conflicto entre dos usuarios |
 | RF-PAN-03 | T-505 | plataforma.feature: Detalle de venta<br>plataforma.feature: Desglose de comisión |
 | RF-PAN-04 | T-604 | comisiones.feature: Tablero que cuadra<br>plataforma.feature: Estado de cuenta por vendedor |
@@ -117,9 +117,9 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RNF-05 | T-410 | por árbitro de la tabla del PRD |
 | RNF-06 | T-410, T-411 | por árbitro de la tabla del PRD |
 | RNF-07 | T-401 | por árbitro de la tabla del PRD |
-| RNF-08 | T-110 | por árbitro de la tabla del PRD |
+| RNF-08 | T-110, T-902, T-903 | por árbitro de la tabla del PRD |
 | RNF-09 | T-601, T-611 | por árbitro de la tabla del PRD |
-| RNF-10 | T-210, T-410, T-411, T-611 | por árbitro de la tabla del PRD |
+| RNF-10 | T-210, T-410, T-411, T-611, T-902 | por árbitro de la tabla del PRD |
 | RNF-11 | T-110 | por árbitro de la tabla del PRD |
 | RNF-12 | T-110 | por árbitro de la tabla del PRD |
 | RNF-13 | T-402, T-411 | por árbitro de la tabla del PRD |

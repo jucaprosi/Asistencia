@@ -23,7 +23,6 @@ evals/privado/
 
 # Frontend (TASK-004+)
 node_modules/
-features/panel_operativo/estaticos/
 
 # Herramienta auxiliar de transcripción, no gobernada por este repositorio
 transcriptor_tiktok/
@@ -31,3 +30,10 @@ transcriptor_tiktok/
 # Sistema
 .DS_Store
 Thumbs.db
+*.bak
+.agents/estado/
+
+# Arnés de interfaz Playwright (features/panel_operativo/ui): se regeneran en cada corrida
+features/panel_operativo/ui/test-results/
+features/panel_operativo/ui/playwright-report/
+features/panel_operativo/ui/.last-run.json

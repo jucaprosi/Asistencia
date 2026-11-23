@@ -2,12 +2,12 @@
 id = "TASK-002"
 titulo = "RAG sobre docs/negocio/ en pgvector con set dorado y respuesta «no lo sé»"
 fase = 2
-estado = "pendiente"
+estado = "sellada"
 sala = ["conocimiento"]
 rastro = ["¤conocimiento-rag"]
 rol = "¤¤data-engineer"
 depende_de = ["TASK-001"]
-bloqueada_por = ["S-03", "ADR-0012"]
+bloqueada_por = []
 propiedad = ["features/conocimiento/**", "scripts/seed_knowledge.py", "evals/set_dorado.jsonl", "tests/conocimiento/**", "docs/negocio/**"]
 arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); scripts/run_evals.py --suite rag con fidelidad ≥ 95 %, abstención ≥ 90 %, 0 alucinaciones de precio/política; RNF-04"
 ```
@@ -33,3 +33,13 @@ RF-RAG-01..06. Invariantes: `INV_SIN_FUGA_ENTRE_PROPIEDADES`, `INV_NO_LO_SE`.
 - OP-04 ≥ 95 %, OP-05 ≥ 90 %, 0 alucinaciones de precio/política.
 - RNF-04: P95 ≤ 150 ms en el benchmark del arnés.
 - ADR-0012 aceptado antes de indexar datos reales (hasta entonces, corpus sintético).
+
+## Cierre de fase (Fase 2 / T-211)
+- Estado: SELLADA.
+- Suite `evals/set_dorado.jsonl` y benchmark RNF-04 cumplidos.
+- Indexación de corpus comercial e integración E2E comprobada en `tests/integracion/test_fase3.py`.
+- Bloqueos S-03 y ADR-0012 superados.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

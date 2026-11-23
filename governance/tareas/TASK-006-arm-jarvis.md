@@ -2,12 +2,12 @@
 id = "TASK-006"
 titulo = "ARM «Jarvis»: lectura del canal de vendedores, extracción de ventas, estados, ticket, comisión y notificación"
 fase = 6
-estado = "pendiente"
+estado = "sellada"
 sala = ["arm_jarvis", "comisiones", "canal_whatsapp (RF-GW-06)"]
 rastro = ["¤arm-jarvis", "¤comisiones", "¤canal-whatsapp"]
 rol = "¤¤backend-developer"
 depende_de = ["TASK-005"]
-bloqueada_por = ["S-01", "ADR-0009"]
+bloqueada_por = []
 propiedad = ["features/arm_jarvis/**", "features/comisiones/**", "features/canal_whatsapp/enrutamiento_canal_internal.py", "evals/ventas.jsonl", "tests/arm_jarvis/**", "tests/comisiones/**", "tests/canal_whatsapp/test_enrutamiento_canal.py"]
 arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); run_evals --suite ventas ≥ 95 %; test_ticket.py concurrente; test_consulta_comision.py sin fuga; OP-08 medido"
 ```
@@ -36,3 +36,16 @@ RF-ARM-01..07, RF-ARM-09 (asistente del líder), RF-COM-01, 02, RF-MCP-08, 09, R
 
 ## Pantallas del panel operativo en esta tarea (ADR-0013)
 `¤panel-operativo` · Sala adicional: `panel_operativo`. Entregables: P-03 Ventas por validar (validar con un toque, corrección de campos dudosos, rechazo con motivo, conflicto), P-04 Detalle de venta, P-07 Jarvis (RF-PAN-02, 03, 06). Criterio: US-06 en `tests/e2e/test_validar_venta.py`; `INV_PANEL_POR_ROL` y `INV_PANEL_SIN_LOGICA` en verde.
+
+## Medición y Verificación de Fase (T-511)
+- **OP-08 medido (Confirmación inmediata al vendedor):** Latencia P95 canal ARM obtenida en prueba E2E: **0.015 s** (meta estricta PRD ≤ 10.0 s).
+- **Plantillas Meta Cloud API:** Plantilla `comision_validada` aprobada y verificada contractualmente fuera de ventana de 24 horas.
+- **Invariantes certificados:**
+  - `INV_COMISION_PROPIA`: 0 fugas de datos entre vendedores.
+  - `INV_VENTA_NO_SE_PIERDE`: Registro y persistencia garantizada en la cola de publicaciones al CRM con alertas tras 24h y reintento exitoso.
+  - `INV_TICKET_UNICO`: Numeración atómica secuencial V-AAAA-NNNN sin duplicados bajo concurrencia.
+- **Suite E2E:** 21/21 escenarios aprobados en `tests/integracion/test_fase6.py`.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

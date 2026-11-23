@@ -1,0 +1,39 @@
+{
+  "nombre": "cotizar",
+  "descripcion": "Calcula el costo total y desglose de estadía para una unidad y rango de fechas.",
+  "sala_destino": "pms_conector",
+  "roles": ["huesped_potencial", "huesped_activo"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["propiedad_id", "unidad_id", "desde", "hasta", "huespedes"],
+    "properties": {
+      "propiedad_id": {"type": "string"},
+      "unidad_id": {"type": "string"},
+      "desde": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "hasta": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "huespedes": {"type": "integer", "minimum": 1}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["total", "moneda", "desglose", "politica_cancelacion_id"],
+    "properties": {
+      "total": {"type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$"},
+      "moneda": {"const": "USD"},
+      "desglose": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["concepto", "monto"],
+          "properties": {
+            "concepto": {"type": "string"},
+            "monto": {"type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$"}
+          }
+        }
+      },
+      "politica_cancelacion_id": {"type": "string"}
+    }
+  }
+}

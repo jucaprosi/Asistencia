@@ -30,3 +30,7 @@ Convenciones comunes a todos los módulos:
 | Web pública para huéspedes | [`web_huespedes.md`](web_huespedes.md) | `¤web-huespedes` | — |
 
 `¤modulos-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

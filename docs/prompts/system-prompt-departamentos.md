@@ -30,3 +30,7 @@ La persona pregunta por el departamento **{{nombre_departamento}}** ({{zona}}, {
 - Gestor de la zona {{zona}}: {{nombre_gestor_zona}}
 
 `¤prompts-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,0 +1,20 @@
+{"id": 1, "mensaje": "Hola, mi reserva es RES-GLAMP-101 para hoy", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "codigo_reserva"}
+{"id": 2, "mensaje": "Tengo una confirmación con código RES-DEP-202", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "codigo_reserva"}
+{"id": 3, "mensaje": "Revisen mi código de reserva RES-GLAMP-888 por favor", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "codigo_reserva"}
+{"id": 4, "mensaje": "¿Tienen disponibilidad en el glamping para este fin de semana?", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "nombre"}
+{"id": 5, "mensaje": "Quisiera reservar un domo en San Pablo", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "nombre"}
+{"id": 6, "mensaje": "¿Cuánto cuesta pasar una noche en la tienda safari?", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "nombre"}
+{"id": 7, "mensaje": "¿Hay espacio en Suites Centro Histórico este sábado?", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "nombre"}
+{"id": 8, "mensaje": "Me gustaría hospedarme en el departamento centro", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "nombre"}
+{"id": 9, "mensaje": "Quisiera información sobre la Suite Balcón", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "nombre"}
+{"id": 10, "mensaje": "¿Cómo llegar al Sector Cajas en la Vía al Lago?", "contexto_propiedad_id": null, "esperado_propiedad_id": "glamping", "esperado_metodo": "direccion"}
+{"id": 11, "mensaje": "¿El hospedaje queda por la calle García Moreno y Sucre?", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "direccion"}
+{"id": 12, "mensaje": "Busco hospedaje en Quito Colonial para mis vacaciones", "contexto_propiedad_id": null, "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "direccion"}
+{"id": 13, "mensaje": "¿A qué hora es el check-in?", "contexto_propiedad_id": "glamping", "esperado_propiedad_id": "glamping", "esperado_metodo": "contexto"}
+{"id": 14, "mensaje": "¿La clave del wifi cuál es?", "contexto_propiedad_id": "departamento_centro", "esperado_propiedad_id": "departamento_centro", "esperado_metodo": "contexto"}
+{"id": 15, "mensaje": "¿Se permiten mascotas?", "contexto_propiedad_id": "glamping", "esperado_propiedad_id": "glamping", "esperado_metodo": "contexto"}
+{"id": 16, "mensaje": "Quiero comparar el glamping con las suites del centro", "contexto_propiedad_id": null, "esperado_propiedad_id": null, "esperado_metodo": "pregunta"}
+{"id": 17, "mensaje": "¿Qué diferencia hay entre el glamping y departamentos?", "contexto_propiedad_id": null, "esperado_propiedad_id": null, "esperado_metodo": "pregunta"}
+{"id": 18, "mensaje": "Hola, ¿qué opciones de hospedaje tienen disponibles?", "contexto_propiedad_id": null, "esperado_propiedad_id": null, "esperado_metodo": "pregunta"}
+{"id": 19, "mensaje": "¿Cuáles son sus tarifas de alojamiento?", "contexto_propiedad_id": null, "esperado_propiedad_id": null, "esperado_metodo": "pregunta"}
+{"id": 20, "mensaje": "¿Tienen disponible tanto en Otavalo como en Quito para este viernes?", "contexto_propiedad_id": null, "esperado_propiedad_id": null, "esperado_metodo": "pregunta"}

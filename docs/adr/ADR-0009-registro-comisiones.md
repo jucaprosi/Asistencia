@@ -38,3 +38,7 @@ Pendiente. Fecha límite sugerida: antes de empezar la fase 6.
 - `tests/comisiones/test_cierre_periodo.py` (ruta propia).
 
 `¤comisiones/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

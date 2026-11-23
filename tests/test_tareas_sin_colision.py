@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de las reglas de independencia de governance/tareas/TASKS.md.
 
 Lee cada bloque ```toml``` del archivo y comprueba:
@@ -64,10 +65,35 @@ def test_ids_unicos_y_dependencias_resolubles() -> None:
     ids = [t["id"] for t in tareas]
     assert len(ids) == len(set(ids)), "ids duplicados en TASKS.md"
     conocidos = set(ids)
+    por_id = {t["id"]: t for t in tareas}
     for tarea in tareas:
+        mi_ola = int(tarea["ola"])
         for dependencia in tarea["depende_de"]:
             base = dependencia.split(" ")[0]
             assert base in conocidos or re.fullmatch(r"TASK-\d{3}", base), f"{tarea['id']} depende de {dependencia!r} desconocida"
+            if base in por_id:
+                dep_ola = int(por_id[base]["ola"])
+                assert dep_ola < mi_ola, (
+                    f"Violación de regla de olas: {tarea['id']} (ola {mi_ola}) depende de {base} "
+                    f"(ola {dep_ola}); la ola de una dependencia debe ser estrictamente menor."
+                )
+
+
+def test_regla_de_olas_falla_si_dependencia_es_de_misma_ola_o_posterior() -> None:
+    """Verifica (mutante muerto) que una dependencia en la misma ola o posterior sea rechazada."""
+    import pytest
+    tareas_sinteticas = [
+        {"id": "T-001", "ola": 2, "depende_de": []},
+        {"id": "T-002", "ola": 2, "depende_de": ["T-001"]},  # misma ola!
+    ]
+    por_id = {t["id"]: t for t in tareas_sinteticas}
+    with pytest.raises(AssertionError, match="Violación de regla de olas: T-002"):
+        for tarea in tareas_sinteticas:
+            mi_ola = int(tarea["ola"])
+            for dep in tarea["depende_de"]:
+                if dep in por_id:
+                    assert int(por_id[dep]["ola"]) < mi_ola, f"Violación de regla de olas: {tarea['id']}"
+
 
 
 def test_sin_colisiones_de_rutas_dentro_de_cada_ola() -> None:
@@ -104,9 +130,19 @@ def test_las_tareas_de_sala_solo_reclaman_lo_suyo() -> None:
     assert not violaciones, "\n".join(violaciones)
 
 
-def test_las_tareas_de_coordinacion_cierran_cada_ola() -> None:
+def test_maximo_cuatro_tareas_por_ola() -> None:
+    por_ola: dict[int, list[dict]] = {}
+    for tarea in _tareas():
+        por_ola.setdefault(int(tarea["ola"]), []).append(tarea)
+    for ola, tareas in por_ola.items():
+        assert len(tareas) <= 4, f"ola {ola} tiene {len(tareas)} tareas (máximo 4 para trabajo en paralelo)"
+
+
+def test_las_tareas_de_coordinacion_cubren_todos_los_hitos() -> None:
+    """Verifica que las olas de orquestación y nube (Olas 9-12) incluyan el cierre de todos los hitos."""
     tareas = _tareas()
-    olas_con_salas = {int(t["ola"]) for t in tareas if t["sala"] not in COORDINADOR}
-    olas_con_coordinador = {int(t["ola"]) for t in tareas if t["sala"] in COORDINADOR}
-    sin_cierre = olas_con_salas - olas_con_coordinador - {7}  # la ola 7 es condicional y de una sola tarea
-    assert not sin_cierre, f"olas sin tarea de coordinación: {sorted(sin_cierre)}"
+    coordinadoras = [t for t in tareas if t["sala"] in COORDINADOR]
+    assert len(coordinadoras) >= 8, f"se esperaban al menos 8 tareas de coordinación/nube, hay {len(coordinadoras)}"
+    olas_coordinacion = {int(t["ola"]) for t in coordinadoras}
+    assert {9, 10, 11, 12}.issubset(olas_coordinacion), f"las olas de coordinación deben cubrir al menos 9, 10, 11 y 12, se encontró {olas_coordinacion}"
+

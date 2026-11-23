@@ -1,12 +1,17 @@
 # ¤pasillo-central
 # Configuración global del pasillo central. Los secretos se referencian por variable de entorno con la
 # sintaxis de llaves y signo de dólar (con «:-» para un valor por defecto); nunca se escriben en claro.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 aplicacion:
   nombre: glamping-imbabura-agent
   version: 0.1.0
   entorno: ${APP_ENV:-beta}          # beta | produccion
   zona_horaria: America/Guayaquil
   puerto: 8080
+
+canal_vendedores:
+  modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (S-01)
+  grupo_id: ${CANAL_VENDEDORES_GRUPO_ID:-}
 
 salas:
   # Orden de construcción en app_core/contenedor.py: una compuerta solo recibe las ya construidas.

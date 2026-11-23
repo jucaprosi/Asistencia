@@ -1,20 +1,21 @@
 # ¤herramientas-mcp
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 transporte: ${MCP_TRANSPORTE:-stdio}     # stdio | http
 puerto: 8090                             # solo en agent-net
 timeout_por_herramienta_s: 8
 herramientas:
-  - {nombre: consultar_disponibilidad, esquema: esquemas/consultar_disponibilidad.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: false}
-  - {nombre: cotizar, esquema: esquemas/cotizar.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: false}
-  - {nombre: crear_reserva_preliminar, esquema: esquemas/crear_reserva_preliminar.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: false}
-  - {nombre: obtener_instrucciones_checkin, esquema: esquemas/obtener_instrucciones_checkin.json, roles: [huesped_activo], sala_destino: pms_conector, habilitada: false}
-  - {nombre: reportar_incidencia, esquema: esquemas/reportar_incidencia.json, roles: [huesped_activo], sala_destino: pms_conector, habilitada: false}
-  - {nombre: solicitar_humano, esquema: esquemas/solicitar_humano.json, roles: [huesped_potencial, huesped_activo, vendedor], sala_destino: crm_conector, habilitada: false}
-  - {nombre: buscar_contacto_crm, esquema: esquemas/buscar_contacto_crm.json, roles: [sistema], sala_destino: crm_conector, habilitada: false}
-  - {nombre: crear_oportunidad_crm, esquema: esquemas/crear_oportunidad_crm.json, roles: [sistema], sala_destino: crm_conector, habilitada: false}
-  - {nombre: registrar_venta, esquema: esquemas/registrar_venta.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}
-  - {nombre: consultar_comision_propia, esquema: esquemas/consultar_comision_propia.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: false}
-  - {nombre: solicitar_reserva, esquema: esquemas/solicitar_reserva.json, roles: [huesped_potencial, huesped_activo], sala_destino: anfitriones, habilitada: false}
-  - {nombre: responder_solicitud, esquema: esquemas/responder_solicitud.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
-  - {nombre: reportar_resultado_estadia, esquema: esquemas/reportar_resultado_estadia.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
+  - {nombre: consultar_disponibilidad, esquema: esquemas/consultar_disponibilidad.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: true}
+  - {nombre: cotizar, esquema: esquemas/cotizar.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: true}
+  - {nombre: crear_reserva_preliminar, esquema: esquemas/crear_reserva_preliminar.json, roles: [huesped_potencial, huesped_activo], sala_destino: pms_conector, habilitada: true}
+  - {nombre: obtener_instrucciones_checkin, esquema: esquemas/obtener_instrucciones_checkin.json, roles: [huesped_activo], sala_destino: pms_conector, habilitada: true}
+  - {nombre: reportar_incidencia, esquema: esquemas/reportar_incidencia.json, roles: [huesped_activo], sala_destino: pms_conector, habilitada: true}
+  - {nombre: solicitar_humano, esquema: esquemas/solicitar_humano.json, roles: [huesped_potencial, huesped_activo, vendedor], sala_destino: crm_conector, habilitada: true}
+  - {nombre: buscar_contacto_crm, esquema: esquemas/buscar_contacto_crm.json, roles: [sistema], sala_destino: crm_conector, habilitada: true}
+  - {nombre: crear_oportunidad_crm, esquema: esquemas/crear_oportunidad_crm.json, roles: [sistema], sala_destino: crm_conector, habilitada: true}
+  - {nombre: registrar_venta, esquema: esquemas/registrar_venta.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: true}
+  - {nombre: consultar_comision_propia, esquema: esquemas/consultar_comision_propia.json, roles: [vendedor], sala_destino: arm_jarvis, habilitada: true}
+  - {nombre: solicitar_reserva, esquema: esquemas/solicitar_reserva.json, roles: [huesped_potencial, huesped_activo], sala_destino: anfitriones, habilitada: true}
+  - {nombre: responder_solicitud, esquema: esquemas/responder_solicitud.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: true}
+  - {nombre: reportar_resultado_estadia, esquema: esquemas/reportar_resultado_estadia.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: true}
   - {nombre: consultar_estado_cuenta_anfitrion, esquema: esquemas/consultar_estado_cuenta_anfitrion.json, roles: [anfitrion], sala_destino: anfitriones, habilitada: false}
-  - {nombre: actualizar_calendario, esquema: esquemas/actualizar_calendario.json, roles: [anfitrion], sala_destino: pms_conector, habilitada: false}
+  - {nombre: actualizar_calendario, esquema: esquemas/actualizar_calendario.json, roles: [anfitrion], sala_destino: pms_conector, habilitada: true}

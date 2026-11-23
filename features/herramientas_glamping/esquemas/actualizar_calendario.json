@@ -1,0 +1,27 @@
+{
+  "nombre": "actualizar_calendario",
+  "descripcion": "El anfitrión bloquea o libera fechas de sus unidades en el calendario del PMS.",
+  "sala_destino": "pms_conector",
+  "roles": ["anfitrion"],
+  "entrada": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["unidad_id", "desde", "hasta", "accion"],
+    "properties": {
+      "unidad_id": {"type": "string"},
+      "desde": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "hasta": {"type": "string", "format": "date", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+      "accion": {"type": "string", "enum": ["bloquear", "liberar"]}
+    }
+  },
+  "salida": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["unidad_id", "noches", "omitidas"],
+    "properties": {
+      "unidad_id": {"type": "string"},
+      "noches": {"type": "integer"},
+      "omitidas": {"type": "integer"}
+    }
+  }
+}

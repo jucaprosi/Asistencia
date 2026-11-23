@@ -1,8 +1,15 @@
 # ¤agente-enrutador
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
+proveedor: ${PROVEEDOR_LLM:-google}
 modelos:
   principal: ${MODELO_PRINCIPAL:-claude-opus-5-5}
   economico: ${MODELO_ECONOMICO:-claude-haiku-5-5}
-clave_api: ${ANTHROPIC_API_KEY:-}
+  gemini_principal: ${MODELO_GEMINI_PRINCIPAL:-gemini-3.8-flash}
+  gemini_economico: ${MODELO_GEMINI_ECONOMICO:-gemini-3.5-flash-lite}
+clave_api: ${GEMINI_API_KEY:-${ANTHROPIC_API_KEY:-}}
+gcp:
+  project_id: ${GCP_PROJECT_ID:-glamping-imbabura}
+  location: ${GCP_LOCATION:-us-central1}
 tope_iteraciones: 6
 timeout_modelo_s: 30
 acuse_si_tarda_s: 3
@@ -21,3 +28,30 @@ cache_semantico:
 enrutamiento_modelos:
   economico_para: [horario, ubicacion, wifi, atractivos]
 db_url: ${DATABASE_URL:-}
+propiedades:
+  glamping:
+    propiedad_id: "glamping"
+    nombre: "Glamping San Pablo Imbabura"
+    ubicacion: "Lago San Pablo, Imbabura, Ecuador"
+    direccion: "Sector Cajas, Vía al Lago San Pablo, Otavalo, Imbabura"
+    hora_checkin: "15:00"
+    hora_checkout: "11:00"
+    unidades: "Domo Lago (2 pax), Domo Montaña (2 pax), Tienda Safari (4 pax)"
+    resumen_politicas: "Cancelación gratuita hasta 5 días antes de la llegada. Reembolso del 50% entre 5 y 2 días antes."
+    contacto_humano: "+593991234567"
+    nombre_gestor: "Carlos Alvear"
+  departamento_centro:
+    propiedad_id: "departamento_centro"
+    nombre: "Suites Centro Histórico"
+    ubicacion: "Quito Colonial, Pichincha, Ecuador"
+    direccion: "Calle García Moreno y Sucre, Quito"
+    hora_checkin: "14:00"
+    hora_checkout: "12:00"
+    unidades: "Suite Colonial 101, Suite Balcón 202"
+    resumen_politicas: "Cancelación gratuita hasta 48 horas antes."
+    contacto_humano: "+593997654321"
+    nombre_gestor: "María Elena Morales"
+escalamiento:
+  contacto_humano_defecto: "+593991234567"
+  nombre_gestor_defecto: "Carlos Alvear"
+  mensaje_escalamiento: "Para brindarte una atención personalizada, te comunico con nuestro equipo humano: {contacto_humano} ({nombre_gestor})."

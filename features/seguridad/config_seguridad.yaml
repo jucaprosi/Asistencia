@@ -1,4 +1,5 @@
 # ¤seguridad-canal
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 identidad:
   canal_huespedes: abierto            # todo número entra como huesped_potencial
   fuente_usuarios: seguridad.usuarios

@@ -1,8 +1,9 @@
 # ¤pasillo-central
 # ¤¤solutions-architect
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Arranque HTTP del submarino. Fábrica para uvicorn: ``uvicorn app_core.main:crear_app --factory``.
 
-En la fase 0 solo existe ``GET /health``; el webhook de Meta, los eventos del CRM y el panel llegan con sus tareas.
+Incluye GET /health, rutas del webhook de Meta (/webhook) y montaje de las rutas públicas de web_huespedes.
 """
 from __future__ import annotations
 
@@ -10,6 +11,7 @@ import argparse
 from typing import Any
 
 from app_core.app_core_service import Contenedor, cargar_config_app, construir
+from app_core.webhook_router import crear_router_webhook
 
 VERSION = "0.1.0"
 
@@ -39,6 +41,18 @@ def crear_app(contenedor: Contenedor | None = None) -> Any:
     def _health() -> dict[str, Any]:
         return salud(contenedor_activo)
 
+    # Rutas HTTP de webhook de Meta (RF-GW-01, RF-GW-07)
+    app.include_router(crear_router_webhook(contenedor_activo.canal))
+
+    # Montaje de panel operativo y CRM (T-310, T-901)
+    from app_core.panel_crm_router import montar_panel_y_crm
+    montar_panel_y_crm(app, contenedor_activo)
+
+    # Montaje de las rutas públicas del catálogo web (web_huespedes)
+    if hasattr(contenedor_activo, "web") and contenedor_activo.web is not None:
+        app_web = contenedor_activo.web.crear_app()
+        app.mount("", app_web)
+
     return app
 
 
@@ -48,6 +62,7 @@ def main(argumentos: list[str] | None = None) -> int:
     analizador = argparse.ArgumentParser(description="Pasillo central de glamping-imbabura-agent")
     analizador.add_argument("--comprobar", action="store_true", help="Valida config_app.yaml y termina")
     analizador.add_argument("--worker", action="store_true", help="Modo worker de tareas programadas (TASK-004)")
+    analizador.add_argument("--migrar-db", action="store_true", help="Aplica el esquema canónico a PostgreSQL")
     opciones = analizador.parse_args(argumentos)
     if opciones.comprobar:
         salas = cargar_config_app().get("salas", [])
@@ -56,6 +71,9 @@ def main(argumentos: list[str] | None = None) -> int:
     if opciones.worker:
         print("worker: las tareas programadas se activan en TASK-004; nada que ejecutar")
         return 0
+    if opciones.migrar_db:
+        from scripts.migrar_db import main as migrar_main
+        return migrar_main()
     analizador.print_help()
     return 0
 

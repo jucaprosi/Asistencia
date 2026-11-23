@@ -1,5 +1,6 @@
 # ¤anfitriones
 # ¤¤backend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala anfitriones."""
 from __future__ import annotations
 
@@ -48,6 +49,9 @@ class Anfitrion:
     comision_porcentaje: Decimal
     terminos_version: str
     estado: EstadoAnfitrion = EstadoAnfitrion.ACTIVO
+    telefono_token: str | None = None
+    terminos_aceptados_en: datetime | None = None
+    creado_en: datetime | None = None
 
 
 # ¤anfitriones
@@ -56,6 +60,8 @@ class Hospedaje:
     propiedad_id: str
     anfitrion_id: str
     estado: EstadoHospedaje
+    publicado_por: str | None = None
+    publicado_en: datetime | None = None
 
 
 # ¤anfitriones
@@ -71,6 +77,8 @@ class Solicitud:
     comision_porcentaje: Decimal
     estado: EstadoSolicitud
     vence_en: datetime
+    respondida_en: datetime | None = None
+    creado_en: datetime | None = None
 
 
 # ¤anfitriones
@@ -93,3 +101,6 @@ class EstadoDeCuenta:
     estado: EstadoCuenta
     vence_en: date
     lineas: tuple[LineaCuenta, ...] = field(default_factory=tuple)
+    emitido_en: datetime | None = None
+    pagado_en: datetime | None = None
+    pago_registrado_por: str | None = None

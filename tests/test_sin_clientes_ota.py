@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_SIN_CLIENTES_OTA (RF-PMS-04): el agente no habla con Airbnb, Booking ni VRBO; lo hace el PMS."""
 from __future__ import annotations
 

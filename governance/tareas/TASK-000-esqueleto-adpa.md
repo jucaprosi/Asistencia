@@ -2,7 +2,7 @@
 id = "TASK-000"
 titulo = "Esqueleto ADPA, compose, arnés, CI y backups probados"
 fase = 0
-estado = "boceto"
+estado = "sellada"
 sala = ["app_core", "infraestructura", "todas (compuertas vacías)"]
 rastro = ["¤pasillo-central", "¤infra-hibrida", "¤arquitectura-salas", "¤bbap-glamping"]
 rol = "¤¤solutions-architect"
@@ -48,3 +48,7 @@ La fase sigue en `boceto`: faltan los dos pendientes del propietario de abajo. U
 ## Pendientes del propietario (fuera del alcance de la IA)
 7. Crear el proyecto en Neon con plan Launch o superior, región elegida (recomendada: São Paulo, `aws-sa-east-1`) y ventana de restauración de 7 días. Guardar la captura de esa configuración y confirmar que `CREATE EXTENSION vector` funciona. Proveedor elegido el 2026-10-31.
 8. Ejecutar y documentar la primera restauración de backup externo del repositorio y de `governance/` (RNF-15).
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

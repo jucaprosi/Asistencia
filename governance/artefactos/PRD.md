@@ -6,7 +6,7 @@
 ## 1. Producto y propuesta de valor
 `¤prd-vision`
 
-Asistente de WhatsApp con Claude para huéspedes de Glamping Imbabura y sus departamentos urbanos, con acciones reales sobre el PMS vía MCP, RAG sobre el conocimiento del negocio, y un ARM («Jarvis») que convierte las ventas escritas por los vendedores en WhatsApp en registros validables con comisión calculada, visibles en un CRM adoptado. Núcleo propio; capa commodity adoptada tras interfaces abstractas. Visión completa: [`docs/PRD.md` §1](../../docs/PRD.md#1-visión-del-producto).
+Asistente de WhatsApp con Google Gemini (y Claude como alternativa interoperable, ADR-0019) para huéspedes de Glamping Imbabura y sus departamentos urbanos, con acciones reales sobre el PMS vía MCP, RAG sobre el conocimiento del negocio, y un ARM («Jarvis») que convierte las ventas escritas por los vendedores en WhatsApp en registros validables con comisión calculada, visibles en un CRM adoptado y en el panel operativo propio (ADR-0010 / ADR-0013). Despliegue Cloud-Native en Google Cloud Platform (Cloud Run, Cloud SQL pgvector, Cloud Tasks) aprovechando el bono de \$300 USD. Núcleo propio; capa commodity adoptada tras interfaces abstractas. Visión completa: [`docs/PRD.md` §1](../../docs/PRD.md#1-visión-del-producto).
 
 ## 2. Salas ADPA
 `¤arquitectura-salas`
@@ -28,8 +28,9 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 | `panel_operativo` (ADR-0013) | `features/panel_operativo` (BFF, `ui/`, `estaticos/`) | `panel_operativo_service.py` (por crear, TASK-004) | `¤panel-operativo` | `¤¤frontend-developer` | RF-PAN-01..10 |
 | `anfitriones` (ADR-0018) | `features/anfitriones` | `anfitriones_service.py` | `¤anfitriones` | `¤¤backend-developer` | RF-ANF-01..08 |
 | `web_huespedes` (ADR-0017) | `features/web_huespedes` | `web_huespedes_service.py` | `¤web-huespedes` | — | — |
+| `persistencia_sql` (ADR-0020) | `features/persistencia_sql`, `scripts/migrar_db.py`, `docs/spec/migraciones/` | `persistencia_sql_service.py` | `¤persistencia-sql` | `¤¤data-engineer` | RNF de durabilidad (ADR-0002, ADR-0019) |
 | *pasillo central* | `app_core/` | `main.py`, `contenedor.py` (por crear, TASK-000) | `¤pasillo-central` | `¤¤solutions-architect` | orquestación; sin requisitos propios |
-| *infraestructura* | `compose.yaml`, `compose.production.yaml`, `ejecutar_arnes_glamping.*`, `.env.example` | — | `¤infra-hibrida` | `¤¤devops-engineer` | RNF-10, RNF-14, RNF-15 |
+| *infraestructura* | `compose.yaml`, `compose.production.yaml`, `ejecutar_arnes_glamping.*`, `.env.example`, Google Cloud Platform (ADR-0019) | — | `¤infra-hibrida` `¤infra-cloud` | `¤¤devops-engineer` | RNF-10, RNF-14, RNF-15 |
 
 **Reglas de las salas**
 
@@ -73,3 +74,7 @@ Catálogo en [`INVARIANTS.md`](INVARIANTS.md).
 [`docs/PRD.md` §11](../../docs/PRD.md#11-fuera-de-alcance-versión-02).
 
 `¤prd-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

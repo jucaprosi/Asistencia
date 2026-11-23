@@ -31,3 +31,7 @@ Opción 3. pgvector/PostgreSQL y archivos en servicios gestionados con PITR; gat
 - Restauración de backup externo documentada al menos una vez por fase (RNF-15).
 
 `¤infra-hibrida/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Árbitro de INV_MISMO_COMPOSE e INV_RED_AISLADA (estático): los dos archivos compose son válidos y coherentes.
 
 La validación con `docker compose config` la hace el arnés cuando docker está en el PATH (siempre en CI).

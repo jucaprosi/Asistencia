@@ -1,3 +1,4 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Fixtures compartidas: raíz del repositorio y catálogo de salas (fuente: governance/artefactos/PRD.md §2)."""
 from __future__ import annotations
 
@@ -42,3 +43,33 @@ def raiz() -> Path:
 @pytest.fixture(scope="session")
 def salas() -> tuple[str, ...]:
     return SALAS_FASE_0
+
+
+# ¤persistencia-sql
+# Modo PostgreSQL de toda la suite: con GLAMPING_SUITE_POSTGRES=<url> cada repositorio que no recibe una
+# conexión explícita usa esa base (DATABASE_URL), y las tablas se vacían antes de cada prueba.
+_URL_SUITE_PG = __import__("os").environ.get("GLAMPING_SUITE_POSTGRES", "")
+
+
+@pytest.fixture(autouse=True)
+def _base_postgres_limpia(monkeypatch: pytest.MonkeyPatch):
+    if not _URL_SUITE_PG:
+        yield
+        return
+    import psycopg
+
+    from features.persistencia_sql.persistencia_sql_service import cerrar_conexiones_postgres
+
+    monkeypatch.setenv("DATABASE_URL", _URL_SUITE_PG)
+    with psycopg.connect(_URL_SUITE_PG, autocommit=True) as con:
+        tablas = [
+            f"{esquema}.{tabla}"
+            for esquema, tabla in con.execute(
+                "SELECT table_schema, table_name FROM information_schema.tables "
+                "WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema', 'public')"
+            )
+        ]
+        if tablas:
+            con.execute("TRUNCATE " + ", ".join(tablas) + " CASCADE")
+    yield
+    cerrar_conexiones_postgres()

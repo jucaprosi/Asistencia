@@ -1,0 +1,42 @@
+# ¤infra-hibrida
+# ¤¤devops-engineer
+# Configuración Caddy para Proxy Inverso TLS y PWA Terminal Móvil (T-810, RF-PAN-11, RF-PAN-12)
+
+{$PANEL_DOMAIN:localhost} {
+	# Cifrado y compresión
+	encode zstd gzip
+
+	# Cabeceras de seguridad globales
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-XSS-Protection "1; mode=block"
+	}
+
+	# PWA Service Worker: actualización inmediata sin almacenamiento en caché (RF-PAN-11)
+	@service_worker path /panel/sw.js
+	header @service_worker {
+		Cache-Control "no-store, no-cache, must-revalidate"
+		Service-Worker-Allowed "/panel/"
+		Content-Type "application/javascript; charset=utf-8"
+	}
+
+	# PWA Manifiesto: sin caché para sincronizar cambios de versión e iconos (RF-PAN-11)
+	@manifest path /panel/manifest.webmanifest /panel/manifest.json
+	header @manifest {
+		Cache-Control "no-store, no-cache, must-revalidate"
+		Content-Type "application/manifest+json; charset=utf-8"
+	}
+
+	# API del Panel Operativo: nunca almacenar en caché del navegador (INV_MOVIL_SIN_PII_EN_DISCO)
+	@panel_api path /panel/api/*
+	header @panel_api {
+		Cache-Control "no-store, no-cache, must-revalidate, private"
+		Pragma "no-cache"
+	}
+
+	# Traspaso al contenedor de la aplicación backend
+	reverse_proxy {$APP_UPSTREAM:app:8080}
+}

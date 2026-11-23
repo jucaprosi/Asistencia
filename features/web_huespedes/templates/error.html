@@ -1,0 +1,14 @@
+<!-- © 2026 Juan Carlos Proaño. Todos los derechos reservados. -->
+{% extends "base.html" %}
+
+{% block titulo %}Aviso — Glamping Imbabura{% endblock %}
+
+{% block contenido %}
+<section class="alerta-error" aria-labelledby="titulo-aviso" style="max-width: 600px; margin: 40px auto;">
+  <h1 id="titulo-aviso" style="font-size: 24px; color: var(--error); margin-bottom: 12px;">Aviso del Sistema</h1>
+  <p style="font-size: 16px; margin-bottom: 20px; line-height: 1.5;">
+    {{ mensaje_usuario }}
+  </p>
+  <a href="/" class="boton boton-primario">Volver al inicio</a>
+</section>
+{% endblock %}

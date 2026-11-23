@@ -32,3 +32,7 @@ El propietario decidió que los huéspedes deben poder buscar y comparar opcione
 - Publicar exige tener aviso de privacidad, catálogo real y fotos con derechos de uso.
 
 `¤web-huespedes/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

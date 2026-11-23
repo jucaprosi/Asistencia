@@ -30,3 +30,7 @@ Opción 2 (3 queda abierta como implementación interna de `canal_whatsapp` si s
 - `tests/canal_whatsapp/test_ventana_24h.py`: texto libre fuera de ventana se rechaza en la compuerta.
 
 `¤canal-whatsapp/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

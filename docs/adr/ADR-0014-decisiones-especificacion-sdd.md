@@ -49,3 +49,7 @@ Las marcadas con **Negocio** o **Legal** requieren revisión expresa; las técni
 - Si el propietario rechaza una decisión, se ajustan contrato, escenarios y tareas, y se sube la versión del PRD.
 
 `¤spec-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

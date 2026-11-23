@@ -57,3 +57,7 @@ La plataforma lleva su propio calendario y sus tarifas, detrás de la misma inte
 - Dos reservas simultáneas de la misma noche: solo una pasa (`docs/spec/verificacion_esquema.sql` en la CI).
 
 `¤pms-conector/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

@@ -1,6 +1,9 @@
 -- ¤spec-glamping
 -- Esquema canónico. Un esquema de PostgreSQL por sala; sin claves foráneas entre esquemas: las salas
 -- se referencian por identificador y se consultan por compuerta (ADPA). Lo aplica la CI en PostgreSQL real.
+-- Identificadores en text, no uuid: el código genera claves legibles (ANF-..., V-2026-0001) además de UUID;
+-- los valores por defecto siguen siendo UUID aleatorios en texto (ADR-0020).
+-- © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -25,7 +28,7 @@ CREATE SCHEMA anfitriones;
 
 -- Sala canal_whatsapp
 CREATE TABLE canal.eventos_entrantes (
-  evento_id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  evento_id        text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   mensaje_id       text NOT NULL UNIQUE,            -- deduplicación de reintentos de Meta
   conversacion_clave text NOT NULL,                 -- serializa el procesamiento por remitente
   cuerpo_cifrado   bytea NOT NULL,
@@ -52,13 +55,14 @@ CREATE TABLE canal.plantillas (
   nombre           text PRIMARY KEY,
   idioma           text NOT NULL DEFAULT 'es',
   categoria        text NOT NULL CHECK (categoria IN ('utility','authentication','marketing')),
+  variables_csv    text NOT NULL DEFAULT '',
   aprobada         boolean NOT NULL DEFAULT false,
   actualizada_en   timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE TABLE canal.medios (
   medio_id         text PRIMARY KEY,
-  mensaje_id       text NOT NULL REFERENCES canal.mensajes_meta(mensaje_id),
+  mensaje_id       text REFERENCES canal.mensajes_meta(mensaje_id),   -- NULL si el medio se descarga sin su mensaje
   medio_ref        text NOT NULL,
   tipo             text NOT NULL CHECK (tipo IN ('imagen','audio','documento','ubicacion')),
   bytes            bigint NOT NULL CHECK (bytes >= 0),
@@ -67,19 +71,19 @@ CREATE TABLE canal.medios (
 
 -- Sala seguridad
 CREATE TABLE seguridad.usuarios (
-  usuario_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id       text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   correo_hash      text NOT NULL UNIQUE,
   numero_hash      text NOT NULL UNIQUE,
   rol              text NOT NULL CHECK (rol IN ('vendedor','lider','gestor','administrador','anfitrion')),
   sujeto_id        text,
   activo           boolean NOT NULL DEFAULT true,
-  alta_por         uuid,
+  alta_por         text,
   alta_en          timestamptz NOT NULL DEFAULT now(),
   baja_en          timestamptz
 );
 
 CREATE TABLE seguridad.huespedes (
-  huesped_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  huesped_id       text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   telefono_token   text NOT NULL UNIQUE,
   nombre_token     text,
   idioma           text NOT NULL DEFAULT 'es',
@@ -90,7 +94,7 @@ CREATE TABLE seguridad.huespedes (
 CREATE TABLE seguridad.bloqueos (
   numero_hash      text PRIMARY KEY,
   motivo           text NOT NULL,
-  bloqueado_por    uuid NOT NULL,
+  bloqueado_por    text NOT NULL,
   bloqueado_en     timestamptz NOT NULL DEFAULT now()
 );
 
@@ -114,7 +118,7 @@ CREATE TABLE seguridad.rate_limit (
 );
 
 CREATE TABLE seguridad.consentimientos (
-  consentimiento_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  consentimiento_id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   titular_hash     text NOT NULL,
   base             text NOT NULL CHECK (base IN ('aviso_primer_contacto','reserva','relacion_laboral')),
   version_aviso    text NOT NULL,
@@ -123,19 +127,19 @@ CREATE TABLE seguridad.consentimientos (
 );
 
 CREATE TABLE seguridad.solicitudes_titular (
-  solicitud_id     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  solicitud_id     text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   titular_hash     text NOT NULL,
   tipo             text NOT NULL CHECK (tipo IN ('acceso','rectificacion','eliminacion','oposicion','portabilidad')),
   estado           text NOT NULL DEFAULT 'recibida' CHECK (estado IN ('recibida','en_curso','atendida','atendida_parcial','rechazada')),
   recibida_en      timestamptz NOT NULL DEFAULT now(),
   limite_en        timestamptz NOT NULL,
   atendida_en      timestamptz,
-  atendida_por     uuid,
+  atendida_por     text,
   motivo           text
 );
 
 CREATE TABLE seguridad.audit_log (
-  audit_id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  audit_id         text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   instante         timestamptz NOT NULL DEFAULT now(),
   actor_token      text NOT NULL,
   rol              text NOT NULL,
@@ -149,7 +153,7 @@ CREATE TABLE seguridad.audit_log (
 
 -- Sala agente
 CREATE TABLE agente.conversaciones (
-  conversacion_id  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversacion_id  text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   identidad_token  text NOT NULL,
   canal            text NOT NULL CHECK (canal IN ('huespedes','vendedores')),
   propiedad_id     text,
@@ -164,7 +168,7 @@ CREATE TABLE agente.conversaciones (
 
 CREATE TABLE agente.mensajes (
   mensaje_id       text PRIMARY KEY,
-  conversacion_id  uuid NOT NULL REFERENCES agente.conversaciones(conversacion_id),
+  conversacion_id  text NOT NULL REFERENCES agente.conversaciones(conversacion_id),
   direccion        text NOT NULL CHECK (direccion IN ('in','out')),
   tipo             text NOT NULL,
   contenido_token  text NOT NULL,
@@ -192,7 +196,7 @@ CREATE TABLE agente.cache_semantico (
 
 -- Sala conocimiento
 CREATE TABLE conocimiento.documentos (
-  documento_id     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  documento_id     text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   ruta             text NOT NULL UNIQUE,
   propiedad_id     text NOT NULL,                    -- 'global' o identificador de propiedad
   tipo             text NOT NULL CHECK (tipo IN ('politicas','precios','checkin','atractivos','faq','pagos','privacidad')),
@@ -203,8 +207,8 @@ CREATE TABLE conocimiento.documentos (
 );
 
 CREATE TABLE conocimiento.chunks (
-  chunk_id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  documento_id     uuid NOT NULL REFERENCES conocimiento.documentos(documento_id) ON DELETE CASCADE,
+  chunk_id         text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  documento_id     text NOT NULL REFERENCES conocimiento.documentos(documento_id) ON DELETE CASCADE,
   propiedad_id     text NOT NULL,
   encabezado       text NOT NULL,
   texto            text NOT NULL,
@@ -247,7 +251,7 @@ CREATE TABLE pms.reservas_ref (
   codigo_reserva   text PRIMARY KEY,
   propiedad_id     text NOT NULL REFERENCES pms.propiedades(propiedad_id),
   unidad_id        text NOT NULL REFERENCES pms.unidades(unidad_id),
-  huesped_id       uuid NOT NULL,
+  huesped_id       text NOT NULL,
   desde            date NOT NULL,
   hasta            date NOT NULL,
   estado           text NOT NULL CHECK (estado IN ('preliminar','confirmada','cancelada','expirada','completada')),
@@ -285,16 +289,16 @@ CREATE TABLE pms.incidencias (
   prioridad        text NOT NULL CHECK (prioridad IN ('baja','media','alta','critica')),
   estado           text NOT NULL DEFAULT 'abierta' CHECK (estado IN ('abierta','en_curso','resuelta')),
   descripcion_token text NOT NULL,
-  gestor_id        uuid,
+  gestor_id        text,
   creada           timestamptz NOT NULL DEFAULT now(),
   resuelta_en      timestamptz,
-  resuelta_por     uuid,
+  resuelta_por     text,
   nota             text,
   CHECK (categoria NOT IN ('acceso','seguridad') OR prioridad = 'critica')
 );
 
 CREATE TABLE pms.idempotencia (
-  clave            uuid PRIMARY KEY,
+  clave            text PRIMARY KEY,
   operacion        text NOT NULL,
   resultado_json   jsonb NOT NULL,
   creado_en        timestamptz NOT NULL DEFAULT now()
@@ -309,18 +313,18 @@ CREATE TABLE pms.secuencia_incidencias (
 CREATE TABLE crm.zonas (
   zona_id          text PRIMARY KEY,
   nombre           text NOT NULL,
-  gestor_principal_id uuid NOT NULL,
-  gestor_respaldo_id  uuid NOT NULL,
+  gestor_principal_id text NOT NULL,
+  gestor_respaldo_id  text NOT NULL,
   CHECK (gestor_principal_id <> gestor_respaldo_id)
 );
 
 CREATE TABLE crm.handoffs (
-  handoff_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversacion_id  uuid NOT NULL,
+  handoff_id       text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  conversacion_id  text NOT NULL,
   motivo           text NOT NULL CHECK (motivo IN ('peticion_explicita','baja_confianza','fuera_alcance','incidencia_critica','inyeccion_repetida','degradacion','limite_iteraciones')),
   zona_id          text REFERENCES crm.zonas(zona_id),
   estado           text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','tomado','devuelto')),
-  asignado_a       uuid,
+  asignado_a       text,
   resumen_token    text NOT NULL,
   inicio           timestamptz NOT NULL DEFAULT now(),
   tomado_en        timestamptz,
@@ -331,7 +335,7 @@ CREATE TABLE crm.handoffs (
 CREATE UNIQUE INDEX un_handoff_abierto ON crm.handoffs (conversacion_id) WHERE estado <> 'devuelto';
 
 CREATE TABLE crm.publicaciones (
-  venta_id         uuid NOT NULL,
+  venta_id         text NOT NULL,
   evento           text NOT NULL CHECK (evento IN ('venta_validada','venta_anulada')),
   payload_json     jsonb NOT NULL,
   estado           text NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','ok','error')),
@@ -360,7 +364,7 @@ CREATE TABLE crm.referencias (
 
 -- Sala arm_jarvis
 CREATE TABLE arm.vendedores (
-  vendedor_id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  vendedor_id      text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   telefono_token   text NOT NULL UNIQUE,
   nombre           text NOT NULL,
   activo           boolean NOT NULL DEFAULT true,
@@ -373,9 +377,9 @@ CREATE TABLE arm.secuencia_tickets (
 );
 
 CREATE TABLE arm.ventas (
-  venta_id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  venta_id         text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   ticket           text NOT NULL UNIQUE CHECK (ticket ~ '^V-[0-9]{4}-[0-9]{4,}$'),
-  vendedor_id      uuid NOT NULL REFERENCES arm.vendedores(vendedor_id),
+  vendedor_id      text NOT NULL REFERENCES arm.vendedores(vendedor_id),
   cliente_token    text,
   telefono_cliente_token text,
   producto         text NOT NULL,
@@ -391,7 +395,7 @@ CREATE TABLE arm.ventas (
   confianza        numeric(3,2) NOT NULL CHECK (confianza BETWEEN 0 AND 1),
   confianza_campos jsonb NOT NULL DEFAULT '{}',
   huella_duplicado text NOT NULL,
-  posible_duplicado_de uuid REFERENCES arm.ventas(venta_id),
+  posible_duplicado_de text REFERENCES arm.ventas(venta_id),
   estado           text NOT NULL DEFAULT 'por_validar' CHECK (estado IN ('por_validar','validada','rechazada','publicada','no_publicada','anulada')),
   reserva_ref      text,
   creada           timestamptz NOT NULL DEFAULT now(),
@@ -402,8 +406,8 @@ CREATE TABLE arm.ventas (
 CREATE INDEX ventas_huella ON arm.ventas (huella_duplicado, creada);
 
 CREATE TABLE arm.transiciones (
-  transicion_id    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  venta_id         uuid NOT NULL REFERENCES arm.ventas(venta_id),
+  transicion_id    text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  venta_id         text NOT NULL REFERENCES arm.ventas(venta_id),
   de               text NOT NULL,
   a                text NOT NULL,
   actor_id         text NOT NULL,
@@ -445,7 +449,7 @@ CREATE TRIGGER ventas_transicion BEFORE UPDATE OF estado ON arm.ventas
 CREATE TABLE comisiones.reglas (
   regla_id         text NOT NULL,
   version          integer NOT NULL CHECK (version >= 1),
-  vendedor_id      uuid,
+  vendedor_id      text,
   propiedad_id     text,
   producto_patron  text,
   tipo             text NOT NULL CHECK (tipo IN ('porcentaje','fijo','escalonada')),
@@ -468,9 +472,9 @@ CREATE TABLE comisiones.periodos (
 );
 
 CREATE TABLE comisiones.comisiones (
-  comision_id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  venta_id         uuid NOT NULL,
-  vendedor_id      uuid NOT NULL,
+  comision_id      text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  venta_id         text NOT NULL,
+  vendedor_id      text NOT NULL,
   fecha_venta      date NOT NULL,
   monto_venta      numeric(12,2) NOT NULL,
   regla_id         text NOT NULL,
@@ -480,7 +484,7 @@ CREATE TABLE comisiones.comisiones (
   periodo_id       text NOT NULL REFERENCES comisiones.periodos(periodo_id),
   periodo_origen   text NOT NULL,
   estado           text NOT NULL CHECK (estado IN ('estimada','fijada','pagada','ajustada')),
-  ajuste_de        uuid REFERENCES comisiones.comisiones(comision_id),
+  ajuste_de        text REFERENCES comisiones.comisiones(comision_id),
   motivo           text,
   FOREIGN KEY (regla_id, regla_version) REFERENCES comisiones.reglas(regla_id, version),
   CHECK (estado <> 'ajustada' OR ajuste_de IS NOT NULL),
@@ -521,7 +525,7 @@ CREATE TABLE observabilidad.trazas (
 );
 
 CREATE TABLE observabilidad.spans (
-  span_id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  span_id          text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   traza_id         text NOT NULL REFERENCES observabilidad.trazas(traza_id) ON DELETE CASCADE,
   sala             text NOT NULL,
   nombre           text NOT NULL,
@@ -535,8 +539,8 @@ CREATE TABLE observabilidad.spans (
 
 -- Sala panel_operativo
 CREATE TABLE panel.codigos_acceso (
-  codigo_id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  usuario_id       uuid NOT NULL,
+  codigo_id        text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  usuario_id       text NOT NULL,
   codigo_hash      text NOT NULL,
   intentos         integer NOT NULL DEFAULT 0 CHECK (intentos BETWEEN 0 AND 5),
   expira_en        timestamptz NOT NULL,
@@ -545,8 +549,8 @@ CREATE TABLE panel.codigos_acceso (
 
 -- Un teléfono por fila; se revoca al cerrar sesión o dar de baja al usuario
 CREATE TABLE panel.dispositivos (
-  dispositivo_id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  usuario_id       uuid NOT NULL,
+  dispositivo_id   text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  usuario_id       text NOT NULL,
   endpoint         text NOT NULL UNIQUE,
   clave_p256dh     text NOT NULL,
   clave_auth       text NOT NULL,
@@ -556,8 +560,8 @@ CREATE TABLE panel.dispositivos (
 
 -- Repetir una acción con la misma clave devuelve la respuesta guardada
 CREATE TABLE panel.acciones_idempotentes (
-  usuario_id       uuid NOT NULL,
-  clave            uuid NOT NULL,
+  usuario_id       text NOT NULL,
+  clave            text NOT NULL,
   accion           text NOT NULL,
   respuesta        jsonb,
   creada_en        timestamptz NOT NULL DEFAULT now(),
@@ -566,7 +570,7 @@ CREATE TABLE panel.acciones_idempotentes (
 
 CREATE TABLE panel.sesiones (
   sesion_id_hash   text PRIMARY KEY,
-  usuario_id       uuid NOT NULL,
+  usuario_id       text NOT NULL,
   creada_en        timestamptz NOT NULL DEFAULT now(),
   expira_en        timestamptz NOT NULL,
   cerrada_en       timestamptz
@@ -575,7 +579,7 @@ CREATE TABLE panel.sesiones (
 -- Permisos
 -- Sala anfitriones: la plataforma no custodia dinero; registra solicitudes y comisión
 CREATE TABLE anfitriones.anfitriones (
-  anfitrion_id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  anfitrion_id        text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   nombre_comercial    text NOT NULL,
   telefono_token      text NOT NULL UNIQUE,
   comision_porcentaje numeric(5,2) NOT NULL CHECK (comision_porcentaje BETWEEN 0 AND 100),
@@ -587,7 +591,7 @@ CREATE TABLE anfitriones.anfitriones (
 
 CREATE TABLE anfitriones.hospedajes (
   propiedad_id     text PRIMARY KEY,
-  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  anfitrion_id     text NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
   estado           text NOT NULL DEFAULT 'borrador' CHECK (estado IN ('borrador','publicado','pausado')),
   publicado_por    text,
   publicado_en     timestamptz,
@@ -598,7 +602,7 @@ CREATE TABLE anfitriones.solicitudes (
   solicitud        text PRIMARY KEY CHECK (solicitud ~ '^PL-[0-9]{4}-[0-9]{4,}$'),
   codigo_reserva   text NOT NULL UNIQUE,
   propiedad_id     text NOT NULL REFERENCES anfitriones.hospedajes (propiedad_id),
-  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  anfitrion_id     text NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
   desde            date NOT NULL,
   hasta            date NOT NULL,
   total            numeric(12,2) NOT NULL CHECK (total >= 0),
@@ -615,8 +619,8 @@ CREATE POLICY solicitudes_por_anfitrion ON anfitriones.solicitudes
   USING (anfitrion_id::text = current_setting('app.anfitrion_id', true) OR current_setting('app.anfitrion_id', true) = 'todos');
 
 CREATE TABLE anfitriones.estados_cuenta (
-  estado_cuenta_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  anfitrion_id     uuid NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
+  estado_cuenta_id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  anfitrion_id     text NOT NULL REFERENCES anfitriones.anfitriones (anfitrion_id),
   periodo          text NOT NULL CHECK (periodo ~ '^[0-9]{4}-(0[1-9]|1[0-2])$'),
   total            numeric(12,2) NOT NULL,
   estado           text NOT NULL DEFAULT 'emitido' CHECK (estado IN ('emitido','pagado','vencido')),
@@ -629,8 +633,8 @@ CREATE TABLE anfitriones.estados_cuenta (
 );
 
 CREATE TABLE anfitriones.lineas_cuenta (
-  linea_id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  estado_cuenta_id uuid NOT NULL REFERENCES anfitriones.estados_cuenta (estado_cuenta_id),
+  linea_id         text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  estado_cuenta_id text NOT NULL REFERENCES anfitriones.estados_cuenta (estado_cuenta_id),
   solicitud        text NOT NULL,
   tipo             text NOT NULL DEFAULT 'cargo' CHECK (tipo IN ('cargo','ajuste')),
   base             numeric(12,2) NOT NULL,

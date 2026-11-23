@@ -14,7 +14,7 @@
 
 ### Canal de WhatsApp
 `¤canal-whatsapp`
-- **Meta — WhatsApp Business Platform, Cloud API.** Documentación oficial: webhooks y firma `X-Hub-Signature-256`, ventana de servicio de 24 h, plantillas de mensaje, medios, precios por conversación. `developers.facebook.com/docs/whatsapp/cloud-api` — `verificada` (fuente primaria del canal; releer para el supuesto S-01 sobre grupos antes de la fase 6).
+- **Meta — WhatsApp Business Platform, Cloud API.** Documentación oficial: webhooks y firma `X-Hub-Signature-256`, ventana de servicio de 24 h, plantillas de mensaje, medios, precios por conversación. `developers.facebook.com/docs/whatsapp/cloud-api` — `verificada` (fuente primaria del canal; respalda aporte A-03; releer para el supuesto S-01 sobre grupos antes de la fase 6).
 - **Risk of Ban (OpenWA)** y **WhatsApp API for Business: Official vs Open Source.** Confirman el riesgo de suspensión con librerías no oficiales. — `citada por el informe`.
 - **`pywa-mcp-server`.** MCP de comunidad sobre la Cloud API. — `citada por el informe`; verificar según ADR-0011.
 
@@ -103,3 +103,7 @@ Las fuentes marcadas `citada por el informe` sobre PMS, CRM y MCP de comunidad s
 | Fuente | Función | Nota |
 | :--- | :--- | :--- |
 | [WebKit: Web Push para apps web en iOS y iPadOS](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/) | ADR-0016 | Web Push para apps en la pantalla de inicio desde 16.4. |
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

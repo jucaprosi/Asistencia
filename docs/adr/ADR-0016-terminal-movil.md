@@ -32,3 +32,7 @@ La terminal es el panel operativo instalado como aplicación web progresiva, den
 - Si hiciera falta publicar en tiendas o usar cámara nativa, se necesita otro ADR.
 
 `¤panel-operativo/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

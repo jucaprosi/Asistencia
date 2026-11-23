@@ -1,0 +1,28 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
+name: sondeo-salud
+
+on:
+  schedule:
+    - cron: "* * * * *"
+  workflow_dispatch:
+
+jobs:
+  sondeo_salud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Ejecutar sondeo externo de salud y disponibilidad (RNF-05)
+        run: pytest tests/integracion/carga/test_sondeo_salud.py -v
+
+      - name: Alerta al canal del administrador ante degradacion de salud (RF-OBS-04)
+        if: failure()
+        run: |
+          python -c "from features.observabilidad.observabilidad_service import ObservabilidadService, cargar_config; obs = ObservabilidadService(cargar_config()); obs.log('CRITICAL', 'alerta_salud_degradada_admin', sondeo='periodico', canal='admin')"

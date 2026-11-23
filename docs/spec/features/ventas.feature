@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Registro de ventas desde WhatsApp
 
   @US-05 @CU-04 @RF-ARM-02 @RF-ARM-05

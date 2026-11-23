@@ -9,53 +9,108 @@
 | Privados | `herramientas_internal.py`, `esquemas/*.json`, `tipos.py` |
 | Config | `config_herramientas_glamping.yaml` |
 | Rol | `¤¤backend-developer` |
-| Requisitos | RF-MCP-01..09 · INV_ALLOWLIST_POR_ACCION |
-| Tareas | TASK-003 (01..07), TASK-006 (08, 09) |
+| Requisitos | RF-MCP-01..09, RF-ANF-04..06, RF-PMS-08 · INV_ALLOWLIST_POR_ACCION, INV_SIN_FUGA_ENTRE_PROPIEDADES, INV_CONTACTO_TRAS_CONFIRMAR, INV_AISLAMIENTO_ANFITRION, INV_COMISION_PROPIA |
+| Tareas | TASK-003 (01..07: T-203), TASK-005 (T-306: solicitud, respuesta, resultado y calendario), TASK-007 (T-504: registrar_venta y consultar_comision_propia) |
 
 ## Propósito
-Exponer a Claude herramientas tipadas con esquema JSON. Cada herramienta valida la entrada, pide autorización a `seguridad`, llama a la compuerta de la sala dueña del dato y devuelve una salida tipada. No contiene lógica de negocio propia.
+Exponer a Claude y al agente conversacional herramientas tipadas con esquemas JSON Draft 2020-12. Cada herramienta valida su entrada, exige autorización estricta a `seguridad` (`INV_ALLOWLIST_POR_ACCION`), delega la operación a la compuerta dueña del dato (`pms_conector`, `conocimiento`, `crm_conector`, `anfitriones`) y formatea la salida asegurando la ausencia de fuga de datos entre propiedades (`INV_SIN_FUGA_ENTRE_PROPIEDADES`) y el aislamiento entre anfitriones (`INV_AISLAMIENTO_ANFITRION`). No persiste estado de negocio directo ni contiene lógica contable.
+
+En las herramientas de anfitrión (`responder_solicitud`, `reportar_resultado_estadia`, `actualizar_calendario`), el `anfitrion_id` se extrae obligatoriamente de la `identidad` del actor (`sujeto_id` o `remitente_token`), nunca de los parámetros del modelo ni del mensaje entrante.
 
 ## Tipos del dominio
 
 ```python
 @dataclass(frozen=True)
-class DefinicionHerramienta: nombre: str; descripcion: str; esquema_entrada: Mapping[str, Any]; esquema_salida: Mapping[str, Any]; roles: tuple[str, ...]; sala_destino: str
+class DefinicionHerramienta:
+    nombre: str
+    descripcion: str
+    esquema_entrada: Mapping[str, Any]
+    esquema_salida: Mapping[str, Any]
+    roles: tuple[str, ...]
+    sala_destino: str
+
 @dataclass(frozen=True)
-class ResultadoHerramienta: nombre: str; salida: Mapping[str, Any]; error: str | None; duracion_ms: int
+class ResultadoHerramienta:
+    nombre: str
+    salida: Mapping[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    duracion_ms: int = 0
 ```
 
-## Compuerta
+## Compuerta Pública (`HerramientasGlampingService`)
 
 ```python
 class HerramientasGlampingService:
-    def listar(self, rol: str, propiedad_id: str | None) -> tuple[DefinicionHerramienta, ...]: ...   # lo que agente expone al modelo
-    def ejecutar(self, nombre: str, entrada: Mapping[str, Any], identidad: Identidad, conversacion_id: str) -> ResultadoHerramienta: ...
+    def __init__(
+        self,
+        config: Mapping[str, Any],
+        *,
+        seguridad: Any,
+        pms: Any,
+        conocimiento: Any,
+        crm: Any,
+        arm: Any = None,
+        comisiones: Any = None,
+        anfitriones: Any = None,
+        observabilidad: Any = None,
+    ) -> None: ...
+
+    def catalogo_declarado(self) -> tuple[str, ...]: ...
+    def listar(self, rol: str, propiedad_id: str | None = None) -> tuple[DefinicionHerramienta, ...]: ...
+    def ejecutar(
+        self,
+        nombre: str,
+        entrada: Mapping[str, Any],
+        identidad: Any,
+        conversacion_id: str,
+    ) -> ResultadoHerramienta: ...
     def esquema(self, nombre: str) -> DefinicionHerramienta: ...
 ```
 
-## Catálogo (entrada/salida completas en [`../PRD.md` §5.10](../PRD.md#510-mcp-serversglamping-tools--sala-herramientas_glamping))
+## Herramientas Implementadas (T-203 y T-306)
 
-| Herramienta | Sala destino | Roles |
-| :--- | :--- | :--- |
-| `consultar_disponibilidad`, `cotizar`, `crear_reserva_preliminar`, `obtener_instrucciones_checkin` | `pms_conector` (+ `conocimiento` para política y normas) | huésped |
-| `reportar_incidencia` | `pms_conector` u `operaciones`; notifica por `crm_conector` | huésped activo |
-| `solicitar_humano` | `crm_conector` | huésped potencial y activo, vendedor |
-| `buscar_contacto_crm`, `crear_oportunidad_crm` | `crm_conector` | agente (interno) |
-| `registrar_venta`, `consultar_comision_propia` | `arm_jarvis` (+ `comisiones`) | vendedor |
+| Herramienta | Requisito | Sala destino | Roles Permitidos | Contrato de Salida |
+| :--- | :--- | :--- | :--- | :--- |
+| `consultar_disponibilidad` | RF-MCP-01 | `pms_conector` | `huesped_potencial`, `huesped_activo` | `{disponible: bool, unidades: list, alternativas: list (max 3), motivo?: str}` |
+| `cotizar` | RF-MCP-02 | `pms_conector` | `huesped_potencial`, `huesped_activo` | `{total: str (2 dec), moneda: "USD", desglose: list, politica_cancelacion_id: str}` |
+| `crear_reserva_preliminar` | RF-MCP-03 | `pms_conector` | `huesped_potencial`, `huesped_activo` | `{codigo_reserva: str, estado: "preliminar", expira_en: iso8601}` |
+| `obtener_instrucciones_checkin`| RF-MCP-04 | `pms_conector` (+ `conocimiento`) | `huesped_activo` | `{propiedad: str, direccion: str, hora_checkin: str, acceso: list, wifi: {red, clave_ref}, normas: list, contacto_emergencia: str}` |
+| `reportar_incidencia` | RF-MCP-05 | `pms_conector` (+ `crm_conector`) | `huesped_activo` | `{incidencia_id: str (I-YYYY-NNNN), prioridad: enum, gestor_asignado: str, eta_respuesta_horas: float}` |
+| `solicitar_humano` | RF-MCP-06 | `crm_conector` | `huesped_potencial`, `huesped_activo`, `vendedor` | `{handoff_id: str, asignado_a: str, canal: "panel", minutos_estimados: int}` |
+| `buscar_contacto_crm` | RF-MCP-07 | `crm_conector` | `sistema` | `{encontrado: bool, contacto_id?: str}` |
+| `crear_oportunidad_crm` | RF-MCP-07 | `crm_conector` | `sistema` | `{oportunidad_id: str}` |
+| `solicitar_reserva` | RF-ANF-04 | `anfitriones` | `huesped_potencial`, `huesped_activo` | `{solicitud: str (PL-YYYY-NNNN), estado: "solicitada", vence_en: iso8601}` |
+| `responder_solicitud` | RF-ANF-05 | `anfitriones` | `anfitrion` | `{solicitud: str, estado: "confirmada" \| "rechazada"}` |
+| `reportar_resultado_estadia` | RF-ANF-06 | `anfitriones` | `anfitrion` | `{solicitud: str, estado: "cancelada" \| "no_show" \| "completada"}` |
+| `actualizar_calendario` | RF-PMS-08 | `pms_conector` | `anfitrion` | `{unidad_id: str, noches: int, omitidas: int}` |
+| `registrar_venta` | RF-MCP-08 | `arm_jarvis` | `vendedor` | `{ticket: str (V-AAAA-NNNN), estado: "por_validar", comision_estimada?: str, posible_duplicado: bool}` |
+| `consultar_comision_propia` | RF-MCP-09 | `arm_jarvis` | `vendedor` | `{validada: str, pendiente: str, ventas: int, periodo: str (AAAA-MM)}` |
 
-## Configuración (`config_herramientas_glamping.yaml`)
-`transporte: stdio|http`, `puerto: 8090` (solo `agent-net`), `herramientas: [{nombre, esquema: esquemas/<nombre>.json, roles, sala_destino, habilitada}]`, `timeout_por_herramienta_s: 8`.
+## Manejo de Errores e Invariantes
 
-## Compuertas que consume
-`seguridad` (`autorizar`), `pms_conector`, `conocimiento`, `crm_conector`, `arm_jarvis`, `comisiones`, `observabilidad`.
+- **`INV_ALLOWLIST_POR_ACCION`**: Se verifica siempre llamando a `seguridad.autorizar(rol, nombre)`. Si el veredicto no es permitido, levanta `HerramientaNoAutorizada`.
+- **`INV_COMISION_PROPIA`**: En `registrar_venta` y `consultar_comision_propia`, el `vendedor_id` nunca se acepta desde los argumentos del modelo (`additionalProperties: false`). El servidor lo inyecta obligatoriamente desde la `identidad` verificada del remitente (`sujeto_id` o `remitente_token`).
+- **`EntradaInvalida`**: Levantada cuando la entrada incumple el esquema JSON Draft 2020-12. El mensaje detalla el campo infractor de manera legible para el usuario o agente.
+- **`ReservaNoAutorizada`**: Levantada cuando un remitente intenta consultar instrucciones de check-in (`obtener_instrucciones_checkin`) para un código de reserva que no le pertenece (verificado con `pms.validar_titular_local`). Se audita en `seguridad` y, ante 5 intentos acumulados en 24h, escala automáticamente a handoff humano.
+- **`INV_CONTACTO_TRAS_CONFIRMAR`**: En el flujo de solicitud y anfitrión, la información de contacto solo se entrega una vez que el anfitrión confirma la reserva.
+- **`INV_AISLAMIENTO_ANFITRION`**: Cada anfitrión solo puede operar sobre sus propias solicitudes y actualizar el calendario de sus propias unidades. Intentos cruzados levantan excepción envuelta en `SalaDestinoFallida`.
+- **`HerramientaDeshabilitada`**: Levantada si la herramienta está desactivada en `config_herramientas_glamping.yaml` (`habilitada: false`).
+- **`SalaDestinoFallida`**: Envoltorio de excepciones inesperadas provenientes de las salas dueñas del dato.
 
-## Errores
-`EntradaInvalida` (no valida contra el esquema; mensaje legible con el campo), `HerramientaNoAutorizada`, `HerramientaDeshabilitada`, `SalaDestinoFallida` (envuelve el error tipado de la sala).
+## Transporte MCP (`server.py`)
 
-## Persistencia
-Ninguna propia; las ejecuciones quedan en el audit log de `seguridad` y en las trazas.
+Implementa el protocolo JSON-RPC 2.0 estándar de Model Context Protocol:
+- `initialize`: handshake con capabilities de herramientas y metadatos de versión.
+- `ping`: verificación de disponibilidad.
+- `tools/list`: catálogo filtrado por rol y habilitación.
+- `tools/call`: ejecución segura encapsulando errores tipados en respuestas MCP (`isError: true/false`).
 
-## Tests (árbitro)
-`tests/herramientas_glamping/test_contratos.py` (cada herramienta: esquema, autorización, `Fake*`), `test_server.py` (arranque stdio y listado).
+## Tests (Árbitro)
 
-`¤herramientas-mcp/`
+- `tests/herramientas_glamping/test_contratos.py`: Dobles de compuertas, validación de esquemas, invariantes de seguridad y contratos de las herramientas de huéspedes y vendedores (T-203, T-504).
+- `tests/herramientas_glamping/test_server.py`: Transporte stdio y procesamiento JSON-RPC.
+- `tests/herramientas_glamping/test_anfitriones.py`: Árbitro de T-306 (solicitud, confirmación/rechazo, reporte de estadía y actualización de calendario con aislamiento de anfitrión).
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

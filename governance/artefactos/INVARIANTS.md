@@ -124,3 +124,7 @@ Cada invariante activa se expresa como predicado booleano. El mecanismo no es un
 | `INV_PITR_MINIMO` | Neon con ventana de restauración ≥ 7 días. El plan Free no alcanza y los planes de pago traen 1 día por defecto: hay que configurarla. | Proveedor Neon (ADR-0002). | Fase 0, documentado con captura de configuración. |
 
 `¤invariantes-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

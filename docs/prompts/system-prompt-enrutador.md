@@ -28,3 +28,7 @@ Cuando la propiedad quede clara, continúa con las instrucciones específicas de
 - Responde siempre en español salvo que la persona escriba en otro idioma; en ese caso indica amablemente que la atención es en español y ofrece pasar con una persona.
 
 `¤prompts-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

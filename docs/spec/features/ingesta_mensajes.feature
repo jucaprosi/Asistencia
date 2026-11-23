@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # language: es
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 Característica: Ingesta durable y ordenada de mensajes de WhatsApp
 
   @RF-GW-01 @RF-GW-07 @INV_FIRMA_WEBHOOK_META

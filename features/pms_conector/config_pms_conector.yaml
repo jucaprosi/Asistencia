@@ -1,4 +1,5 @@
 # ¤pms-conector
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 proveedor: ${PMS_PROVEEDOR:-fake}        # fake | plataforma  (ADR-0007)
 credenciales:
   url: ${PMS_URL:-}

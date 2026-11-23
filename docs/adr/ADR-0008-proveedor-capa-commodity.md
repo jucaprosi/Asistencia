@@ -42,3 +42,7 @@ Pendiente. Fecha límite sugerida: antes de cerrar la fase 5. Hasta entonces `Fa
 - Handoff por zona (US-09, US-10) en verde con el inbox elegido.
 
 `¤crm-conector/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

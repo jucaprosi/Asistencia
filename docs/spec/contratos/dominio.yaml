@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # Contrato canónico de dominio. Los valores de ADR-0014 son propuestas pendientes de aprobación del propietario.
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 version: "0.2.0"
 zona_horaria: America/Guayaquil
 moneda: USD                 # moneda única de la versión 0.2 (D-08)

@@ -54,3 +54,7 @@ class ConocimientoService:
 `tests/conocimiento/test_indexacion.py`, `test_chunking.py`, `test_recuperacion.py` (incluye benchmark P95), `test_citacion.py`; `scripts/run_evals.py --suite rag`.
 
 `¤conocimiento-rag/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

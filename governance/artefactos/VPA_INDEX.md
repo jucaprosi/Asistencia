@@ -7,6 +7,7 @@
 
 | Entidad de negocio | Rastro | Rol | Sala | Significado |
 | :--- | :--- | :--- | :--- | :--- |
+| Persistencia portable | `¤persistencia-sql` | `¤¤data-engineer` | `persistencia_sql` | Conexión única SQLite (pruebas) o PostgreSQL (DATABASE_URL); migraciones registradas en `public.migraciones_aplicadas`. |
 | Canal de WhatsApp | `¤canal-whatsapp` | `¤¤integration-engineer` | `canal_whatsapp` | Recepción y envío por la Cloud API oficial; ventana de 24 h; plantillas; medios; separación huéspedes/vendedores. |
 | Seguridad del canal | `¤seguridad-canal` | `¤¤security-engineer` | `seguridad` | Identidad y bloqueos, allowlist por acción, rate limit, filtro de inyección, redacción de PII, audit log, RLS. |
 | Agente y enrutador | `¤agente-enrutador` | `¤¤machine-learning-engineer` | `agente` | Claude con tool use; identificación de propiedad; prompts por propiedad; herramientas por rol; memoria; degradación; caché y enrutamiento de modelos. |
@@ -51,3 +52,7 @@
 `¤¤solutions-architect`, `¤¤integration-engineer`, `¤¤security-engineer`, `¤¤machine-learning-engineer`, `¤¤data-engineer`, `¤¤backend-developer`, `¤¤frontend-developer`, `¤¤devops-engineer`, `¤¤qa-engineer`. Títulos de industria (ESCO/O*NET); sin roles genéricos.
 
 `¤vpa-glamping/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

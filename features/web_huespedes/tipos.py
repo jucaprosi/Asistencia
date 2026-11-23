@@ -1,5 +1,6 @@
 # ¤web-huespedes
 # ¤¤frontend-developer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Tipos del dominio de la sala web_huespedes."""
 from __future__ import annotations
 
@@ -19,6 +20,8 @@ class FichaPropiedad:
     resumen: str
     comodidades: tuple[str, ...] = field(default_factory=tuple)
     fotos: tuple[str, ...] = field(default_factory=tuple)
+    anfitrion_id: str | None = None
+    ofrecido_por: str | None = None
 
 
 # ¤web-huespedes
@@ -45,6 +48,6 @@ class OpcionDisponible:
 class EnlaceContacto:
     codigo: str
     propiedad_id: str
-    desde: date
-    hasta: date
-    huespedes: int
+    desde: date | None = None
+    hasta: date | None = None
+    huespedes: int | None = None

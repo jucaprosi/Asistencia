@@ -38,3 +38,7 @@ Reglas adoptadas:
 - `tests/test_interfaz_purificada.py`: 0 rastros en plantillas, mensajes y exportaciones.
 
 `¤adr-zerag/`
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

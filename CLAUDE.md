@@ -37,17 +37,19 @@
 
 ## Normas con árbitro exógeno
 
-> **ENFORCE: Confinamiento ADPA.** Todo código vive en `features/<sala>/`; las dependencias cruzadas transitan solo por `<sala>_service.py` (`server.py` del servidor MCP es un ejecutable, no una compuerta); `app_core/` orquesta compuertas y no importa nada privado. Árbitro: `adpa_linter` (hook PostToolUse del servidor ZERAG) y la suite del arnés.
+> **ENFORCE: Confinamiento ADPA.** Todo código vive en `features/<sala>/`; las dependencias cruzadas transitan solo por `<sala>_service.py` (`server.py` del servidor MCP es un ejecutable, no una compuerta); `app_core/` orquesta compuertas y no importa nada privado. Árbitro: `tests/test_estructura_adpa.py` y `scripts/arnes_glamping.py`.
 
-> **ENFORCE: Escritura conforme.** UTF-8 sin BOM, huellas `¦` consolidadas a `¤` antes de sellar, sin reclamos de IP ajena. Árbitro: hooks PostToolUse (`utf8_linter`, `huellas_linter`, `ip_safety_linter`).
+> **ENFORCE: Escritura conforme.** UTF-8 sin BOM, huellas `¦` consolidadas a `¤` antes de sellar, sin reclamos de IP ajena. Árbitro: `tests/test_escritura_conforme.py` y `scripts/arnes_glamping.py`.
 
-> **ENFORCE: Nido de artefactos vivos antes del código.** No se escribe `.py` si falta alguno de `governance/artefactos/{PRD.md, INVARIANTS.md, FUENTES_Y_BIBLIOGRAFIA.md, VPA_INDEX.md, PROBLEMS.json}`. Árbitro: `living_artifacts_linter` en el triaje y el cierre.
+> **ENFORCE: Ausencia de secretos en repositorio.** Árbitro: `scripts/verificar_secretos.py`.
+
+> **ENFORCE: Nido de artefactos vivos antes del código.** No se escribe `.py` si falta alguno de `governance/artefactos/{PRD.md, INVARIANTS.md, FUENTES_Y_BIBLIOGRAFIA.md, VPA_INDEX.md, PROBLEMS.json}`. Árbitro: test `tests/test_especificacion.py` en el arnés.
 
 > **ENFORCE: Sellado.** Una fase se da por completada solo con `ejecutar_arnes_glamping.bat` (o `.sh`) en Exit Code 0 y su certificado `.test_verdict.json` en `governance/artefactos/data/`. El arnés nace en la fase 0 (TASK-000). Hasta entonces el cierre de sesión se registra como `fallo_honesto`, nunca como éxito autodeclarado.
 
 > **ENFORCE: Canal oficial.** Ninguna dependencia de `baileys`, `whatsapp-web.js` ni `whatsmeow` entra al repositorio. Árbitro: test `tests/test_canal_oficial.py` (fase 0) que recorre los manifiestos de dependencias.
 
-> **ENFORCE: Interfaz purificada.** Ningún texto de cara a huésped, vendedor o equipo (mensajes de WhatsApp, etiquetas del CRM, plantillas) contiene `¤`, `¦`, `¤¬` ni `¤¤`. Árbitro: `ui_sanitizer_linter` y `tests/test_interfaz_purificada.py` (fase 1).
+> **ENFORCE: Interfaz purificada.** Ningún texto de cara a huésped, vendedor o equipo (mensajes de WhatsApp, etiquetas del CRM, plantillas) contiene `¤`, `¦`, `¤¬` ni `¤¤`. Árbitro: test `tests/test_interfaz_purificada.py` (fase 1).
 
 ## Método (guía, sin árbitro)
 

@@ -2,14 +2,14 @@
 id = "TASK-004"
 titulo = "Enrutador multi-propiedad, prompt de departamentos, check-in autónomo y handoff por zona"
 fase = 4
-estado = "pendiente"
+estado = "sellada"
 sala = ["agente", "crm_conector (inbox mínimo con FakeCRM)"]
 rastro = ["¤agente-enrutador", "¤crm-conector"]
 rol = "¤¤machine-learning-engineer"
 depende_de = ["TASK-002", "TASK-003"]
 bloqueada_por = []
-propiedad = ["features/agente/**", "features/crm_conector/**", "docs/prompts/system-prompt-enrutador.md", "docs/prompts/system-prompt-departamentos.md", "docs/prompts/system-prompt-hospedaje.md", "evals/enrutador.jsonl", "tests/agente/**", "tests/crm_conector/**"]
-arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); tests/agente/test_enrutador.py 20/20; scripts/run_evals.py --suite enrutador con 0 fugas entre propiedades; US-03, US-09, US-10 en verde con FakeCRM"
+propiedad = ["features/agente/**", "features/crm_conector/**", "docs/prompts/system-prompt-enrutador.md", "docs/prompts/system-prompt-departamentos.md", "docs/prompts/system-prompt-hospedaje.md", "evals/enrutador.jsonl", "tests/agente/**", "tests/crm_conector/**", "tests/integracion/test_fase4.py"]
+arbitro = "ejecutar_arnes_glamping.bat (Exit Code 0); tests/agente/test_enrutador.py 20/20; scripts/run_evals.py --suite enrutador con 0 fugas entre propiedades; tests/integracion/test_fase4.py en verde; US-03, US-09, US-10 en verde con FakeCRM"
 ```
 
 # TASK-004 — Multi-propiedad
@@ -27,11 +27,17 @@ RF-AG-01, RF-AG-03, RF-MCP-04 (completo), RF-MCP-06, RF-CRM-01 (interfaz) y `asi
 3. Planificador de check-in del día en `app_core` invocando `agente_service`.
 4. `evals/enrutador.jsonl` con 20 conversaciones etiquetadas (incluidas ambiguas).
 5. RLS por `propiedad_id` activa en PostgreSQL con rol `NOBYPASSRLS`.
+6. Suite de integración de Fase 4 en `tests/integracion/test_fase4.py`.
 
 ## Criterios de fase completada
 - 20/20 en el enrutador; 0 fugas entre propiedades.
 - Check-in autónomo probado con dos propiedades en el PMS de pruebas (US-03).
 - Handoff por zona con `FakeCRM` (US-09, US-10).
+- Suite `tests/integracion/test_fase4.py` en verde con Exit Code 0.
 
 ## Pantallas del panel operativo en esta tarea (ADR-0013)
 `¤panel-operativo` · Sala adicional: `panel_operativo` (propiedad: `features/panel_operativo/**`, `tests/panel_operativo/**`, `tests/e2e/test_handoff_zona.py`). Entregables: P-01 Acceso, P-02 Inicio, P-08 Handoffs de mi zona, P-09 Detalle de conversación, P-10 Incidencias (RF-PAN-01, 07, 08). La bandeja del panel sustituye a `FakeCRM` como inbox de esta fase. Criterio: US-09 y US-10 en e2e sobre `localhost`. Diseño: `docs/FRONTEND.md` §4.
+
+---
+
+© 2026 Juan Carlos Proaño. Todos los derechos reservados.

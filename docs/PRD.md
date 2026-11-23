@@ -3,32 +3,32 @@
 
 | Campo | Valor |
 | :--- | :--- |
-| Versión | 0.3.2 (candidata a congelar: las decisiones de [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) esperan la aprobación del propietario, salvo D-10) |
-| Fecha | 2026-10-30 |
+| Versión | 1.0.0 (Consolidada y refactorizada: plataforma local de hospedajes, panel propio con inbox, Google Gemini y Google Cloud Platform, ADR-0019) |
+| Fecha | 2026-11-04 |
 | Fuente de verdad | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) (informe maestro). Las referencias «§N» de este PRD apuntan a sus secciones. |
 | Especificación ejecutable | [`spec/`](spec/README.md): contratos de dominio y herramientas, DDL canónico, escenarios Gherkin y matriz de trazabilidad. Su precedencia está en [`spec/README.md`](spec/README.md#precedencia). |
 | Arquitectura | [`ARQUITECTURA.md`](ARQUITECTURA.md) |
 | Decisiones | [`adr/README.md`](adr/README.md) |
 | Catálogo de salas y asignación de requisitos | [`../governance/artefactos/PRD.md`](../governance/artefactos/PRD.md) |
 | Diseño detallado | [`modulos/`](modulos/README.md) (un documento por sala: compuerta, tipos, configuración, errores, persistencia, tests) · [`FRONTEND.md`](FRONTEND.md) (panel operativo: pantallas, navegación, componentes, tokens, BFF) |
-| Convenciones | `[DECISIÓN PENDIENTE]` marca una elección que el informe deja abierta (§14) y que este PRD **no** resuelve. Cada requisito declara **Construir** o **Adoptar**, su sala ADPA, su rastro `¤` y su árbitro (el test o verificación que lo da por cumplido). |
+| Convenciones | Cada requisito declara **Construir** o **Adoptar**, su sala ADPA, su rastro `¤` y su árbitro (el test o verificación que lo da por cumplido). La arquitectura y decisiones técnicas se encuentran consolidadas y aceptadas en sus respectivos ADRs. |
 
 ---
 
 ## 1. Visión del producto
 `¤prd-vision`
 
-**Qué es.** Una plataforma local de hospedajes de varios anfitriones, con Glamping Imbabura como uno más ([ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md)). El huésped busca y compara en la web y reserva por WhatsApp con un asistente basado en Claude, que actúa sobre el sistema de reservas (PMS) con herramientas MCP. El anfitrión confirma por WhatsApp y recibe un estado de cuenta mensual de la comisión de la plataforma. Incluye un módulo ARM («Jarvis») que convierte las ventas que los vendedores escriben en WhatsApp en registros con comisión calculada, validables por el líder comercial en un panel operativo propio y publicados en el CRM.
+**Qué es.** Una plataforma local de hospedajes multi-anfitrión, con Glamping Imbabura como alojamiento insignia y departamentos urbanos asociados ([ADR-0018](adr/ADR-0018-plataforma-local-de-hospedajes.md)). El huésped busca y compara en la web pública y reserva por WhatsApp con un asistente basado en Google Gemini (con interoperabilidad para Claude, [ADR-0019](adr/ADR-0019-despliegue-google-cloud-y-gemini.md)), que actúa sobre el sistema de reservas y calendario propio (PMS) con herramientas MCP. El anfitrión confirma por WhatsApp y recibe su estado de cuenta mensual. Incluye un módulo ARM («Jarvis») que convierte las ventas escritas por los vendedores en WhatsApp en registros con comisión calculada, validables con 1 toque en el panel operativo propio y publicados en el CRM. La supervisión y atención de todas las conversaciones se realiza de forma nativa en el panel propio ([ADR-0010](adr/ADR-0010-inbox-proveedor.md)). Todo el sistema se despliega en la nube de Google Cloud Platform (GCP).
 
 **Para quién.** Siete perfiles (§2.3): huésped potencial, huésped activo, anfitrión, vendedor, líder comercial, gestor de propiedad y administrador.
 
-**Qué problema resuelve.** Hoy una sola ubicación se atiende a mano por WhatsApp. La expansión a departamentos distribuidos por la ciudad multiplica calendarios, precios, instrucciones de check-in, equipos de limpieza y gestores por zona (§2.2): atenderlo a mano no escala y degrada el tiempo de respuesta. En paralelo, las ventas de los vendedores se reportan en texto libre y se transcriben a mano a una planilla o CRM, con errores, demoras y comisiones calculadas tarde.
+**Qué problema resuelve.** La gestión manual por WhatsApp no escala ante la multiplicación de propiedades, calendarios, instrucciones de check-in, equipos de limpieza y gestores por zona. En paralelo, las ventas de los vendedores se reportaban informalmente, transcribiéndose a mano a planillas con demoras y errores en comisiones.
 
-**Por qué ahora.** Tres condiciones coinciden: (1) la expansión a departamentos está planificada y exige multi-propiedad desde el diseño; (2) Claude con *tool use* y el protocolo MCP permiten que el agente actúe sobre PMS y CRM sin acoplarse a un proveedor; (3) la API oficial de WhatsApp Cloud elimina el riesgo de baneo que hacía inviable automatizar el canal con librerías no oficiales (§9.4).
+**Por qué ahora.** Tres condiciones coinciden: (1) la expansión a departamentos urbanos multi-propiedad; (2) Google Gemini con *tool use*, ventana de 1M-2M tokens, multimodalidad nativa para comprobantes de venta y el protocolo MCP; (3) la API oficial de WhatsApp Cloud de Meta y la infraestructura serverless de Google Cloud Platform (Cloud Run y Cloud SQL pgvector) financiada inicialmente por su bono de \$300 USD.
 
-**Qué lo distingue.** El principio «construir lo que diferencia, adoptar lo que no» (§3): el motor conversacional, el RAG, los conectores, la seguridad, el ARM, las comisiones y el panel operativo se construyen en casa y son el activo; el CRM como registro de contactos y oportunidades y el constructor de workflows se adoptan de un proveedor detrás de interfaces abstractas. Si el proveedor cambia, el núcleo sigue operando.
+**Qué lo distingue.** El principio «construir lo que diferencia, adoptar lo que no» (§3): el motor conversacional, el RAG, el calendario propio, la seguridad, el ARM, las comisiones y el panel operativo propio (con su Inbox nativo) son activos del negocio; el CRM externo se integra detrás de una compuerta desacoplada.
 
-**Cómo se construye.** Bajo la metodología ZERAG: salas ADPA estancas con compuertas `_service.py`, rastros `¤` que enlazan requisito, invariante, tarea, ADR y código, y un arnés físico con Exit Code 0 como único árbitro de «fase completada» ([`PROJECT_CONTEXT.md` Anexo B](PROJECT_CONTEXT.md#anexo-b-proyección-del-informe-sobre-la-metodología-zerag)).
+**Cómo se construye.** Bajo la metodología ZERAG: salas ADPA estancas con compuertas `_service.py`, rastros `¤` que enlazan requisito, invariante, tarea, ADR y código, y un arnés físico con Exit Code 0 como único árbitro de calidad.
 
 `¤prd-vision/`
 
@@ -37,7 +37,7 @@
 ## 2. Objetivos y métricas de éxito
 `¤prd-objetivos`
 
-Convención de plazos: **T0** = inicio de la fase 1 (MVP WhatsApp). **Beta** = fases 0 a 5 en el PC Ubuntu, sin clientes reales obligados. **Piloto** = fases 6 y 7 en el mismo PC, con vendedores reales. **Producción** = stack migrado al servidor propio tras la fase 7. Toda métrica se instrumenta desde el día uno (ver §15.4) aunque su umbral se evalúe más tarde.
+Convención de plazos: **T0** = inicio de la fase 1 (MVP WhatsApp). **Desarrollo y Ensayos** = ejecución local containerizada con Docker Compose. **Producción** = despliegue Serverless en Google Cloud Platform (Cloud Run, Cloud SQL pgvector, Cloud Tasks) (ADR-0019). Toda métrica se instrumenta desde el día uno (ver §15.4).
 
 ### 2.1 Objetivos de negocio
 
@@ -46,8 +46,8 @@ Convención de plazos: **T0** = inicio de la fase 1 (MVP WhatsApp). **Beta** = f
 | ON-01 | Operar la expansión a departamentos sin crecer el equipo de atención en proporción. | Conversaciones de huésped atendidas por persona de atención por semana. | ≥ 2× la línea base (§2.3). | T0 + 180 días. |
 | ON-02 | Eliminar la transcripción manual de ventas. | Porcentaje de ventas del período registradas por el ARM (no por digitación). | ≥ 90 %. | 60 días después de cerrar la fase 6. |
 | ON-03 | Pagar comisiones con datos validados, no reconstruidos. | Días entre cierre del período y disponibilidad del tablero de comisiones validadas. | ≤ 1 día hábil. | Primer cierre mensual tras la fase 7. |
-| ON-04 | Proteger el negocio contable existente. | Incidentes de degradación del flujo contable atribuibles al asistente. | 0. | Permanente, revisado mensualmente. |
-| ON-05 | Mantener el canal sin riesgo de suspensión. | Dependencias de librerías no oficiales de WhatsApp en el repositorio. | 0 (árbitro: `tests/test_canal_oficial.py`). | Permanente. |
+| ON-04 | Aislamiento de infraestructura contable. | Incidentes de degradación en servicios contables atribuibles al asistente (0 asegurado por despliegue cloud en GCP). | 0. | Permanente, revisado mensualmente. |
+| ON-05 | Canal oficial exclusivo. | Adopción exclusiva de Meta WhatsApp Cloud API; dependencias no oficiales en el repositorio. | 0 (árbitro: `tests/test_canal_oficial.py`). | Permanente. |
 | ON-06 | Cobrar la comisión de plataforma sin custodiar dinero. | Comisión cobrada dentro del plazo / comisión emitida. | ≥ 95 % (umbral inicial, se recalibra con el primer trimestre). | Tres cierres después de la fase 6. |
 
 ### 2.2 Objetivos de producto
@@ -112,7 +112,7 @@ El rol `sistema` no es una persona: lo usan procesos internos del agente, como `
 | CU-05 | Validación de venta por el líder | Líder comercial | Venta en *por validar*. | Venta *validada* o *rechazada*; comisión fijada; vendedor notificado. | 6–7 |
 | CU-06 | Consulta de comisión por el vendedor | Vendedor | Pregunta «¿cuánto llevo?» o similar. | Total validado y pendiente del período, solo del propio vendedor. | 6 |
 | CU-07 | Consulta de tablero por el administrador o líder | Administrador / Líder | Abre el tablero en el panel operativo. | Ventas por mes, por vendedor y por propiedad; comisiones validadas y pendientes; exportable. | 7 |
-| CU-08 | Handoff a humano por zona | Huésped / Agente | Petición explícita, baja confianza, tema fuera de alcance o incidencia crítica. | Conversación asignada al gestor de la zona en la bandeja del panel operativo; el huésped recibe aviso; el agente deja de responder hasta que se le devuelve. | 4 (bandeja del panel) / 8 (inbox completo, ADR-0010) |
+| CU-08 | Handoff a humano y gestión de Inbox en panel operativo | Huésped / Agente / Gestor | Petición explícita, baja confianza, tema fuera de alcance o supervisión directa. | Conversación asignada al gestor en el Inbox del panel operativo propio (P-13); respuesta manual despachada directo por WhatsApp oficial; notas internas y etiquetas. | 4, 8 (P-13 Inbox, ADR-0010) |
 | CU-09 | Administración del sistema | Administrador | Abre Administración en el panel operativo. | Usuarios y bloqueos, propiedades y zonas, reglas de comisión, plantillas, conocimiento, auditoría y salud editables en un solo lugar con auditoría. | 5–7 |
 
 `¤prd-casos-uso/`
@@ -145,7 +145,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 - **RF-GW-02 — Envío de mensajes.** Envía texto, texto con botones de respuesta rápida (hasta 3) y listas (hasta 10 opciones). *Criterios:* (a) cada envío registra el `message_id` devuelto y el estado (`sent`, `delivered`, `read`, `failed`) a medida que llegan los *status updates*; (b) un fallo de la API se reintenta con *backoff* exponencial hasta 3 veces y luego se registra en la bitácora de errores. *Árbitro:* `tests/canal_whatsapp/test_envio.py` con la API simulada.
 - **RF-GW-03 — Ventana de 24 horas.** Distingue mensajes de *servicio* (dentro de las 24 h desde el último mensaje del usuario) de mensajes *iniciados por el negocio* (fuera de ventana). *Criterios:* (a) fuera de ventana solo se envían plantillas aprobadas; (b) un intento de enviar texto libre fuera de ventana se rechaza en la compuerta con un error tipado, nunca llega a Meta. *Árbitro:* `tests/canal_whatsapp/test_ventana_24h.py`.
 - **RF-GW-04 — Plantillas.** Catálogo de plantillas en `config_canal_whatsapp.yaml` con nombre, idioma, variables y estado de aprobación; las 8 plantillas de [`dominio.yaml`](spec/contratos/dominio.yaml). *Criterios:* (a) un envío de plantilla valida el número y tipo de variables antes de llamar a la API; (b) una plantilla no aprobada no se envía. *Árbitro:* `tests/canal_whatsapp/test_plantillas.py`.
-- **RF-GW-05 — Medios.** Recibe imágenes, audio, documentos y ubicación; envía imágenes y documentos. *Criterios:* (a) descarga el medio con el `media_id`, lo guarda en el almacenamiento de archivos (§5.2 del informe) y entrega al agente una referencia, nunca los bytes; (b) el audio se transcribe antes de llegar al agente, o se responde que el canal solo atiende texto (`[DECISIÓN PENDIENTE]` menor, se fija en la fase 1 por costo); (c) los medios de números bloqueados o de remitentes descartados no se descargan. *Árbitro:* `tests/canal_whatsapp/test_medios.py`.
+- **RF-GW-05 — Medios.** Recibe imágenes, audio, documentos y ubicación; envía imágenes y documentos. *Criterios:* (a) descarga el medio con el `media_id`, lo guarda en el almacenamiento de archivos (Cloud Storage / S3) y entrega al agente una referencia, nunca los bytes; (b) los mensajes de voz se transcriben de forma asíncrona antes de entregar la consulta al agente; (c) los medios de números bloqueados o de remitentes descartados no se descargan. *Árbitro:* `tests/canal_whatsapp/test_medios.py`.
 - **RF-GW-06 — Canal del ARM.** Entrega al ARM los mensajes del canal de vendedores (grupo o chat 1:1 según el supuesto S-01) etiquetados con el identificador del canal y del remitente. *Criterios:* (a) un mensaje del canal de vendedores nunca se enruta al agente de huéspedes; (b) un mensaje de huésped nunca llega al ARM. *Árbitro:* `tests/canal_whatsapp/test_enrutamiento_canal.py`.
 - **RF-GW-07 — Ingesta durable.** Todo evento válido se guarda en `canal.eventos_entrantes` antes de responder a Meta, y un trabajador lo procesa fuera del webhook. *Criterios:* (a) una caída del proceso no pierde mensajes; (b) un evento fallido se reintenta hasta 5 veces y luego pasa a `muerto` con alerta; (c) el cuerpo se guarda cifrado y se purga a los 7 días. *Árbitro:* `tests/canal_whatsapp/test_ingesta_durable.py`.
 - **RF-GW-08 — Orden y agrupación.** Los mensajes de un remitente se procesan en orden, de uno en uno, y los recibidos en una ventana de 3 segundos forman un solo turno. *Criterios:* (a) dos trabajadores nunca atienden al mismo remitente a la vez; (b) 3 mensajes seguidos generan una sola respuesta. *Árbitro:* `tests/canal_whatsapp/test_orden.py`.
@@ -193,7 +193,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 ### 5.5 `crm-connector` → sala `crm_conector`
 `¤crm-conector`
 
-**Adoptar el CRM; construir la interfaz.** Compuerta `features/crm_conector/crm_conector_service.py`. Rol `¤¤integration-engineer`. Proveedor: `[DECISIÓN PENDIENTE]` §14.2 (GoHighLevel vs Chatwoot + Attio/HubSpot + n8n), ADR-0008. Lo que aísla la adopción es esta interfaz: `agente` y `arm_jarvis` solo conocen la compuerta.
+**Adoptar el CRM; construir la interfaz.** Compuerta `features/crm_conector/crm_conector_service.py`. Rol `¤¤integration-engineer`. Conector desacoplado para sincronización de ventas y pipeline comercial externo ([ADR-0008](adr/ADR-0008-proveedor-capa-commodity.md)). Lo que aísla la adopción es esta interfaz: `agente` y `arm_jarvis` solo conocen la compuerta, mientras que la atención al huésped y el inbox residen de forma nativa en el panel operativo propio ([ADR-0010](adr/ADR-0010-inbox-proveedor.md)).
 
 - **RF-CRM-01 — Interfaz abstracta.** `CRMConnector` con `buscar_contacto(email, telefono)`, `crear_contacto`, `crear_oportunidad`, `actualizar_oportunidad`, `publicar_venta(venta)` y `publicar_anulacion(venta)` (Inbound Webhook). *Criterios:* (a) tipos propios (`Contacto`, `Oportunidad`, `Mensaje`), sin objetos del SDK; (b) `FakeCRM` en memoria para pruebas. *Árbitro:* `tests/crm_conector/test_contrato.py`.
 - **RF-CRM-02 — Implementaciones.** `ghl_internal.py` primero; `chatwoot_internal.py` o `attio_internal.py` sin tocar otras salas. *Criterios:* cambio de proveedor = cambio en `config_crm_conector.yaml`. *Árbitro:* `tests/crm_conector/test_seleccion_proveedor.py`.
@@ -221,7 +221,7 @@ Formato de cada requisito: **ID — Título.** Descripción. *Criterios de acept
 ### 5.7 `commissions` → sala `comisiones`
 `¤comisiones`
 
-**Construir** (recomendación §14.3; sistema de registro `[DECISIÓN PENDIENTE]`, ADR-0009). Compuerta `features/comisiones/comisiones_service.py`. Rol `¤¤backend-developer`.
+**Construir.** Compuerta `features/comisiones/comisiones_service.py`. Rol `¤¤backend-developer`. Sistema de registro propio con reglas inmutables por versión y cálculo determinista ([ADR-0009](adr/ADR-0009-registro-comisiones.md)).
 
 - **RF-COM-01 — Reglas versionadas.** Reglas de comisión por vendedor, producto/propiedad y período, con porcentaje o monto fijo, escalones por volumen y vigencia. *Criterios:* (a) cada regla tiene `version`, `vigente_desde`, `vigente_hasta`; (b) `calcular(venta, vendedor, fecha)` elige la regla vigente a la fecha de la venta, no a la fecha del cálculo; (c) cada regla declara `modo_escalon`, `graduado` por defecto o `volumen`; cada venta recibe `F(base + monto) − F(base)`, donde `F` es la comisión acumulada redondeada y `base` el acumulado por vendedor, regla y mes de `fecha_venta`, guardado en `base_acumulada`; el total del mes no depende del orden de validación; (d) sin regla aplicable falla con `SinReglaVigente` y la venta sigue `por_validar`; (e) USD, dos decimales, `ROUND_HALF_UP`. *Árbitro:* `tests/comisiones/test_reglas.py`.
 - **RF-COM-02 — Cierre de período.** Un período (mes por defecto) se cierra y queda inmutable; las correcciones posteriores generan ajustes en el período siguiente. *Criterios:* (a) no se puede modificar una comisión de un período cerrado; (b) el cierre produce un resumen por vendedor con total, número de ventas y ajustes; (c) el período es el mes de `fecha_venta` en `America/Guayaquil`, y si ya cerró la comisión entra al período abierto más antiguo con `periodo_origen`. *Árbitro:* `tests/comisiones/test_cierre_periodo.py`.
@@ -294,7 +294,7 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 - **RF-PAN-04 — Tablero de ventas y comisiones.** Ventas por mes, por vendedor y por propiedad; comisiones validadas y pendientes; filtro por período. *Criterios:* (a) cada vendedor tiene un estado de cuenta por venta y ajuste, y los totales son idénticos al centavo a la exportación del mismo período (RF-ARM-08); (b) los gráficos tienen tabla alternativa accesible. *Árbitro:* `tests/panel_operativo/test_bff_comisiones.py`, `tests/e2e/test_tablero.py`.
 - **RF-PAN-05 — Cierre de período y exportación.** Resumen previo, confirmación escrita del período, cierre inmutable, exportación CSV/JSON. *Criterios:* (a) tras el cierre, las acciones de edición desaparecen y el BFF responde 409 a cualquier modificación; (b) la exportación valida contra `esquema_exportacion.json`. *Árbitro:* `tests/panel_operativo/test_bff_comisiones.py`.
 - **RF-PAN-06 — Jarvis.** Chat con el asistente del ARM (RF-ARM-09). *Criterios:* (a) solo responde datos del alcance del rol; (b) todo cambio de configuración muestra qué cambiará y exige confirmación explícita; (c) sin historial persistente más allá de la sesión. *Árbitro:* `tests/panel_operativo/test_bff_jarvis.py`.
-- **RF-PAN-07 — Handoffs por zona.** Bandeja con conversaciones en handoff de las zonas del usuario; Tomar, Responder (sale por el número de WhatsApp del negocio), Devolver al asistente. *Criterios:* (a) un gestor no ve ni puede actuar sobre otras zonas (403); (b) al tomar, el agente queda en silencio; al devolver, se reanuda; (c) fuera de la ventana de 24 h la respuesta se ofrece como plantilla; (d) la PII rehidratada se limita al huésped de la reserva. *Árbitro:* `tests/panel_operativo/test_bff_handoff.py`, `tests/e2e/test_handoff_zona.py`.
+- **RF-PAN-07 — Handoffs por zona e Inbox completo de huéspedes.** Bandeja de handoff e Inbox integral de conversaciones de huéspedes por zona (P-13, [ADR-0010](adr/ADR-0010-inbox-proveedor.md)); Tomar, Responder (despacho directo por la API oficial de WhatsApp del negocio), Devolver al asistente, filtros por estado/propiedad, etiquetas y notas internas entre gestores. *Criterios:* (a) un gestor no ve ni puede actuar sobre otras zonas (403); (b) al tomar, el agente queda en silencio; al devolver, se reanuda; (c) fuera de la ventana de 24 h la respuesta se ofrece como plantilla; (d) la PII rehidratada se limita al huésped de la reserva bajo sesión autorizada; (e) notas internas y etiquetas asignables de forma duradera sin depender de CRM externo. *Árbitro:* `tests/panel_operativo/test_bff_handoff.py`, `tests/e2e/test_inbox_huespedes.py`.
 - **RF-PAN-08 — Incidencias.** Lista y detalle por zona con prioridad y estado; Resolver con nota. *Criterios:* resolver notifica al huésped (plantilla si aplica) y registra actor y hora. *Árbitro:* `tests/panel_operativo/test_bff_handoff.py`.
 - **RF-PAN-09 — Administración.** Usuarios, roles y bloqueos, propiedades y zonas (gestor principal y respaldo), reglas de comisión (nueva versión, nunca edición en sitio), plantillas de WhatsApp (estado de aprobación), conocimiento (documentos y reindexar), auditoría filtrable y exportable, solicitudes de titulares (RF-PRIV-05), salud del sistema (OP-01..10, alertas, cola del CRM). *Criterios:* (a) solo `administrador`; (b) cada cambio deja evento en el audit log con `usuario_id`; (c) reindexar devuelve el resumen y el resultado del set dorado. *Árbitro:* `tests/panel_operativo/test_bff_admin.py`.
 - **RF-PAN-10 — Calidad de la interfaz.** Móvil primero (360 px), WCAG 2.1 AA, LCP ≤ 2,5 s e INP ≤ 200 ms en 4G con teléfono medio, JS inicial ≤ 200 KB comprimido, español de Ecuador, interfaz purificada. *Criterios:* (a) auditoría de accesibilidad automatizada sin errores críticos; (b) presupuesto de rendimiento medido en CI; (c) 0 rastros ni nombres de proveedor en el build. *Árbitro:* `tests/e2e/test_calidad_ui.py`, `tests/test_interfaz_purificada.py`.
@@ -347,15 +347,15 @@ Las reglas siguen la LOPDP de Ecuador. Los plazos son propuestas de ADR-0014, su
 | RNF-07 | Seguridad | Capas de §10 del informe. | Identidad, allowlist, rate limit, filtro de inyección, redacción de PII y audit log activos desde la fase 1; evaluación completa en la 5; 0 ataques exitosos (OP-10). | `scripts/run_evals.py --suite inyecciones` + tests de `seguridad`. | 1, 5 |
 | RNF-08 | Seguridad | Secretos. | 0 secretos en el repositorio. | `scripts/verificar_secretos.py` en el arnés y en la CI. | 0 |
 | RNF-09 | Seguridad | Webhook del CRM. | 100 % de publicaciones firmadas HMAC-SHA256; 0 duplicados por `venta_id`. | `tests/crm_conector/test_publicar_venta.py`. | 7 |
-| RNF-10 | Aislamiento | Servidor contable. | 0 rutas de red desde `agent-net` a servicios contables; límites de CPU y RAM por contenedor definidos. | Test de red en el arnés de despliegue: configuración en la fase 5, prueba negativa real en la migración de la fase 7. | 5, 7 |
+| RNF-10 | Aislamiento | Infraestructura contable. | Aislamiento total: arquitectura Cloud-Native en Google Cloud Platform sin rutas ni contacto con servidores contables locales (0 incidentes garantizado por diseño, ADR-0019). | Verificación de aislamiento en CI y test de despliegue. | 5, 7 |
 | RNF-11 | Mantenibilidad | Confinamiento ADPA. | 0 imports laterales entre salas; 0 huellas `¦` en código sellado. | `adpa_linter`, `huellas_linter`. | 0 |
 | RNF-12 | Mantenibilidad | Cobertura. | ≥ 80 % de líneas por sala; 100 % de las herramientas MCP con test de contrato. | `pytest --cov` en el arnés. | 1 |
 | RNF-13 | Observabilidad | Trazabilidad. | 100 % de mensajes entrantes con traza; 100 % de acciones en el audit log. | `tests/observabilidad`, `tests/seguridad/test_audit_log.py`. | 5 |
-| RNF-14 | Portabilidad | Beta → producción. | El mismo `compose.yaml` + `compose.production.yaml` levanta el stack en el PC Ubuntu y en el servidor; la diferencia es solo el archivo de sobrescritura y `.env`. | `docker compose ... config` en la CI y `tests/test_compose.py`; prueba de arranque en ambos. | 0, 5 |
-| RNF-15 | Durabilidad | Datos críticos. | pgvector y archivos en nube gestionada con PITR ≥ 7 días; backup externo del PC beta probado (restauración) al menos una vez por fase. | Registro de restauraciones en `governance/artefactos/`. | 0 |
-| RNF-16 | Costo | Modelo. | ≤ 0,10 USD por conversación resuelta (umbral inicial, recalibrar al final de beta). | Trazas con tokens y precio. | 1 |
+| RNF-14 | Portabilidad | Local → Cloud. | Contenedores OCI estándar; el mismo stack corre localmente con `compose.yaml` y en producción en Google Cloud Run (`compose.production.yaml`, ADR-0019). | `docker compose ... config` en CI y `tests/test_compose.py`. | 0, 5 |
+| RNF-15 | Durabilidad | Datos críticos. | pgvector y datos relacionales en base gestionada (Cloud SQL / Neon) con PITR ≥ 7 días y medios en Cloud Storage; 0 pérdida de datos. | Registro de restauraciones y backups automatizados. | 0 |
+| RNF-16 | Costo | Modelo. | ≤ 0,10 USD por conversación resuelta (optimizado con Gemini 3.5 Flash-Lite en GCP). | Trazas con tokens y precio. | 1 |
 | RNF-17 | Privacidad | Datos personales. | 0 PII en claro en logs, trazas, historial persistido y *payloads* al modelo. | `tests/seguridad/test_pii.py`, `tests/observabilidad/test_logs.py`. | 5 |
-| RNF-18 | Cumplimiento | Datos personales y residencia. | LOPDP según §5.8.1; `[DECISIÓN PENDIENTE]` §14.6: si Ecuador exige on-prem para algún dato, ese dato no sale del servidor propio. | Inventario de datos (RF-PRIV-02) y ADR-0012. | 1, antes de 2 |
+| RNF-18 | Cumplimiento | Datos personales y residencia. | LOPDP según §5.8.1: inventario de datos formal (RF-PRIV-02), tokenización de PII y retención criptoborrable. | Inventario de datos (RF-PRIV-02) y ADR-0012. | 1, antes de 2 |
 | RNF-19 | Evaluaciones | Repositorio público. | Corpus real, evaluaciones con datos reales y reglas de comisión reales fuera del repositorio. | `tests/test_especificacion.py` exige que `docs/negocio/` solo contenga su README. | 0 |
 
 `¤prd-rnf/`
@@ -595,17 +595,17 @@ erDiagram
 | Dependencia | Para qué | Estado | ADR |
 | :--- | :--- | :--- | :--- |
 | WhatsApp Business Platform — Cloud API de Meta | Canal de huéspedes y vendedores. | **Decidido** (única opción; sin librerías no oficiales). Requiere cuenta de WhatsApp Business verificada, número dedicado y plantillas aprobadas. | ADR-0003 |
-| Claude (Anthropic) con *tool use* | Motor del agente y extracción del ARM. | **Decidido.** Modelo concreto por tarea (frontera vs. económico) se fija en configuración, no en código (RF-AG-07). | ADR-0001 |
+| Google Gemini (Vertex AI / Google AI Studio) & Claude | Motor del agente y extracción multimodal del ARM. | **Decidido.** Google Gemini (3.8 Flash / 3.5 Flash-Lite) como motor principal en GCP cubierto por el bono de \$300 USD; Claude como alternativa interoperable fijada en configuración (RF-AG-07). | ADR-0001, ADR-0019 |
 | Protocolo MCP | Herramientas del agente y conectores. | **Decidido.** | ADR-0001 |
-| PostgreSQL + pgvector en nube gestionada (Neon) | RAG, historial, ARM, comisiones, auditoría. | **Decidido** pgvector gestionado en Neon, plan Launch como mínimo, con ventana de restauración de 7 días. Revisable por ADR-0012. | ADR-0002 |
-| Almacenamiento de archivos S3-compatible gestionado (beta) | Medios de WhatsApp, exportaciones. | **Decidido para beta**; MinIO en producción `[DECISIÓN PENDIENTE]` menor (§5.2 informe). | ADR-0004 |
-| Docker Compose con sobrescritura | Portabilidad beta → producción. | **Decidido.** | ADR-0004 |
+| PostgreSQL + pgvector en nube gestionada (Cloud SQL / Neon) | RAG, historial, ARM, comisiones, auditoría. | **Decidido.** pgvector gestionado en Google Cloud SQL (o Neon), con ventana de restauración y aislamiento RLS. | ADR-0002, ADR-0019 |
+| Infraestructura Serverless Google Cloud Platform (Cloud Run + Cloud Tasks) | Cómputo y orquestación de tareas en segundo plano. | **Decidido para producción** en GCP con `min-instances: 1` y Cloud Tasks; Docker Compose local para desarrollo. | ADR-0004, ADR-0019 |
+| Docker Compose con sobrescritura | Portabilidad y entorno local. | **Decidido.** | ADR-0004 |
 | Calendario propio | Disponibilidad, tarifas, reservas e instrucciones de check-in. | **Decidido**: sin PMS externo. | ADR-0007 |
-| Proveedor de la capa commodity (GoHighLevel vs Chatwoot + Attio/HubSpot + n8n) | CRM, inbox, workflows. | `[DECISIÓN PENDIENTE]` §14.2. Bloquea la fase 7 y la decisión de la fase 8. | ADR-0008 |
-| Sistema de registro de comisiones | Fuente de verdad de comisiones. | `[DECISIÓN PENDIENTE]` §14.3 (recomendado: propio). Bloquea el tablero de la fase 7. | ADR-0009 |
-| Inbox del proveedor | Handoff humano. | `[DECISIÓN PENDIENTE]` §14.4. Decide si la fase 8 existe. | ADR-0010 |
-| MCP de comunidad (`MCP_GoHighLevel`, `pywa-mcp-server`, Attio/HubSpot/Chatwoot/n8n) | Posibles aceleradores dentro de las salas conectoras. | `[DECISIÓN PENDIENTE]` §14.5: verificar madurez, licencia y mantenimiento; su uso queda confinado a la sala del conector. | ADR-0011 |
-| Residencia de datos (Ecuador) | Dónde puede vivir cada dato. | `[DECISIÓN PENDIENTE]` §14.6. Condiciona la nube de pgvector. | ADR-0012 |
+| Conector CRM desacoplado (GoHighLevel / Chatwoot / FakeCRM) | Pipeline y sincronización comercial externa. | **Decidido.** Conector desacoplado en sala `crm_conector`; el inbox y la atención residen de forma nativa en el panel propio sin intermediarios. | ADR-0008, ADR-0010 |
+| Sistema de registro de comisiones | Fuente de verdad de comisiones. | **Decidido propio** en sala `comisiones` (ADR-0009, RF-COM-*). | ADR-0009 |
+| Inbox propio en panel operativo | Handoff humano y supervisión total de conversaciones. | **Decidido y sellado** en panel propio sin proveedor externo de CRM (fase 8 / T-701). | ADR-0010, ADR-0013 |
+| MCP de comunidad (opcionales) | Posibles aceleradores dentro de las salas conectoras. | Confinados estrictamente a la sala conectora correspondiente, sin contacto con el núcleo ni imports laterales. | ADR-0011 |
+| Residencia de datos y privacidad (Ecuador) | Cumplimiento LOPDP. | Tokenización obligatoria de PII antes de llegar al modelo y datos sensibles cifrados. | ADR-0012 |
 | ZERAG BIOS (servidor MCP `zero_regression_bios`) | Triaje, linters ADPA/huellas/UTF-8, telemetría de cierre. | **Decidido** (metodología del proyecto). | ADR-0006 |
 | Stack del panel operativo (React + TypeScript + Vite, TanStack Query, Recharts, BFF FastAPI, Playwright) | Frontend del equipo. | **Decidido** como propuesta técnica revisable sin cambiar el diseño ([`FRONTEND.md` §10](FRONTEND.md#10-stack-técnico-propuesta-técnica-de-adr-0013-revisable-sin-cambiar-este-diseño)). | ADR-0013 |
 
@@ -625,7 +625,6 @@ erDiagram
 - Facturación electrónica (SRI) y contabilidad: permanecen en el flujo contable existente, que este sistema no toca.
 - Pricing dinámico algorítmico: el agente **lee** las tarifas del PMS/RAG; no las calcula.
 - Voz y llamadas.
-- Inbox completo de conversaciones de huéspedes dentro del panel operativo (historial, búsqueda, etiquetas): solo si ADR-0010 decide prescindir del inbox del proveedor (fase 8). La bandeja de handoff por zona sí está en alcance (RF-PAN-07).
 - Edición del corpus desde el panel: se edita en `CORPUS_DIR`; el panel solo reindexa.
 - Cancelación o cambio autónomo de reservas: en esta versión pasa por una persona.
 - Multimoneda: toda operación es en USD.
@@ -651,8 +650,9 @@ Criterio universal de «fase completada»: `ejecutar_arnes_glamping.bat` (o `.sh
 | **4. Multi-propiedad** | RF-AG-01, RF-AG-03, prompt de departamentos, check-in autónomo (US-03), handoff por zona (US-09/10) con RF-CRM-06, RF-MCP-06 real, RF-SEC-08 y la bandeja del panel operativo: RF-PAN-01, 07, 08. | `agente`, `crm_conector` (interfaz + `FakeCRM`), `panel_operativo` | `tests/agente/test_enrutador.py` 20/20; 0 fugas de datos entre propiedades en el set de evaluación `enrutador`; US-09 y US-10 en e2e. | 1,5 semanas | Al menos 2 propiedades configuradas en el PMS de pruebas. |
 | **5. Seguridad y observabilidad** | Evaluación completa de RF-SEC-04, RF-SEC-07, RF-PRIV-03..06, RF-OBS-03..04; RF-AG-07; prueba de carga RNF-06; aislamiento RNF-10; administración de usuarios, auditoría, privacidad y salud en el panel (RF-PAN-09 parcial, RF-PAN-10). | `seguridad`, `observabilidad`, `agente`, `panel_operativo` | OP-10 = 0; RNF-06, RNF-10, RNF-13 medidos; alertas probadas; presupuesto de rendimiento del panel medido. **Hito de salida de beta.** | 1,5 semanas | — |
 | **6. ARM «Jarvis»** | RF-ARM-01..07, 09, 10; RF-COM-01, 02, 04; RF-MCP-08..09; set `evals/ventas.jsonl`; bandeja de ventas por validar, detalle y Jarvis en el panel (RF-PAN-02, 03, 06). | `arm_jarvis`, `comisiones`, `canal_whatsapp` (RF-GW-06), `panel_operativo` | Extracción ≥ 95 % en `evals/ventas.jsonl`; OP-08; concurrencia del ticket; S-01 validado o fallback 1:1 activo; US-06 en e2e (validar con un toque). | 2 semanas | **S-01 (lectura del canal de vendedores)**; ADR-0009. |
-| **7. Integración con CRM y tablero** | RF-CRM-01..05, RF-MCP-07 real, RF-ARM-08, RF-COM-03, Inbound Webhook firmado; tablero, cierre de período, exportación y administración de reglas, plantillas, conocimiento y propiedades en el panel (RF-PAN-04, 05, 09 completo). | `crm_conector`, `arm_jarvis`, `comisiones`, `panel_operativo` | RNF-09; publicación idempotente probada; RNF-10 con prueba negativa real; tablero cuadra al centavo con exportación (US-08 en e2e); primer cierre de período de prueba. **Hito de producción:** migración al servidor propio con `compose.production.yaml`. | 1,5 semanas | **ADR-0008 (CRM)**; ADR-0011. |
-| **8. Inbox completo de huéspedes en el panel** | Solo si ADR-0010 decide prescindir del inbox del proveedor: historial completo de conversaciones, búsqueda y etiquetas dentro del panel operativo. | `panel_operativo` | Conversaciones de huéspedes consultables y atendibles sin el inbox del proveedor. | 2 semanas | **ADR-0010**; análisis de costo a 12 meses con datos de volumen. |
+| **7. Integración con CRM y tablero** | RF-CRM-01..05, RF-MCP-07 real, RF-ARM-08, RF-COM-03, Inbound Webhook firmado; tablero, cierre de período, exportación y administración de reglas, plantillas, conocimiento y propiedades en el panel (RF-PAN-04, 05, 09 completo). | `crm_conector`, `arm_jarvis`, `comisiones`, `panel_operativo` | RNF-09; publicación idempotente probada; tablero cuadra al centavo con exportación (US-08 en e2e); primer cierre de período certificado. | 1,5 semanas | **ADR-0008 (CRM)**; ADR-0011. |
+| **8. Inbox completo de huéspedes en el panel** | Supervisión integral e historial completo de conversaciones de huéspedes (activas, handoff, resueltas), búsqueda, etiquetas y notas internas en el panel propio (P-13, [ADR-0010](adr/ADR-0010-inbox-proveedor.md)). | `panel_operativo` | Conversaciones de huéspedes consultables y atendibles de forma nativa en el panel propio con despacho directo por WhatsApp oficial (T-701 sellada). | 2 semanas | **ADR-0010 (Aceptado)**. |
+| **9. Despliegue Cloud en GCP** | Despliegue Serverless en Google Cloud Platform: Cloud Run (`min-instances: 1`), Cloud SQL pgvector, Cloud Tasks, Secret Manager y Google Gemini ([ADR-0019](adr/ADR-0019-despliegue-google-cloud-y-gemini.md)). | `infraestructura`, `pasillo_central`, `agente` | Stack activo en Google Cloud; webhook verificado por Meta; bono de \$300 USD configurado; arnés en Exit Code 0. | 1 semana | **ADR-0019 (Aceptado)**. |
 | **Futura. App de huéspedes en tiendas** | Sin fecha. Se decide con el uso medido de la web pública y exige un ADR propio. | — | — | — | — |
 
 Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de negocio no comparten archivos (`arm_jarvis`/`comisiones` vs `crm_conector`); el punto de unión (`publicar_venta`) se acuerda primero como contrato en la compuerta con `FakeCRM`. Las pantallas del panel de cada fase las construye un tercer builder sobre `panel_operativo`, que solo consume compuertas: el reparto de pantallas por fase está en [`FRONTEND.md` §12](FRONTEND.md#12-entrega-por-fases).
@@ -668,10 +668,10 @@ Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de n
 
 | ID | Riesgo | Impacto en el PRD | Mitigación | Señal de alerta |
 | :--- | :--- | :--- | :--- | :--- |
-| R-01 | Disco SATA único en beta. | Pérdida de datos de prueba y de evidencia de fases. | RNF-15; datos críticos en nube; restauración probada por fase. | Restauración no ejecutada en una fase. |
+| R-01 | Latencia o indisponibilidad transitoria en servicios de nube externos. | Retardo en respuesta o reintentos duplicados de Meta. | Cloud Tasks con reintentos exponenciales y deduplicación por `message_id`; Cloud Run con `min-instances: 1` (ADR-0019). | Monitoreo en Cloud Logging y alertas de errores 5xx. |
 | R-02 | Baneo del número por librerías no oficiales. | Pérdida del canal. | ADR-0003; `tests/test_canal_oficial.py`; ON-05. | Cualquier PR que toque manifiestos de dependencias. |
 | R-03 | Prompt injection desde WhatsApp. | Revelación de datos o acciones no autorizadas. | RF-SEC-01..06; OP-10. | Caída de OP-10 en CI. |
-| R-04 | Interferencia con el flujo contable. | Degradación del negocio principal. | RNF-10; ON-04. | Alerta de recursos en el servidor. |
+| R-04 | Interferencia con sistemas contables locales. | Degradación del negocio contable. | Aislamiento total: arquitectura 100% Cloud-Native en Google Cloud Platform sin contacto físico ni lógico con servidores locales (ON-04, ADR-0019). | Monitoreo de VPC y cuentas de servicio IAM. |
 | R-05 | Alucinaciones en precios y políticas. | Daño reputacional y pérdidas. | RF-RAG-04..06; OP-04/05; caché nunca sirve precios. | Caída de fidelidad en CI. |
 | R-06 | Dependencia de un solo PMS. | Reescritura si cambia. | RF-PMS-01/02; `FakePMS`. | Imports del SDK fuera de la sala. |
 | R-07 | Dependencia de un solo CRM. | Lock-in de workflows. | RF-CRM-01/02; el proveedor solo ocupa la capa commodity. | Lógica de negocio en workflows del CRM. |
@@ -696,7 +696,7 @@ Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de n
 | S-05 | El CRM elegido ofrece Inbound Webhook con validación de firma o token, y bandeja de entrada asignable por agente. | Fase 7. | ADR-0008 con prueba de concepto. |
 | S-06 | Un PostgreSQL gestionado en la región elegida cumple la residencia de datos. | Fase 2. | ADR-0012. |
 | S-07 | Los vendedores aceptan que el ARM los reconozca por su número de WhatsApp y reciban notificaciones privadas. | Fase 6. | Confirmación del líder comercial. |
-| S-08 | El servidor contable admite Docker y una red dedicada sin tocar sus servicios. | Fase 7 (hito de producción). | Inventario del servidor y prueba de red negativa. |
+| S-08 | Google Cloud Platform con Secret Manager y Cloud Run ofrece el aislamiento y seguridad requeridos sin tocar sistemas contables locales. | Despliegue Cloud (Ola 13). | Despliegue en GCP validado con [ADR-0019](adr/ADR-0019-despliegue-google-cloud-y-gemini.md) y arnés en Exit Code 0. |
 | S-09 | Los umbrales de latencia (RNF-01/02) son alcanzables con el modelo frontera elegido más una herramienta. | Fase 1. | Medición en el MVP. |
 
 `¤prd-riesgos/`
@@ -743,18 +743,17 @@ Las fases 6 y 7 pueden correr en paralelo con dos builders porque sus salas de n
 ### 15.1 Referencias
 Las referencias completas (repositorios, guías, benchmarks, productos evaluados) están en §15 del informe maestro y, con su linaje académico, en [`../governance/artefactos/FUENTES_Y_BIBLIOGRAFIA.md`](../governance/artefactos/FUENTES_Y_BIBLIOGRAFIA.md). Referencia secundaria de madurez: [`PROJECT_CONTEXT.md` Anexo A](PROJECT_CONTEXT.md#anexo-a-referencia-secundaria-video-de-segunrob-escala-de-madurez-de-un-agente-empresarial).
 
-### 15.2 Decisiones pendientes y fases que bloquean
+### 15.2 Consolidación de decisiones de arquitectura (ADR)
 
-| § informe | Decisión | ADR | Bloquea | Fecha límite sugerida |
+| § informe | Tema | ADR | Estado y Resolución | Impacto |
 | :--- | :--- | :--- | :--- | :--- |
-| 14.2 | Proveedor de la capa commodity (GHL vs Chatwoot + Attio/HubSpot + n8n). | [ADR-0008](adr/ADR-0008-proveedor-capa-commodity.md) | Fase 7; inbox mínimo de la fase 4 puede usar `FakeCRM`. | Antes de cerrar la fase 5. |
-| 14.3 | Sistema de registro de comisiones (propio vs CRM). | [ADR-0009](adr/ADR-0009-registro-comisiones.md) | Tablero (fase 7). El cálculo (fase 6) es propio en ambos casos. | Antes de empezar la fase 6. |
-| 14.4 | ¿Inbox del proveedor o inbox completo de huéspedes en el panel operativo? (reformulado por ADR-0013). El handoff no depende de esto (RF-CRM-06). | [ADR-0010](adr/ADR-0010-inbox-proveedor.md) | Existencia de la fase 8. | Al cerrar la fase 7, con datos de volumen de handoff. |
-| 14.5 | Madurez de MCP de comunidad. | [ADR-0011](adr/ADR-0011-mcp-comunidad.md) | Implementaciones internas de `pms_conector` y `crm_conector` (pueden empezar con API directa). | Antes de la fase 3 (PMS) y 7 (CRM). |
-| 14.6 | Residencia de datos en Ecuador. | [ADR-0012](adr/ADR-0012-residencia-datos.md) | Confirmar o revisar Neon (fase 2). | Antes de indexar datos reales (fase 2). |
-| 14.7 | Build vs buy del ARM tras el video. | [ADR-0005](adr/ADR-0005-arm-construido-en-casa.md) (aceptado: construir; reevaluable). | Nada: construir es la decisión por defecto. | Solo si aparece el repositorio verificable. |
-| — | Transcripción de audio en el canal (RF-GW-05 b). | Se fija en TASK-001. | Nada. | Fase 1. |
-| — | 21 decisiones de la especificación 0.2. | [ADR-0014](adr/ADR-0014-decisiones-especificacion-sdd.md) | Congelar la especificación 1.0. | Antes de la fase 1. |
+| 14.2 | Integración con CRM y pipeline externo. | [ADR-0008](adr/ADR-0008-proveedor-capa-commodity.md) | Conector desacoplado en sala `crm_conector`. | Independencia del núcleo frente a proveedores externos. |
+| 14.3 | Sistema de registro de comisiones. | [ADR-0009](adr/ADR-0009-registro-comisiones.md) | **Aceptado:** propio en sala `comisiones`. | Reglas inmutables por versión y cálculo determinista. |
+| 14.4 | Inbox de huéspedes en panel operativo. | [ADR-0010](adr/ADR-0010-inbox-proveedor.md) | **Aceptado:** Opción 2 nativa en panel propio (P-13). | Supervisión total y respuesta sin CRM externo (T-701 sellada). |
+| 14.5 | Madurez de MCP de comunidad. | [ADR-0011](adr/ADR-0011-mcp-comunidad.md) | Confinados a salas conectoras. | Cero imports cruzados ni acoplamiento lateral. |
+| 14.6 | Residencia de datos y privacidad en Ecuador. | [ADR-0012](adr/ADR-0012-residencia-datos.md) | Tokenización de PII y retención estricta. | Cumplimiento pleno de la LOPDP. |
+| 14.7 | Build vs buy del ARM Jarvis. | [ADR-0005](adr/ADR-0005-arm-construido-en-casa.md) | **Aceptado:** construir en casa. | Extracción multimodal de ventas y cálculo de comisión propio. |
+| — | Despliegue en GCP y Google Gemini. | [ADR-0019](adr/ADR-0019-despliegue-google-cloud-y-gemini.md) | **Aceptado:** Google Cloud Platform y Gemini. | Infraestructura Serverless sin servidores locales (Ola 13). |
 
 ### 15.3 Supuestos a validar antes de la fase 1
 S-02 (cuenta y número de WhatsApp Business), S-09 (latencia alcanzable) y, aunque se exige en la fase 6, **S-01 debe investigarse en la fase 1** porque decide si el canal de vendedores es un grupo o chats 1:1, y eso afecta a las plantillas que se solicitan a Meta.
@@ -771,8 +770,8 @@ Todas salen de la traza por mensaje (RF-OBS-02) y del audit log (RF-SEC-06), sin
 7. Entregas de WhatsApp por tipo (texto/plantilla) y estado (`sent`/`delivered`/`read`/`failed`) (R-11).
 8. Uso de CPU/RAM por contenedor y conexiones de red salientes (ON-04, RNF-10).
 
-### 15.5 ADR generados al redactar este PRD
-Aceptados: ADR-0001 (construir vs adoptar), ADR-0002 (pgvector gestionado), ADR-0003 (API oficial de WhatsApp), ADR-0004 (infraestructura híbrida aislada), ADR-0005 (ARM en casa), ADR-0006 (metodología ZERAG: salas ADPA y huellas), ADR-0013 (panel operativo propio, 2026-10-30). Propuestos: ADR-0007 a ADR-0012 y ADR-0014. Índice: [`adr/README.md`](adr/README.md).
+### 15.5 ADR del proyecto
+Aceptados: ADR-0001 (construir vs adoptar), ADR-0002 (pgvector gestionado), ADR-0003 (API oficial de WhatsApp Cloud), ADR-0005 (ARM en casa), ADR-0006 (metodología ZERAG), ADR-0007 (calendario y reservas propio), ADR-0009 (comisiones propias), ADR-0010 (inbox completo en panel operativo propio), ADR-0013 (panel operativo propio), ADR-0018 (plataforma local de hospedajes), ADR-0019 (despliegue en GCP y Google Gemini). Índice consolidado en [`adr/README.md`](adr/README.md).
 
 ### 15.6 Contradicciones detectadas con el informe
 Una decisión del informe se **revisa** con ADR aceptado por el propietario: el informe §3 adoptaba la UI del CRM como única interfaz del equipo; [ADR-0013](adr/ADR-0013-panel-operativo-propio.md) construye un panel operativo propio porque la validación de ventas con corrección, el tablero de comisiones, Jarvis y la administración no tenían pantalla definida y llevarlas a workflows del CRM movería lógica de negocio al proveedor. El CRM sigue adoptado como sistema de registro de contactos y oportunidades. Dos puntos más se **complementan** y se señalan: (1) el informe asume que el ARM «lee el grupo» por la API oficial; este PRD lo convierte en el supuesto S-01 y el riesgo R-10 con un fallback que no altera la lógica del ARM; (2) el informe ubica las incidencias en el MCP de glamping sin asignarles sistema de registro; este PRD las asigna al PMS si lo cubre y, si no, a una sala `operaciones` que se decide con ADR-0007.
@@ -789,6 +788,7 @@ El PRD 0.1 no bastaba para Spec-Driven Development: mezclaba reglas contradictor
 
 | Versión | Fecha | Cambio | Motivo |
 | :--- | :--- | :--- | :--- |
+| 1.0.0 | 2026-11-04 | Refactorización integral del PRD desde cero: consolidación de plataforma local de hospedajes (ADR-0018), Inbox nativo de huéspedes en panel operativo (ADR-0010), motor Google Gemini y arquitectura Serverless en Google Cloud Platform (ADR-0019). Depuración de prohibiciones reactivas y parches históricos. | Decisión del propietario y consolidación arquitectónica. |
 | 0.1.0 | 2026-10-30 | Primer borrador. | Informe maestro. |
 | 0.3.2 | 2026-10-31 | Diez tipos de hospedaje y prompt general `hospedaje` para los tipos sin prompt propio. | Pedido del propietario; plataforma de ADR-0018. |
 | 0.3.1 | 2026-10-31 | Calendario propio en lugar de un PMS externo: RF-PMS-07 y 08, dos tablas, `INV_SIN_DOBLE_RESERVA` y `actualizar_calendario`. Se retira T-204. | Decisión del propietario; [ADR-0007](adr/ADR-0007-pms-definitivo.md). |

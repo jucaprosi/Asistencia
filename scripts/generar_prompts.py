@@ -1,5 +1,6 @@
 # ¤spec-glamping
 # ¤¤qa-engineer
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
 """Traduce cada tarea de TASKS.md en un prompt atómico en docs/spec/prompts/. Con --check falla si alguno está desactualizado.
 
 No inventa contenido: copia requisitos, escenarios, contratos, tablas e invariantes de la especificación.
