@@ -23,7 +23,6 @@ evals/privado/
 
 # Frontend (TASK-004+)
 node_modules/
-features/panel_operativo/estaticos/
 
 # Herramienta auxiliar de transcripción, no gobernada por este repositorio
 transcriptor_tiktok/

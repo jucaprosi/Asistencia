@@ -1,0 +1,25 @@
+{
+  "name": "Panel Operativo — Glamping Imbabura",
+  "short_name": "Panel",
+  "description": "Terminal móvil operativa para líderes, gestores y administradores",
+  "start_url": "/panel",
+  "scope": "/panel/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#1a365d",
+  "icons": [
+    {
+      "src": "/panel/estaticos/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/panel/estaticos/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
