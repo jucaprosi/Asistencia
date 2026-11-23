@@ -53,7 +53,7 @@ export default defineConfig({
   // Un test marcado como `only` delata una sesión de depuración a medio cerrar.
   forbidOnly: ES_CI,
   retries: ES_CI ? 1 : 0,
-  reporter: ES_CI ? [["github"], ["list"]] : [["list"]],
+  reporter: ES_CI ? [["github"], ["list"], ["html", { open: "never", outputFolder: "playwright-report" }]] : [["list"]],
   outputDir: "test-results",
   use: {
     baseURL: BASE_URL,
