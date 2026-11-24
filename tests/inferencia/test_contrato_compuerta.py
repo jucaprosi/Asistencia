@@ -74,11 +74,17 @@ class DobleGenai:
 
 
 # ¤inferencia
-def _peticion(*mensajes: MensajeNeutro, modelo: str = "gemini-3.8-flash", plazo_s: float = 10.0) -> PeticionInferencia:
+def _peticion(*mensajes: MensajeNeutro, perfil: str = "principal", plazo_s: float = 10.0) -> PeticionInferencia:
     return PeticionInferencia(
         system="Eres el asistente.", mensajes=mensajes or (MensajeNeutro("usuario", "hola"),),
-        modelo=modelo, plazo_s=plazo_s, herramientas=(HERRAMIENTA,),
+        perfil=perfil, plazo_s=plazo_s, herramientas=(HERRAMIENTA,),  # type: ignore[arg-type]
     )
+
+
+@pytest.fixture(autouse=True)
+def _sin_claves_en_el_proceso(monkeypatch: pytest.MonkeyPatch) -> None:
+    for clave in ("GOOGLE_API_KEY", "GEMINI_API_KEY"):
+        monkeypatch.delenv(clave, raising=False)
 
 
 # ¤inferencia
@@ -137,31 +143,58 @@ def test_b5_resultados_en_un_solo_turno_user_en_orden_y_con_id() -> None:
 
 
 # ¤inferencia
-def test_b6_el_modelo_enrutado_llega_al_proveedor() -> None:
-    """Bloqueante 6: el modelo pedido es el que recibe Vertex."""
+def test_b6_el_perfil_enrutado_llega_al_proveedor_como_modelo_de_la_lista() -> None:
+    """Bloqueante 6 y A1: agente pide un perfil; inferencia lo resuelve contra modelos_permitidos."""
     doble = DobleGenai()
-    InferenciaService(ENTORNO, cliente=doble).generar(_peticion(modelo="gemini-3.5-flash-lite"))
+    respuesta = InferenciaService(ENTORNO, cliente=doble).generar(_peticion(perfil="economico"))
     assert doble.llamadas[0]["model"] == "gemini-3.5-flash-lite"
+    assert respuesta.modelo == "gemini-3.5-flash-lite"
 
 
 # ¤inferencia
 @pytest.mark.parametrize(
-    ("entorno", "modelo"),
+    ("entorno", "perfil"),
     [
-        ({}, "gemini-3.8-flash"),
-        ({"GOOGLE_CLOUD_PROJECT": "p"}, "gemini-3.8-flash"),
-        ({"GOOGLE_CLOUD_PROJECT": "p", "VERTEX_LOCATION": "us-central1"}, "gemini-3.8-flash"),
-        ({"GOOGLE_CLOUD_PROJECT": "p", "VERTEX_LOCATION": "global"}, "gemini-3.8-flash"),
-        (ENTORNO, "gemini-1.5-flash"),
-        ({**ENTORNO, "GEMINI_API_KEY": "x"}, "gemini-3.8-flash"),
+        ({}, "principal"),
+        ({"GOOGLE_CLOUD_PROJECT": "p"}, "principal"),
+        ({"GOOGLE_CLOUD_PROJECT": "p", "VERTEX_LOCATION": "us-central1"}, "principal"),
+        ({"GOOGLE_CLOUD_PROJECT": "p", "VERTEX_LOCATION": "global"}, "principal"),
+        (ENTORNO, "premium"),
+        ({**ENTORNO, "GEMINI_API_KEY": "x"}, "principal"),
     ],
 )
-def test_falla_cerrada_sin_llamar_al_proveedor(entorno: dict[str, str], modelo: str) -> None:
-    """INV_MODELO_FALLA_CERRADA e INV_MODELO_EN_LISTA_BLANCA: config incompleta, región fuera del mapa o modelo ajeno."""
+def test_falla_cerrada_sin_llamar_al_proveedor(entorno: dict[str, str], perfil: str) -> None:
+    """INV_MODELO_FALLA_CERRADA e INV_MODELO_EN_LISTA_BLANCA: config incompleta, región fuera del mapa o perfil ajeno."""
     doble = DobleGenai()
     servicio = InferenciaService(entorno, cliente=doble)
     with pytest.raises(InferenciaNoDisponible):
-        servicio.generar(_peticion(modelo=modelo))
+        servicio.generar(_peticion(perfil=perfil))
+    assert doble.llamadas == []
+
+
+# ¤inferencia
+def test_falla_cerrada_si_la_config_apunta_a_un_modelo_fuera_de_la_lista() -> None:
+    """A1: un config_inferencia con un modelo que no es Gemini permitido no llega al proveedor."""
+    doble = DobleGenai()
+    config = {
+        "modelos_permitidos": {"principal": "gemini-1.5-flash", "economico": "gemini-3.5-flash-lite"},
+        "ubicaciones": {"us": {"pais": "Estados Unidos", "endpoint": "aiplatform.us.rep.googleapis.com"}},
+        "precios_por_millon": {"gemini-3.5-flash-lite": ["0.30", "2.50"]},
+        "reintentos": 1,
+    }
+    with pytest.raises(InferenciaNoDisponible):
+        InferenciaService(ENTORNO, cliente=doble, config=config).generar(_peticion())
+    assert doble.llamadas == []
+
+
+# ¤inferencia
+@pytest.mark.parametrize("clave", ["GOOGLE_API_KEY", "GEMINI_API_KEY"])
+def test_falla_cerrada_con_clave_api_en_el_proceso(monkeypatch: pytest.MonkeyPatch, clave: str) -> None:
+    """A2 (Decisión 3): google-genai lee os.environ por su cuenta; una clave ahí saltaría ADC y la región."""
+    monkeypatch.setenv(clave, "x")
+    doble = DobleGenai()
+    with pytest.raises(InferenciaNoDisponible):
+        InferenciaService(ENTORNO, cliente=doble).generar(_peticion())
     assert doble.llamadas == []
 
 
@@ -170,26 +203,31 @@ def test_estado_informa_pais_y_region_para_el_aviso_lopdp() -> None:
     estado = InferenciaService(ENTORNO, cliente=DobleGenai()).estado()
     assert estado.disponible is True
     assert estado.region == "us"
+    assert estado.pais == "Estados Unidos"
     assert InferenciaService({}, cliente=DobleGenai()).estado().disponible is False
 
 
 # ¤inferencia
 def test_tope_diario_concurrente_solo_pasa_una() -> None:
-    """Tope diario único: dos llamadas concurrentes en el límite, solo una llega al proveedor."""
+    """Tope diario único: dos llamadas concurrentes en el límite, solo una llega al proveedor.
+
+    A3: la cuota admite exactamente una reserva sin importar el costo estimado, así la prueba mide solo
+    que la compuerta reserva antes de llamar y respeta la negativa; el costo exacto es otro contrato.
+    """
 
     class CuotaAtomica:
-        def __init__(self, tope: Decimal) -> None:
-            self.restante, self._candado = tope, threading.Lock()
+        def __init__(self, capacidad: int) -> None:
+            self.capacidad, self._candado = capacidad, threading.Lock()
 
         def reservar(self, costo: Decimal) -> bool:
             with self._candado:
-                if costo > self.restante:
+                if self.capacidad <= 0:
                     return False
-                self.restante -= costo
+                self.capacidad -= 1
                 return True
 
     doble = DobleGenai(demora_s=0.2)
-    servicio = InferenciaService(ENTORNO, cliente=doble, cuota=CuotaAtomica(Decimal("0.0001")))
+    servicio = InferenciaService(ENTORNO, cliente=doble, cuota=CuotaAtomica(capacidad=1))
     errores: list[BaseException] = []
 
     def llamar() -> None:

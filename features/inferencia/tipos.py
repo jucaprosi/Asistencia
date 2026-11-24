@@ -65,9 +65,11 @@ class MensajeNeutro:
 # ¤inferencia
 @dataclass(frozen=True)
 class PeticionInferencia:
+    """``perfil`` lo resuelve inferencia contra ``modelos_permitidos``: quien consume no conoce nombres de modelo."""
+
     system: str
     mensajes: tuple[MensajeNeutro, ...]
-    modelo: str
+    perfil: Literal["principal", "economico"]
     plazo_s: float
     herramientas: tuple[EsquemaHerramienta, ...] = ()
 
@@ -86,7 +88,7 @@ class RespuestaInferencia:
     texto: str
     llamadas: tuple[LlamadaNeutra, ...]
     uso: UsoTokens
-    modelo: str
+    modelo: str  # nombre concreto, solo para trazas
     contexto_turno: Mapping[str, Any] = field(default_factory=dict)
 
 
@@ -97,6 +99,7 @@ class EstadoInferencia:
     motivo: str
     region: str
     ubicacion: str
+    pais: str = ""
 
 
 # ¤inferencia
