@@ -17,40 +17,7 @@ from typing import Any, Iterator, Mapping, Sequence
 from features.observabilidad.tipos import Metrica, Span, Traza, TrazaDesconocida
 from features.persistencia_sql.persistencia_sql_service import envolver
 
-__all__ = ["GestorTrazas", "AlmacenTrazas", "calcular_costo_tokens"]
-
-# Precios por millón de tokens en USD por defecto (misma tarifa que config_inferencia.yaml; ADR-0021).
-PRECIOS_MILLON_DEFECTO: dict[str, tuple[Decimal, Decimal]] = {
-    "gemini-3.8-flash": (Decimal("1.50"), Decimal("7.50")),
-    "gemini-3.5-flash-lite": (Decimal("0.30"), Decimal("2.50")),
-}
-PRECIO_ESTANDAR = (Decimal("3.00"), Decimal("15.00"))
-
-
-# ¤observabilidad
-def calcular_costo_tokens(
-    modelo: str | None,
-    tokens_in: int | None,
-    tokens_out: int | None,
-    tabla_precios: Mapping[str, Mapping[str, float]] | None = None,
-) -> Decimal:
-    """Calcula el costo en USD de una invocación de modelo redondeado a 6 decimales (numeric(10,6))."""
-    if not tokens_in and not tokens_out:
-        return Decimal("0.000000")
-
-    t_in = tokens_in or 0
-    t_out = tokens_out or 0
-
-    if tabla_precios and modelo and modelo in tabla_precios:
-        p_in = Decimal(str(tabla_precios[modelo].get("in", 3.0)))
-        p_out = Decimal(str(tabla_precios[modelo].get("out", 15.0)))
-    else:
-        p_in, p_out = PRECIOS_MILLON_DEFECTO.get(modelo or "", PRECIO_ESTANDAR)
-
-    costo_in = (Decimal(t_in) / Decimal("1000000")) * p_in
-    costo_out = (Decimal(t_out) / Decimal("1000000")) * p_out
-    return (costo_in + costo_out).quantize(Decimal("0.000001"))
-
+__all__ = ["GestorTrazas", "AlmacenTrazas"]
 
 # ¤observabilidad
 class AlmacenTrazas:
@@ -93,6 +60,11 @@ class AlmacenTrazas:
         with self._obtener_conexion() as con:
             con.executescript(
                 """
+                CREATE TABLE IF NOT EXISTS cuota_inferencia (
+                  dia              TEXT PRIMARY KEY,
+                  gastado_micro    INTEGER NOT NULL DEFAULT 0
+                );
+
                 CREATE TABLE IF NOT EXISTS trazas (
                   traza_id         TEXT PRIMARY KEY,
                   mensaje_id       TEXT,
@@ -160,7 +132,7 @@ class AlmacenTrazas:
     def guardar_span(self, span: Span) -> None:
         inicio_str = span.inicio.isoformat()
         costo_str = str(span.costo_usd) if span.costo_usd is not None else None
-        atributos_str = json.dumps(dict(span.atributos), ensure_ascii=False)
+        atributos_str = json.dumps(dict(span.atributos), ensure_ascii=False, default=str)
 
         with self._obtener_conexion() as con:
             con.execute(
@@ -270,7 +242,11 @@ class GestorTrazas:
     def __init__(self, config: Mapping[str, Any], almacen: AlmacenTrazas | None = None) -> None:
         self._config = config
         self._almacen = almacen or AlmacenTrazas(db_path=config.get("db_path"))
-        self._precios_config = config.get("costos", {}).get("tabla_precios_por_modelo", {})
+
+    # ¤observabilidad
+    def conexion_cuota(self) -> Any:
+        """Conexión del mismo almacén para el tope diario (cuota_internal)."""
+        return self._almacen._obtener_conexion()
 
     # ¤observabilidad
     def iniciar_traza(self, mensaje_id: str | None, conversacion_id: str | None, canal: str = "huespedes") -> str:
@@ -307,9 +283,8 @@ class GestorTrazas:
             tokens_out = ctx.tokens_out if ctx.tokens_out is not None else ctx.atributos.get("tokens_out")
             costo = ctx.costo_usd if ctx.costo_usd is not None else ctx.atributos.get("costo_usd")
 
-            if costo is None and (tokens_in is not None or tokens_out is not None):
-                costo = calcular_costo_tokens(modelo, tokens_in, tokens_out, self._precios_config)
-            elif costo is not None and not isinstance(costo, Decimal):
+            # El costo lo calcula solo la sala inferencia (ADR-0021, C5): aquí se guarda tal cual o queda vacío.
+            if costo is not None and not isinstance(costo, Decimal):
                 costo = Decimal(str(costo)).quantize(Decimal("0.000001"))
 
             span_final = Span(

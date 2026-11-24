@@ -100,6 +100,7 @@ class EstadoInferencia:
     region: str
     ubicacion: str
     pais: str = ""
+    con_tope_diario: bool = False
 
 
 # ¤inferencia

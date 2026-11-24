@@ -226,6 +226,9 @@ def test_tope_diario_concurrente_solo_pasa_una() -> None:
                 self.capacidad -= 1
                 return True
 
+        def conciliar(self, reservado: Decimal, real: Decimal) -> None:  # contrato del paso 4 (C3)
+            pass
+
     doble = DobleGenai(demora_s=0.2)
     servicio = InferenciaService(ENTORNO, cliente=doble, cuota=CuotaAtomica(capacidad=1))
     errores: list[BaseException] = []

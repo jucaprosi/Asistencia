@@ -307,9 +307,9 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
         _config(cargar_config_herramientas), seguridad=seguridad, pms=pms, conocimiento=conocimiento, crm=crm,
         arm=arm, comisiones=comisiones, anfitriones=anfitriones, observabilidad=observabilidad,
     )
-    # ADR-0021: la compuerta de inferencia se construye una sola vez con el entorno del proceso y se inyecta.
-    # El tope diario atómico (cuota) llega con su contrato en observabilidad (paso 4).
-    inferencia = InferenciaService(env)
+    # ADR-0021: la compuerta de inferencia se construye una sola vez con el entorno del proceso y se inyecta,
+    # con el tope diario atómico de observabilidad (C2): sin él la sala no responde.
+    inferencia = InferenciaService(env, cuota=observabilidad.cuota_inferencia())
     agente = AgenteService(
         _config(cargar_config_agente), seguridad=seguridad, herramientas=herramientas, conocimiento=conocimiento,
         canal=canal, observabilidad=observabilidad, inferencia=inferencia,

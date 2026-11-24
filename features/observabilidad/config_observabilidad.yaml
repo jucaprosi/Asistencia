@@ -8,15 +8,6 @@ logs:
 trazas:
   retencion_dias: 90
   muestreo: 1.0
-costos:
-  # USD por millón de tokens; se recalibra con la tabla de precios vigente del proveedor del modelo.
-  tabla_precios_por_modelo:
-    gemini-3.8-flash:
-      in: 1.50
-      out: 7.50
-    gemini-3.5-flash-lite:
-      in: 0.30
-      out: 2.50
 umbrales:
   rag: {fidelidad: 0.95, abstencion: 0.90, alucinaciones_precio_politica: 0}
   ventas: {exactitud: 0.95}

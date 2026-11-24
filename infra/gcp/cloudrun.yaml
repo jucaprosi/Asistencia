@@ -43,16 +43,11 @@ spec:
               value: "produccion"
             - name: LOG_NIVEL
               value: "INFO"
-            - name: PROVEEDOR_LLM
-              value: "google"
-            - name: GCP_PROJECT_ID
+            # Inferencia (ADR-0021): Vertex multirregión us por ADC; los modelos viven en la sala inferencia.
+            - name: GOOGLE_CLOUD_PROJECT
               value: "${GCP_PROJECT_ID:-glamping-imbabura}"
-            - name: GCP_LOCATION
-              value: "${GCP_LOCATION:-us-central1}"
-            - name: MODELO_PRINCIPAL
-              value: "gemini-3.8-flash"
-            - name: MODELO_ECONOMICO
-              value: "gemini-3.5-flash-lite"
+            - name: VERTEX_LOCATION
+              value: "us"
             # Conexión persistente PostgreSQL mediante Socket UNIX de Cloud SQL
             - name: DATABASE_URL
               valueFrom:

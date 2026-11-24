@@ -72,7 +72,7 @@ def test_c3_conciliar_devuelve_lo_no_gastado() -> None:
 # ¤inferencia
 def test_c2_el_tope_por_defecto_sale_de_la_config() -> None:
     config = dict(cargar_config())
-    config["umbrales"] = {**config["umbrales"], "costo_diario_usd": "5"}
+    config["alertas"] = {**config["alertas"], "costo_diario_usd": "5"}
     tope = Decimal("5")
     cuota = ObservabilidadService(config).cuota_inferencia()
     assert cuota.reservar(tope)

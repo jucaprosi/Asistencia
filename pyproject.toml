@@ -19,6 +19,8 @@ dependencies = [
   "psycopg[binary]>=3.1",
   "cryptography>=42",
   "python-multipart>=0.0.9",
+  # ADR-0021: SDK de Vertex AI, solo lo importa la sala inferencia; fijado y con hash en requirements.lock.
+  "google-genai==2.34.0",
 ]
 
 [project.optional-dependencies]

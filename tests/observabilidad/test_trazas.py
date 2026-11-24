@@ -13,7 +13,7 @@ import pytest
 
 from features.observabilidad.observabilidad_service import ObservabilidadService, cargar_config
 from features.observabilidad.tipos import TrazaDesconocida
-from features.observabilidad.trazas_internal import AlmacenTrazas, GestorTrazas, calcular_costo_tokens
+from features.observabilidad.trazas_internal import AlmacenTrazas, GestorTrazas
 
 
 # ¤observabilidad
@@ -44,6 +44,7 @@ def test_traza_por_mensaje_con_spans_tokens_y_costo() -> None:
         modelo="gemini-3.8-flash",
         tokens_in=1200,
         tokens_out=350,
+        costo_usd=Decimal("0.004425"),  # lo calcula inferencia (ADR-0021, C5); aquí solo se guarda
     ):
         time.sleep(0.010)
 
@@ -63,7 +64,6 @@ def test_traza_por_mensaje_con_spans_tokens_y_costo() -> None:
     assert span_agente.tokens_in == 1200
     assert span_agente.tokens_out == 350
     assert span_agente.costo_usd is not None
-    # 1200 * 15 / 1M = 0.018 ; 350 * 75 / 1M = 0.02625 -> total = 0.044250
     assert span_agente.costo_usd == Decimal("0.004425")
     assert span_agente.duracion_ms >= 5
 
@@ -92,6 +92,7 @@ def test_traza_sintetica_con_tres_spans_se_persiste_y_se_recupera() -> None:
             modelo="gemini-3.5-flash-lite",
             tokens_in=500,
             tokens_out=150,
+            costo_usd=Decimal("0.000525"),
         ):
             time.sleep(0.002)
 
@@ -119,28 +120,9 @@ def test_traza_sintetica_con_tres_spans_se_persiste_y_se_recupera() -> None:
         assert span_modelo.modelo == "gemini-3.5-flash-lite"
         assert span_modelo.tokens_in == 500
         assert span_modelo.tokens_out == 150
-        # Haiku: 500 * 0.80 / 1M = 0.0004 ; 150 * 4.00 / 1M = 0.0006 -> 0.001000 USD
         assert span_modelo.costo_usd == Decimal("0.000525")
 
         almacen_recuperado.cerrar()
-
-
-# ¤observabilidad
-def test_calculo_costo_tokens_recalibrado() -> None:
-    """Verifica el cálculo de tokens y costo según modelo y tabla configurable."""
-    # Modelo Opus por defecto
-    costo_opus = calcular_costo_tokens("gemini-3.8-flash", 1000000, 1000000)
-    assert costo_opus == Decimal("9.000000")  # 1.50 + 7.50
-
-    # Modelo Haiku por defecto
-    costo_haiku = calcular_costo_tokens("gemini-3.5-flash-lite", 1000000, 1000000)
-    assert costo_haiku == Decimal("2.800000")  # 0.30 + 2.50
-
-    # Tabla recalibrada personalizada
-    tabla_custom = {"modelo-propio": {"in": 2.0, "out": 10.0}}
-    costo_custom = calcular_costo_tokens("modelo-propio", 500000, 200000, tabla_custom)
-    # 500000 * 2 / 1M = 1.0 ; 200000 * 10 / 1M = 2.0 -> 3.000000
-    assert costo_custom == Decimal("3.000000")
 
 
 # ¤observabilidad

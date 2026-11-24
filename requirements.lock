@@ -1,0 +1,6 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
+# Dependencias fijadas con hash (ADR-0021, C4). Instalar con: pip install --require-hashes -r requirements.lock
+# Hashes de PyPI para la rueda y el sdist publicados el 2026-10-29.
+google-genai==2.34.0 \
+    --hash=sha256:a4cb02aebc4c357f863d2938132f0e3f7967fc5e00b8a4078673f68aad340665 \
+    --hash=sha256:8e182cf3f73384167b96861cf0aef5102b5070f2db1ea11002879e913806ef37
