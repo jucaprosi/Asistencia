@@ -8,6 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN useradd --create-home --uid 10001 glamping
 WORKDIR /srv/glamping
 
+COPY requirements.lock ./
 COPY pyproject.toml README.md ./
 COPY app_core ./app_core
 COPY features ./features
@@ -15,7 +16,9 @@ COPY docs/prompts ./docs/prompts
 COPY docs/spec/esquema.sql ./docs/spec/esquema.sql
 COPY scripts ./scripts
 
-RUN pip install --upgrade pip && pip install .
+# ADR-0021, K2: todo lo que se instala está fijado con hash; el paquete propio no resuelve ni baja nada.
+RUN pip install --require-hashes --no-deps -r requirements.lock \
+    && pip install --no-deps --no-build-isolation .
 
 USER glamping
 EXPOSE 8080

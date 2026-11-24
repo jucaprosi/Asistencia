@@ -9,6 +9,7 @@ en PostgreSQL. El día es el día UTC. Cualquier error de la base se trata como 
 """
 from __future__ import annotations
 
+import logging
 import threading
 from datetime import datetime, timezone
 from decimal import ROUND_CEILING, Decimal
@@ -17,6 +18,7 @@ from typing import Any, Callable
 __all__ = ["CuotaDiaria"]
 
 _MICRO = Decimal("1000000")
+_LOG = logging.getLogger(__name__)
 
 
 # ¤observabilidad
@@ -60,10 +62,13 @@ class CuotaDiaria:
         delta = _a_micro(real) - _a_micro(reservado)
         if delta == 0:
             return
-        with self._candado, self._obtener_conexion() as con:
-            con.execute(
-                "UPDATE cuota_inferencia SET gastado_micro = MAX(gastado_micro + ?, 0) WHERE dia = ?"
-                if not getattr(con, "es_postgres", False)
-                else "UPDATE cuota_inferencia SET gastado_micro = GREATEST(gastado_micro + ?, 0) WHERE dia = ?",
-                (delta, self._dia()),
-            )
+        try:
+            with self._candado, self._obtener_conexion() as con:
+                con.execute(
+                    "UPDATE cuota_inferencia SET gastado_micro = MAX(gastado_micro + ?, 0) WHERE dia = ?"
+                    if not getattr(con, "es_postgres", False)
+                    else "UPDATE cuota_inferencia SET gastado_micro = GREATEST(gastado_micro + ?, 0) WHERE dia = ?",
+                    (delta, self._dia()),
+                )
+        except Exception as exc:  # noqa: BLE001 - K3: se conserva la reserva del peor caso
+            _LOG.warning("conciliacion_fallida tipo=%s delta_micro=%s", type(exc).__name__, delta)

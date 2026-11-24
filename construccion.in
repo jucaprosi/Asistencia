@@ -1,0 +1,3 @@
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
+# Requisitos de construcción que entran al candado (requirements.lock) junto con pyproject.toml.
+setuptools>=69

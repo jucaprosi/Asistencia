@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import base64
 import importlib.util
+import logging
 import os
 import random
 import time
@@ -66,6 +67,7 @@ __all__ = [
 ]
 
 RUTA_CONFIG = Path(__file__).with_name("config_inferencia.yaml")
+_LOG = logging.getLogger(__name__)
 MODELOS_PERMITIDOS = frozenset({"gemini-3.8-flash", "gemini-3.5-flash-lite"})
 PERFILES = ("principal", "economico")
 CLAVES_PROHIBIDAS = ("GOOGLE_API_KEY", "GEMINI_API_KEY")
@@ -250,7 +252,11 @@ class InferenciaService:
                 raise InferenciaNoDisponible(f"proveedor_no_disponible:{type(exc).__name__}") from exc
             real = self._costo(modelo, *_tokens_de(respuesta))
             if self._cuota is not None:
-                self._cuota.conciliar(reservado, real)
+                try:
+                    self._cuota.conciliar(reservado, real)
+                except Exception as exc:  # noqa: BLE001 - K3: la respuesta ya está pagada
+                    # Queda la reserva del peor caso: el tope sobrestima, nunca subestima.
+                    _LOG.warning("conciliacion_fallida tipo=%s reservado=%s real=%s", type(exc).__name__, reservado, real)
             return _a_respuesta(respuesta, modelo, real)
         raise InferenciaNoDisponible("proveedor_no_disponible")  # pragma: no cover
 
