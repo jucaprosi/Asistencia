@@ -68,7 +68,10 @@ _PATRONES_ESCRITURA = [
     ),
     re.compile(rf"\bdrop\s+(?:index|trigger)\s+(?:concurrently\s+)?(?:if\s+exists\s+)?({_ID})\.{_ID}"),
     re.compile(rf"\bon\s+(?:only\s+)?({_ID})\.{_ID}"),
-    re.compile(rf"\binsert\s+into\s+(?:({_ID})\.)?{_ID}"),
+    re.compile(rf"\balter\s+index\s+(?:if\s+exists\s+)?({_ID})\.{_ID}"),
+    re.compile(rf"\binto\s+(?:({_ID})\.)?{_ID}"),  # INSERT INTO, SELECT INTO, MERGE INTO
+    re.compile(rf"\bcopy\s+(?:({_ID})\.)?{_ID}"),
+    re.compile(rf"\bcomment\s+on\s+(?:materialized\s+)?\w+\s+({_ID})\.{_ID}"),
     re.compile(rf"\bupdate\s+(?:only\s+)?(?:({_ID})\.)?{_ID}\s+(?:as\s+)?(?:{_ID}\s+)?set\b"),
     re.compile(rf"\bdelete\s+from\s+(?:only\s+)?(?:({_ID})\.)?{_ID}"),
     re.compile(rf"\btruncate\s+(?:table\s+)?(?:only\s+)?(?:({_ID})\.)?{_ID}"),
@@ -101,10 +104,35 @@ def _sala_de(nombre: str) -> str | None:
 
 # ¤persistencia-sql
 def _limpiar(sql: str) -> str:
-    """SQL en minúsculas, sin comentarios ni comillas dobles, para el análisis léxico."""
-    texto = re.sub(r"/\*.*?\*/", " ", _normalizar(sql), flags=re.DOTALL)
-    texto = "\n".join(linea.split("--", 1)[0] for linea in texto.splitlines())
-    return texto.replace('"', "").lower()
+    """SQL en minúsculas, sin comentarios, literales ni comillas dobles, para el análisis léxico.
+
+    Recorre el texto una vez: un ``--`` o ``/*`` dentro de un literal no corta nada, y cada literal
+    ``'…'`` (con ``''`` escapado) queda como ``''``.
+    """
+    texto, salida, i = _normalizar(sql), [], 0
+    while i < len(texto):
+        if texto.startswith("--", i):
+            fin = texto.find("\n", i)
+            i = len(texto) if fin < 0 else fin
+        elif texto.startswith("/*", i):
+            fin = texto.find("*/", i + 2)
+            salida.append(" ")
+            i = len(texto) if fin < 0 else fin + 2
+        elif texto[i] == "'":
+            i += 1
+            while i < len(texto):
+                if texto[i] == "'" and texto.startswith("''", i):
+                    i += 2
+                elif texto[i] == "'":
+                    break
+                else:
+                    i += 1
+            salida.append("''")
+            i += 1
+        else:
+            salida.append(texto[i])
+            i += 1
+    return "".join(salida).replace('"', "").lower()
 
 
 # ¤persistencia-sql
@@ -120,10 +148,14 @@ def _violaciones_de_contenido(nombre: str, sala: str, sql: str) -> list[str]:
     violaciones: list[str] = []
     if not propios:
         violaciones.append(f"{nombre}: la sala {sala} no tiene schema y no puede tener migraciones")
-    if "search_path" in limpio:
+    if "search_path" in limpio or re.search(r"\bset_config\b", limpio):
         violaciones.append(f"{nombre}: usa search_path; califique cada objeto con su schema")
-    if re.search(r"\bcreate\s+schema\b", limpio) and sala != "persistencia_sql":
-        violaciones.append(f"{nombre}: solo persistencia_sql crea schemas (o un ADR)")
+    if re.search(r"\b(?:create|alter|drop)\s+schema\b", limpio) and sala != "persistencia_sql":
+        violaciones.append(f"{nombre}: solo persistencia_sql crea, altera o elimina schemas (o un ADR)")
+    if re.search(r"\bdo\s*(?:\$|'')", limpio) or re.search(r"\bexecute\b(?!\s+(?:function|procedure)\b)", limpio):
+        violaciones.append(f"{nombre}: SQL dinámico (DO / EXECUTE) no auditable; requiere un ADR")
+    if re.search(r"\b(?:grant|revoke)\b", limpio) and sala not in {"seguridad", "persistencia_sql"}:
+        violaciones.append(f"{nombre}: GRANT/REVOKE solo desde seguridad o persistencia_sql")
     escritos = {m.group(1) or "public" for patron in _PATRONES_ESCRITURA for m in patron.finditer(limpio)}
     for schema in sorted(escritos - propios):
         violaciones.append(f"{nombre}: escribe en el schema '{schema}', que no es de la sala {sala}")

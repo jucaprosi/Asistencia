@@ -23,7 +23,8 @@
    - Una migración solo escribe (DDL o DML: `CREATE/ALTER/DROP`, `ON <schema>.<tabla>`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`) en los schemas de su sala (mapa sala→schema en el árbitro, alineado por prueba con las salas de `features/` y con los `CREATE SCHEMA` de la línea base).
    - `-- depende: <archivo>` ordena y permite *referenciar* el schema de la sala dependida (`REFERENCES`, lecturas), nunca escribir en él. Si hay que cambiar una tabla ajena, la migración lleva el prefijo de la sala dueña.
    - Una sala sin schema (p. ej. `herramientas_glamping`) no tiene migraciones; `public` es solo para la infraestructura de persistencia.
-   - Prohibido `search_path`; solo `persistencia_sql` crea schemas (o con ADR). La detección es léxica y falla hacia el lado seguro: quita comentarios y comillas dobles, y una mención dudosa hace fallar la migración.
+   - Prohibidos `search_path`/`set_config` y el SQL dinámico (`DO`, `EXECUTE` salvo `EXECUTE FUNCTION` de un trigger); este último requiere un ADR. Solo `persistencia_sql` crea, altera o elimina schemas (o con ADR); `GRANT`/`REVOKE` solo desde `seguridad` o `persistencia_sql`. Cuentan como escritura también `SELECT/MERGE … INTO`, `COPY`, `ALTER INDEX` y `COMMENT ON`.
+   - La detección es léxica y falla hacia el lado seguro: un solo recorrido quita comentarios y literales `'…'` (un `--` dentro de un literal no corta nada) y las comillas dobles; una mención dudosa fuera de un literal hace fallar la migración.
    - `migrar_db.py` comprueba que cada dependencia exista y se aplique antes, con la misma función de lectura que el árbitro.
 5. **Árbitro** (`scripts/verificar_migraciones.py` y `tests/persistencia_sql/test_migraciones_ordenadas.py`, prueba del núcleo). Corre en el arnés local y en CI, y falla si:
    - un nombre no cumple el formato, la sala no existe o la marca no es una fecha real o está más de un día en el futuro;
@@ -36,7 +37,7 @@
 ## Consecuencias
 - Desde ahora, cualquier cambio de esquema es una migración nueva con el nombre del formato.
 - Antes de aplicar en Cloud SQL, devops debe confirmar con `SELECT nombre, sha256 FROM public.migraciones_aplicadas` qué tiene registrado cada base real.
-- La comprobación contra la rama base necesita la base disponible. En local, si falta, el árbitro omite solo esas dos reglas y lo avisa (la prueba del repositorio real se marca *skip*). En CI corre primero con `--exigir-base` y falla si falta: compara contra la rama destino en un PR y contra el commit anterior en un push a `main`.
+- La comprobación contra la rama base necesita la base disponible. En local, si falta, el árbitro omite solo esas dos reglas y lo avisa (la prueba del repositorio real se marca *skip*). En CI corre primero con `--exigir-base` y falla si falta: compara contra la rama destino en un PR y contra el commit anterior en un push a `main`. Tras un force-push a `main` ese commit puede no estar en el clon: el job falla, a propósito (lado seguro).
 
 ## Árbitro
 `tests/persistencia_sql/test_migraciones_ordenadas.py` (casos sintéticos para cada regla, más el repositorio real) y el paso de CI «Aplicar migraciones y verificar el esquema en PostgreSQL real».

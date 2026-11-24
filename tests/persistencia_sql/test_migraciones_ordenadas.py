@@ -142,6 +142,41 @@ def test_evasiones_de_la_deteccion_fallan(tmp_path: Path, sql: str) -> None:
 
 
 # ¤persistencia-sql
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "DROP SCHEMA pms CASCADE;",
+        "ALTER SCHEMA pms RENAME TO pms_viejo;",
+        "SELECT * INTO pms.copia FROM agente.t;",
+        "COPY pms.reservas_ref FROM '/tmp/x.csv';",
+        "ALTER INDEX pms.idx RENAME TO idx2;",
+        "COMMENT ON TABLE pms.reservas_ref IS 'x';",
+        "MERGE INTO pms.reservas_ref r USING agente.t a ON r.id = a.id WHEN MATCHED THEN DELETE;",
+        "INSERT INTO agente.t VALUES ('a--b'); DROP TABLE pms.reservas_ref;",
+        "INSERT INTO agente.t VALUES ('a/*b'); DROP TABLE pms.reservas_ref; -- */",
+        "DO $$ BEGIN EXECUTE 'DROP TABLE ' || 'pm' || 's.reservas_ref'; END $$;",
+        "GRANT ALL ON SCHEMA pms TO public;",
+    ],
+)
+def test_huecos_del_redictamen_fallan_aun_con_depende(tmp_path: Path, sql: str) -> None:
+    base_pms = {"202611240800_pms_conector_base.sql": "CREATE INDEX b ON pms.reservas_ref (id);"}
+    carpeta, esquema = _repo(tmp_path, {
+        **base_pms,
+        "202611240900_agente_x.sql": f"-- depende: 202611240800_pms_conector_base.sql\n{sql}",
+    })
+    violaciones = verificar_migraciones(carpeta, esquema, None)
+    assert any("202611240900_agente_x.sql" in v for v in violaciones), violaciones
+
+
+# ¤persistencia-sql
+def test_mencion_en_literal_pasa(tmp_path: Path) -> None:
+    carpeta, esquema = _repo(tmp_path, {
+        "202611240900_agente_x.sql": "COMMENT ON TABLE agente.t IS 'copia de pms.reservas_ref -- y /* nada */';"
+    })
+    assert verificar_migraciones(carpeta, esquema, None) == []
+
+
+# ¤persistencia-sql
 @pytest.mark.parametrize("nombre", ["202611240900_herramientas_glamping_x.sql", "202611240900_inferencia_x.sql"])
 def test_sala_sin_schema_o_inexistente_no_tiene_migraciones(tmp_path: Path, nombre: str) -> None:
     carpeta, esquema = _repo(tmp_path, {nombre: "SELECT 1;"})
