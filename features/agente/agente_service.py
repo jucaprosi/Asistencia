@@ -116,6 +116,7 @@ class AgenteService:
         pms: Any = None,
         memoria: Any = None,
         cliente_modelo: Any = None,
+        inferencia: Any = None,
     ) -> None:
         self._config = config
         self._seguridad = seguridad or _DobleSeguridadNulo()
@@ -127,7 +128,10 @@ class AgenteService:
         self._memoria = memoria or MemoriaConversacion(db_path=config.get("db_path"))
         self._prompts = PromptsManager(config)
         self._enrutador = EnrutadorPropiedad(config)
-        self._cliente_modelo = cliente_modelo or ClienteModelo(config, observabilidad=self._observabilidad)
+        # La compuerta de inferencia la construye e inyecta app_core (ADPA §3, ADR-0021); sin ella, falla cerrada.
+        self._cliente_modelo = cliente_modelo or ClienteModelo(
+            config, observabilidad=self._observabilidad, inferencia=inferencia
+        )
         self._cache = CacheSemantico(
             conexion=getattr(self._memoria, "_con_memoria", None),
             db_path=config.get("db_path"),

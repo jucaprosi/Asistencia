@@ -192,12 +192,12 @@ def test_enrutamiento_pregunta_frecuente_bajo_riesgo_usa_modelo_economico() -> N
 
     Dado un mensaje que consulta por horario, ubicación, wifi o clima
     Cuando el enrutador evalúa el riesgo
-    Entonces selecciona el modelo económico (claude-haiku-5-5) y la decisión queda registrada en la traza.
+    Entonces selecciona el modelo económico (gemini-3.5-flash-lite) y la decisión queda registrada en la traza.
     """
     config = cargar_config()
     obs = DobleObservabilidadSpy()
     modelo = DobleClienteModelo([
-        RespuestaModelo(texto="El horario de check-in es desde las 15:00.", modelo="claude-haiku-5-5"),
+        RespuestaModelo(texto="El horario de check-in es desde las 15:00.", modelo="gemini-3.5-flash-lite"),
     ])
 
     servicio = AgenteService(
@@ -209,13 +209,13 @@ def test_enrutamiento_pregunta_frecuente_bajo_riesgo_usa_modelo_economico() -> N
     mensaje = MensajePrueba(texto_tokenizado="¿A qué hora es el horario de llegada y check-in?")
     respuesta = servicio.atender(mensaje)
 
-    assert respuesta.modelo == "claude-haiku-5-5"
+    assert respuesta.modelo == "gemini-3.5-flash-lite"
     assert len(modelo.llamadas) == 1
-    assert modelo.llamadas[0]["modelo"] == "claude-haiku-5-5"
+    assert modelo.llamadas[0]["modelo"] == "economico"  # perfil; inferencia resuelve el nombre
 
     log_decision = obs.obtener_evento("decision_enrutamiento_modelo")
     assert log_decision is not None
-    assert log_decision["modelo_elegido"] == "claude-haiku-5-5"
+    assert log_decision["modelo_elegido"] == "economico"
     assert log_decision["razon"] == "pregunta_frecuente_bajo_riesgo"
 
 
@@ -225,14 +225,14 @@ def test_enrutamiento_precios_y_politicas_usa_modelo_principal() -> None:
 
     Dado un mensaje que pregunta por precios o tarifas
     Cuando el agente procesa la consulta
-    Entonces se enruta al modelo principal (claude-opus-5-5) y no se persiste en caché.
+    Entonces se enruta al modelo principal (gemini-3.8-flash) y no se persiste en caché.
     """
     config = cargar_config()
     obs = DobleObservabilidadSpy()
     modelo = DobleClienteModelo([
         RespuestaModelo(
             texto="La tarifa del domo es de 110 USD por noche e incluye desayuno.",
-            modelo="claude-opus-5-5",
+            modelo="gemini-3.8-flash",
         ),
     ])
 
@@ -245,14 +245,14 @@ def test_enrutamiento_precios_y_politicas_usa_modelo_principal() -> None:
     mensaje = MensajePrueba(texto_tokenizado="¿Cuánto cuesta una noche en el domo?")
     respuesta = servicio.atender(mensaje)
 
-    assert respuesta.modelo == "claude-opus-5-5"
+    assert respuesta.modelo == "gemini-3.8-flash"
     assert len(modelo.llamadas) == 1
-    assert modelo.llamadas[0]["modelo"] == "claude-opus-5-5"
+    assert modelo.llamadas[0]["modelo"] == "principal"  # perfil; inferencia resuelve el nombre
 
     # Verificar que la decisión quedó en la traza
     log_decision = obs.obtener_evento("decision_enrutamiento_modelo")
     assert log_decision is not None
-    assert log_decision["modelo_elegido"] == "claude-opus-5-5"
+    assert log_decision["modelo_elegido"] == "principal"
     assert log_decision["razon"] == "pregunta_critica_precio_o_disponibilidad"
 
     # Verificar que se rechazó el guardado en caché por la invariante
@@ -278,11 +278,11 @@ def test_enrutamiento_acciones_con_herramientas_usa_modelo_principal() -> None:
                     argumentos={"propiedad_id": "glamping"},
                 ),
             ),
-            modelo="claude-opus-5-5",
+            modelo="gemini-3.8-flash",
         ),
         RespuestaModelo(
             texto="Tenemos el domo_1 disponible.",
-            modelo="claude-opus-5-5",
+            modelo="gemini-3.8-flash",
         ),
     ])
 
@@ -297,7 +297,7 @@ def test_enrutamiento_acciones_con_herramientas_usa_modelo_principal() -> None:
     respuesta = servicio.atender(mensaje)
 
     assert "consultar_disponibilidad" in respuesta.herramientas_usadas
-    assert respuesta.modelo == "claude-opus-5-5"
+    assert respuesta.modelo == "gemini-3.8-flash"
 
 
 # ¤agente-enrutador
@@ -325,11 +325,11 @@ def test_acuse_un_momento_si_herramienta_tarda_mas_de_3_segundos() -> None:
                     argumentos={"propiedad_id": "glamping"},
                 ),
             ),
-            modelo="claude-opus-5-5",
+            modelo="gemini-3.8-flash",
         ),
         RespuestaModelo(
             texto="Información confirmada: el domo está disponible.",
-            modelo="claude-opus-5-5",
+            modelo="gemini-3.8-flash",
         ),
     ])
 

@@ -126,7 +126,7 @@ def test_lista_egreso_contiene_pms_y_embeddings_y_cero_contabilidad() -> None:
     assert tiene_pms, "La lista de egreso debe contener el destino del PMS"
 
     # Embeddings / proveedor de modelo presente
-    tiene_embeddings = any("anthropic" in d.lower() or "embedding" in d.lower() for d in egreso)
+    tiene_embeddings = any("aiplatform" in d.lower() or "embedding" in d.lower() for d in egreso)
     assert tiene_embeddings, "La lista de egreso debe contener el destino de embeddings / modelo IA"
 
     # RNF-10: 0 destinos contables

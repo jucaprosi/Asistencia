@@ -11,7 +11,6 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import os
 import re
 import sqlite3
 from contextlib import contextmanager
@@ -76,16 +75,6 @@ STOPWORDS = {
     "dar", "favor", "hola", "buenos", "dias", "tardes", "noches", "a", "que",
     "cual", "cuales", "como", "y", "o", "mi", "tu", "su",
 }
-
-
-# ¤agente-enrutador
-def _resolver_valor_config(valor: Any, defecto: str = "") -> str:
-    if not isinstance(valor, str):
-        return defecto
-    if valor.startswith("${") and ":-" in valor and valor.endswith("}"):
-        var_name, default_val = valor[2:-1].split(":-", 1)
-        return os.environ.get(var_name, default_val)
-    return valor
 
 
 # ¤agente-enrutador
@@ -188,10 +177,8 @@ def seleccionar_modelo(
     config: Mapping[str, Any] | None = None,
 ) -> tuple[str, str]:
     """Determina si la consulta debe despacharse al modelo principal o al económico (RF-AG-07)."""
-    cfg = config or {}
-    modelos = cfg.get("modelos", {})
-    modelo_principal = _resolver_valor_config(modelos.get("principal"), "claude-opus-5-5")
-    modelo_economico = _resolver_valor_config(modelos.get("economico"), "claude-haiku-5-5")
+    # Devuelve un perfil, no un nombre de modelo: inferencia lo resuelve contra su lista blanca (ADR-0021).
+    modelo_principal, modelo_economico = "principal", "economico"
 
     # 1. Si contiene precios, cotizaciones, políticas o disponibilidad, siempre modelo principal
     if contiene_precio_o_disponibilidad(texto):

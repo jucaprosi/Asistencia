@@ -98,7 +98,7 @@ class BucleHerramientas:
                 )
                 return self._generar_degradacion(
                     motivo="timeout_modelo",
-                    detalle="El modelo tardó más de 30 segundos en responder.",
+                    detalle="El modelo superó el tiempo máximo de respuesta.",
                     propiedad_id=propiedad_id,
                     herramientas_usadas=herramientas_usadas,
                     tokens_in=total_tokens_in,
@@ -146,7 +146,9 @@ class BucleHerramientas:
                 )
 
             # Agregar respuesta del asistente a la conversación antes de los resultados de herramientas
-            mensajes.append({"role": "assistant", "content": resp_modelo.texto})
+            mensajes.append({
+                "role": "assistant", "content": resp_modelo.texto, "contexto_turno": resp_modelo.contexto_turno,
+            })
 
             # Ejecución de herramientas invocadas
             for llamada in resp_modelo.llamadas_herramientas:
@@ -264,6 +266,7 @@ class BucleHerramientas:
                 # Inyectar resultado de herramienta al historial para la siguiente iteración
                 mensajes.append({
                     "role": "tool",
+                    "id": llamada.id,
                     "name": nombre_h,
                     "content": json.dumps(dict(resultado_h.salida)),
                 })

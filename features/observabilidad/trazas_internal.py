@@ -19,11 +19,10 @@ from features.persistencia_sql.persistencia_sql_service import envolver
 
 __all__ = ["GestorTrazas", "AlmacenTrazas", "calcular_costo_tokens"]
 
-# Precios por millón de tokens en USD por defecto
+# Precios por millón de tokens en USD por defecto (misma tarifa que config_inferencia.yaml; ADR-0021).
 PRECIOS_MILLON_DEFECTO: dict[str, tuple[Decimal, Decimal]] = {
-    "claude-opus-5-5": (Decimal("15.00"), Decimal("75.00")),
-    "claude-haiku-5-5": (Decimal("0.80"), Decimal("4.00")),
-    "claude-sonnet-5-5": (Decimal("3.00"), Decimal("15.00")),
+    "gemini-3.8-flash": (Decimal("1.50"), Decimal("7.50")),
+    "gemini-3.5-flash-lite": (Decimal("0.30"), Decimal("2.50")),
 }
 PRECIO_ESTANDAR = (Decimal("3.00"), Decimal("15.00"))
 

@@ -1,7 +1,5 @@
 # ¤arm-jarvis
 # © 2026 Juan Carlos Proaño. Todos los derechos reservados.
-modelo_extractor: ${MODELO_PRINCIPAL:-claude-opus-5-5}
-clave_api: ${ANTHROPIC_API_KEY:-}
 canal:
   modo: ${CANAL_VENDEDORES_MODO:-uno_a_uno}   # grupo | uno_a_uno (S-01)
 ticket:
