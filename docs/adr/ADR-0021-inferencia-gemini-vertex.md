@@ -21,9 +21,16 @@ El agente aún no llama a un modelo real: `ClienteModelo` responde con un texto 
 7. el respaldo a Claude contradice esta decisión.
 
 ## Opciones consideradas
-1. **Sala nueva `features/inferencia/`, compartida por `agente` y el ARM multimodal (elegida).**
-2. Un archivo `vertex_internal.py` dentro de `agente`. Deja deuda cuando el ARM necesite el modelo.
-3. AI Studio con API key. Descartada: agrega un secreto y no permite fijar la región.
+1. **Sala nueva `features/inferencia/`, compartida por `agente` y el ARM multimodal (elegida, como excepción justificada a DPD).**
+   - ADPA hace prevalecer la autonomía de la sala sobre la reducción de duplicación (DPD). Esta opción se inclina hacia DRY y contradice lo que decía `docs/modulos/agente.md` («el ARM tiene su propio cliente de modelo»). Por eso se registra como excepción (ADPA §7, punto 4).
+   - Justificación: (a) la lista blanca de modelos, la región y la transferencia internacional LOPDP son un punto único de cumplimiento; duplicarlos expone a una divergencia que es un riesgo legal, no estético. (b) La contención de fallos no empeora: si Vertex cae, `agente` y `arm_jarvis` fallan igual con o sin sala compartida. Ambas consumen solo la compuerta `inferencia_service.py`.
+2. **DPD: cliente Vertex duplicado en `agente` y en `arm_jarvis`, cada uno con su lista blanca.**
+   - A favor: autonomía total de cada sala, sin dependencia nueva, y sigue la regla general de ADPA.
+   - En contra: dos listas blancas, dos mapas de región y dos lugares donde aplicar la falla cerrada y el aviso LOPDP, que pueden divergir sin que nada lo detecte. Cambiar de modelo o de región exige tocar dos salas a la vez.
+3. Un archivo `vertex_internal.py` dentro de `agente`. Deja deuda cuando el ARM necesite el modelo.
+4. AI Studio con API key. Descartada: agrega un secreto y no permite fijar la región.
+
+La decisión entre las opciones 1 y 2 es del propietario, con esta tensión a la vista. ADR-0021 se justifica por ADPA §7.1 (sala nueva).
 
 ## Decisión
 1. **Sala `inferencia`.** Su compuerta `inferencia_service.py` es dueña de:
