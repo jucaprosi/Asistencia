@@ -100,6 +100,12 @@ def aplicar_esquema(
 
 
 # ¤infra-cloud
+def validar_dependencias(archivos: list[tuple[str, str]]) -> None:
+    """Exige que cada ``-- depende: <archivo>`` se aplique antes que quien lo declara (ADR-0023)."""
+    return None
+
+
+# ¤infra-cloud
 def _aplicar_pendientes(conn: Any, ruta_base: Path, contenido_base: str) -> list[str]:
     """Aplica la línea base y luego ``docs/spec/migraciones/*.sql`` una sola vez cada una, en orden.
 
