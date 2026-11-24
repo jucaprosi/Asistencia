@@ -156,6 +156,11 @@ def test_evasiones_de_la_deteccion_fallan(tmp_path: Path, sql: str) -> None:
         "INSERT INTO agente.t VALUES ('a/*b'); DROP TABLE pms.reservas_ref; -- */",
         "DO $$ BEGIN EXECUTE 'DROP TABLE ' || 'pm' || 's.reservas_ref'; END $$;",
         "GRANT ALL ON SCHEMA pms TO public;",
+        "SELECT E'\\''; DROP TABLE pms.reservas_ref; SELECT '';",
+        "COMMENT ON TABLE agente.t IS $$it's$$; DROP TABLE pms.reservas_ref; SELECT 'x';",
+        "DO LANGUAGE plpgsql 'BEGIN DROP TABLE pms.reservas_ref; END';",
+        "CREATE FUNCTION agente.f() RETURNS void LANGUAGE sql AS 'DELETE FROM pms.reservas_ref'; SELECT agente.f();",
+        "CREATE FUNCTION agente.g() RETURNS void LANGUAGE sql AS $f$ DELETE FROM pms.reservas_ref $f$;",
     ],
 )
 def test_huecos_del_redictamen_fallan_aun_con_depende(tmp_path: Path, sql: str) -> None:

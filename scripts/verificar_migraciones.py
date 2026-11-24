@@ -76,7 +76,8 @@ _PATRONES_ESCRITURA = [
     re.compile(rf"\bdelete\s+from\s+(?:only\s+)?(?:({_ID})\.)?{_ID}"),
     re.compile(rf"\btruncate\s+(?:table\s+)?(?:only\s+)?(?:({_ID})\.)?{_ID}"),
 ]
-_PATRON_REFERENCIA = re.compile(rf"\breferences\s+({_ID})\.{_ID}")
+_PATRON_DOLAR = re.compile(r"\$(?:[A-Za-z_][A-Za-z0-9_]*)?\$")
+_PATRON_REFERENCIA =re.compile(rf"\breferences\s+({_ID})\.{_ID}")
 
 
 # ¤persistencia-sql
@@ -118,10 +119,20 @@ def _limpiar(sql: str) -> str:
             fin = texto.find("*/", i + 2)
             salida.append(" ")
             i = len(texto) if fin < 0 else fin + 2
+        elif (dolar := _PATRON_DOLAR.match(texto, i)) and not (i and re.match(r"\w", texto[i - 1])):
+            # Cadena con dólar: su contenido es código (cuerpos de función) y se audita aparte,
+            # sin que una comilla de adentro cruce el cierre.
+            fin = texto.find(dolar.group(0), dolar.end())
+            fin = len(texto) if fin < 0 else fin
+            salida.append(" $$ " + _limpiar(texto[dolar.end():fin]) + " $$ ")
+            i = fin + len(dolar.group(0))
         elif texto[i] == "'":
+            escape = i > 0 and texto[i - 1] in "eE" and not (i > 1 and re.match(r"\w", texto[i - 2]))
             i += 1
             while i < len(texto):
-                if texto[i] == "'" and texto.startswith("''", i):
+                if escape and texto[i] == "\\":
+                    i += 2
+                elif texto.startswith("''", i):
                     i += 2
                 elif texto[i] == "'":
                     break
@@ -152,7 +163,9 @@ def _violaciones_de_contenido(nombre: str, sala: str, sql: str) -> list[str]:
         violaciones.append(f"{nombre}: usa search_path; califique cada objeto con su schema")
     if re.search(r"\b(?:create|alter|drop)\s+schema\b", limpio) and sala != "persistencia_sql":
         violaciones.append(f"{nombre}: solo persistencia_sql crea, altera o elimina schemas (o un ADR)")
-    if re.search(r"\bdo\s*(?:\$|'')", limpio) or re.search(r"\bexecute\b(?!\s+(?:function|procedure)\b)", limpio):
+    if re.search(r"\b(?:function|procedure)\b[^;]*\bas\s+''", limpio):
+        violaciones.append(f"{nombre}: cuerpo de función entre comillas simples; use $$ para que se audite")
+    if re.search(r"(?:^|;)\s*do\b", limpio) or re.search(r"\bexecute\b(?!\s+(?:function|procedure)\b)", limpio):
         violaciones.append(f"{nombre}: SQL dinámico (DO / EXECUTE) no auditable; requiere un ADR")
     if re.search(r"\b(?:grant|revoke)\b", limpio) and sala not in {"seguridad", "persistencia_sql"}:
         violaciones.append(f"{nombre}: GRANT/REVOKE solo desde seguridad o persistencia_sql")
