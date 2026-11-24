@@ -102,7 +102,11 @@ def aplicar_esquema(
 # ¤infra-cloud
 def validar_dependencias(archivos: list[tuple[str, str]]) -> None:
     """Exige que cada ``-- depende: <archivo>`` se aplique antes que quien lo declara (ADR-0023)."""
-    return None
+    posiciones = {nombre: i for i, (nombre, _) in enumerate(archivos)}
+    for i, (nombre, sql) in enumerate(archivos):
+        for dependencia in re.findall(r"^--\s*depende:\s*(\S+)\s*$", sql.replace("\r\n", "\n"), re.MULTILINE):
+            if posiciones.get(dependencia, len(archivos)) >= i:
+                raise RuntimeError(f"{nombre} depende de {dependencia}, que no existe o no se aplica antes")
 
 
 # ¤infra-cloud
@@ -132,6 +136,7 @@ def _aplicar_pendientes(conn: Any, ruta_base: Path, contenido_base: str) -> list
     carpeta = RAIZ / "docs" / "spec" / "migraciones"
     if ruta_base == RUTA_ESQUEMA_DEFECTO and carpeta.is_dir():
         archivos += [(p.name, p.read_text(encoding="utf-8")) for p in sorted(carpeta.glob("*.sql"))]
+    validar_dependencias(archivos)
     aplicadas: list[str] = []
     for nombre, sql in archivos:
         sha = hashlib.sha256(sql.encode("utf-8")).hexdigest()

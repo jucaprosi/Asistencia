@@ -21,6 +21,9 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historial completo: el árbitro de migraciones (ADR-0023) compara contra origin/main.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -44,9 +47,13 @@ jobs:
       - name: Sondeo de salud y disponibilidad (RNF-05)
         run: pytest tests/integracion/carga/test_sondeo_salud.py -v
 
-      - name: Aplicar y verificar el esquema canónico en PostgreSQL real
+      - name: Árbitro de migraciones (ADR-0023)
+        run: python scripts/verificar_migraciones.py --base origin/main
+
+      - name: Aplicar migraciones y verificar el esquema en PostgreSQL real (ADR-0023)
         run: |
-          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/esquema.sql
+          python scripts/migrar_db.py --url postgresql://postgres@localhost:5432/postgres
+          python scripts/migrar_db.py --url postgresql://postgres@localhost:5432/postgres
           psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/verificacion_esquema.sql
 
       - name: Publicar certificado
