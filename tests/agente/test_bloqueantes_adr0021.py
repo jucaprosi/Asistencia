@@ -72,3 +72,50 @@ def test_b7_google_genai_solo_en_la_sala_inferencia() -> None:
         and "inferencia" not in r.relative_to(RAIZ).parts[:2]
     ]
     assert fuera == [], fuera
+
+
+# ¤inferencia
+def _infraestructura() -> list[Path]:
+    """B7 ampliado: manifiestos y despliegue, no solo features/ y app_core/."""
+    patrones = ("infra/**/*", "docker-compose*.yml", "compose*.yml", "**/Dockerfile*", ".env.example",
+                "pyproject.toml", "scripts/*.py", "scripts/*.sh", "scripts/*.bat", "playwright.config.ts")
+    vistos: set[Path] = set()
+    for patron in patrones:
+        for r in RAIZ.glob(patron):
+            if r.is_file() and not ({"node_modules", ".git", "__pycache__", ".venv"} & set(r.parts)):
+                vistos.add(r)
+    return sorted(vistos)
+
+
+# ¤inferencia
+def test_b7_ampliado_sin_claude_ni_anthropic_en_infraestructura() -> None:
+    # verificar_secretos.py reconoce el formato de claves de Anthropic para impedir que entren: es una guarda.
+    exentos = {RAIZ / "scripts" / "verificar_secretos.py"}
+    hallazgos = [
+        str(r.relative_to(RAIZ))
+        for r in _infraestructura()
+        if r not in exentos and re.search(r"claude-|anthropic", r.read_text(encoding="utf-8", errors="ignore"), re.I)
+    ]
+    assert hallazgos == [], hallazgos
+
+
+# ¤inferencia
+def test_b7_nombres_de_modelo_solo_en_inferencia() -> None:
+    fuera = [
+        str(r.relative_to(RAIZ))
+        for r in _fuentes()
+        if "gemini-" in r.read_text(encoding="utf-8") and "inferencia" not in r.relative_to(RAIZ).parts[:2]
+    ]
+    assert fuera == [], fuera
+
+
+# ¤inferencia
+def test_b7_la_cadena_google_genai_solo_en_inferencia() -> None:
+    """Guarda contra importlib.import_module("google.genai") o __import__ que esquivan el regex de import."""
+    fuera = [
+        str(r.relative_to(RAIZ))
+        for r in _fuentes()
+        if r.suffix == ".py" and re.search(r"google[.\"' ,]+genai", r.read_text(encoding="utf-8"))
+        and "inferencia" not in r.relative_to(RAIZ).parts[:2]
+    ]
+    assert fuera == [], fuera
