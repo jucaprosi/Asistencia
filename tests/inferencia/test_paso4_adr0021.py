@@ -218,3 +218,19 @@ def test_m2_timeout_de_httpx_por_tipo() -> None:
 
     with pytest.raises(TiempoAgotado):
         InferenciaService(ENTORNO, cliente=Guion(ReadTimeout("x")), cuota=Cuota()).generar(_peticion())
+
+
+# ¤inferencia
+class CuotaQueFallaAlConciliar(Cuota):
+    def conciliar(self, reservado: Decimal, real: Decimal) -> None:
+        raise RuntimeError("base caída")
+
+
+# ¤inferencia
+def test_k3_si_conciliar_falla_la_respuesta_pagada_igual_se_entrega(caplog: pytest.LogCaptureFixture) -> None:
+    """K3: la respuesta ya está pagada; el error se registra y la reserva del peor caso queda (sobrestima)."""
+    servicio = InferenciaService(ENTORNO, cliente=Guion(_respuesta(texto="pagada")), cuota=CuotaQueFallaAlConciliar())
+    with caplog.at_level("WARNING", logger="features.inferencia"):
+        respuesta = servicio.generar(_peticion())
+    assert respuesta.texto == "pagada"
+    assert any("conciliacion_fallida" in r.getMessage() and "RuntimeError" in r.getMessage() for r in caplog.records)

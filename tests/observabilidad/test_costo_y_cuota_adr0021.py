@@ -77,3 +77,17 @@ def test_c2_el_tope_por_defecto_sale_de_la_config() -> None:
     cuota = ObservabilidadService(config).cuota_inferencia()
     assert cuota.reservar(tope)
     assert not cuota.reservar(Decimal("0.000001"))
+
+
+# ¤inferencia
+def test_k3_conciliar_con_la_base_caida_no_lanza_y_conserva_la_reserva() -> None:
+    from contextlib import contextmanager
+
+    from features.observabilidad.cuota_internal import CuotaDiaria
+
+    @contextmanager
+    def caida():
+        raise RuntimeError("base caída")
+        yield  # pragma: no cover
+
+    CuotaDiaria(caida, Decimal("1.00")).conciliar(Decimal("0.90"), Decimal("0.10"))
