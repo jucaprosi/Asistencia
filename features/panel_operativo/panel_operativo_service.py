@@ -58,6 +58,8 @@ __all__ = [
 RUTA_CONFIG = Path(__file__).with_name("config_panel_operativo.yaml")
 RUTA_ESTATICOS = Path(__file__).resolve().parent / "estaticos"
 RUTA_UI = Path(__file__).resolve().parent / "ui"
+# Carpetas de ui/ que escribe el arnés Playwright (dependencias, informes y resultados); ignoradas por git.
+_ARTEFACTOS_ARNES_UI = frozenset({"node_modules", "playwright-report", "test-results", "blob-report"})
 
 
 # ¤panel-operativo
@@ -92,8 +94,8 @@ def comprobar_interfaz_purificada(ruta_build: Path | None = None) -> list[str]:
     for ruta in rutas_a_escanear:
         if not ruta.is_file() or ruta.suffix not in {".html", ".js", ".css", ".ts"}:
             continue
-        # Las dependencias del arnés de interfaz (ui/node_modules) no son texto de cara al equipo.
-        if "node_modules" in ruta.parts:
+        # Dependencias y artefactos que genera el arnés de interfaz en ui/ no son texto de cara al equipo.
+        if _ARTEFACTOS_ARNES_UI.intersection(ruta.parts):
             continue
         contenido = ruta.read_text(encoding="utf-8", errors="replace")
         for linea_idx, linea in enumerate(contenido.splitlines(), start=1):

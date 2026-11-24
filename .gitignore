@@ -37,3 +37,4 @@ Thumbs.db
 features/panel_operativo/ui/test-results/
 features/panel_operativo/ui/playwright-report/
 features/panel_operativo/ui/.last-run.json
+features/panel_operativo/ui/blob-report/
