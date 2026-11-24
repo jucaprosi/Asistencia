@@ -18,12 +18,13 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 | [ADR-0009](ADR-0009-registro-comisiones.md) | Sistema de registro de comisiones (propio vs CRM) | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤comisiones` | Tablero (fase 7) |
 | [ADR-0010](ADR-0010-inbox-proveedor.md) | ¿Inbox del proveedor o inbox completo de huéspedes en el panel operativo? (reformulado por ADR-0013) | **Aceptado** (2026-11-03) | `¤panel-operativo` | — (fase 8 / T-701 sellada) |
 | [ADR-0011](ADR-0011-mcp-comunidad.md) | Verificación de MCP de comunidad antes de usarlos | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤pms-conector` `¤crm-conector` | Implementaciones internas |
-| [ADR-0012](ADR-0012-residencia-datos.md) | Residencia de datos en Ecuador | **Propuesto** `[DECISIÓN PENDIENTE]` | `¤infra-hibrida` | Fase 2 (datos reales) |
+| [ADR-0012](ADR-0012-residencia-datos.md) | Residencia de datos en Ecuador | **Aceptado en lo funcional** (2026-11-23); pendientes legales | `¤infra-hibrida` | Fase 2 (datos reales) |
 | [ADR-0013](ADR-0013-panel-operativo-propio.md) | Panel operativo propio: frontend del equipo (ventas, comisiones, Jarvis, handoff, administración) | Aceptado (2026-10-30) | `¤panel-operativo` | — (habilita RF-PAN en fases 4–7) |
 | [ADR-0014](ADR-0014-decisiones-especificacion-sdd.md) | Decisiones de la especificación 0.2 para Spec-Driven Development | **Propuesto** | `¤spec-glamping` | Congelar la especificación 1.0 |
 | [ADR-0018](ADR-0018-plataforma-local-de-hospedajes.md) | Plataforma local de hospedajes | Aceptado en lo funcional, con puntos abiertos | `¤spec-glamping` `¤anfitriones` | Publicar hospedajes reales |
 | [ADR-0019](ADR-0019-despliegue-google-cloud-y-gemini.md) | Despliegue en Google Cloud Platform (Cloud Run, Cloud SQL pgvector, Cloud Tasks) y Adopción de Google Gemini | **Aceptado** (2026-11-04) | `¤infra-cloud` `¤agente-enrutador` | — (Ola 13 / T-901..905) |
 | [ADR-0020](ADR-0020-persistencia-sql-postgresql.md) | Persistencia real en PostgreSQL con sala adaptadora común | **Aceptado** (2026-11-22) | `¤persistencia-sql` | — |
+| [ADR-0021](ADR-0021-inferencia-gemini-vertex.md) | Inferencia Gemini en Vertex AI con ADC, región us, sala inferencia y falla cerrada | **Aceptado** (2026-11-23); tráfico real bloqueado por ADR-0012 | `¤inferencia` | ADR-0012 |
 | [ADR-0023](ADR-0023-migraciones-por-sala.md) | Migraciones por sala y línea base congelada | **Aceptado** (2026-11-24) | `¤persistencia-sql` | — |
 
 ## Plantilla
