@@ -76,7 +76,7 @@ Respuesta de CTO Evydentia (2026-11-23). Es **criterio técnico de cumplimiento,
 Hasta que este ADR pase a Aceptado, ningún mensaje de huéspedes reales se envía a Vertex.
 
 ## Decisión
-Pendiente. Fecha límite: antes de indexar o almacenar datos reales (fase 2).
+Aceptado en lo funcional: ver la decisión del propietario del 2026-11-23 más arriba. Solo queda pendiente lo legal (artículos 34, 55 y 59 y la retención en Vertex), que condiciona el tráfico real.
 
 ## Consecuencias previstas
 - Puede fijar el proveedor de PostgreSQL (ADR-0002) por región.
