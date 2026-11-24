@@ -20,11 +20,13 @@
 2. **La CI aplica como producción.** Ejecuta `python scripts/migrar_db.py` (línea base más migraciones) contra el PostgreSQL del servicio y después `verificacion_esquema.sql`.
 3. **Nombres.** Formato `AAAAMMDDHHMM_<sala>_<slug>.sql`, donde `<sala>` es el nombre de la sala ADPA (no el del schema SQL) y el orden de aplicación es el orden por nombre. `001_alinear_esquema_con_codigo.sql` queda en una lista cerrada de archivos heredados y no se renombra, porque cambiaría su registro en `public.migraciones_aplicadas`. Al ordenar por nombre, `001` queda antes que `2026…`.
 4. **Confinamiento.**
-   - Una migración solo toca los schemas de su sala (mapa sala→schema en el árbitro).
-   - Para tocar otro schema debe declarar `-- depende: <archivo>` con una migración de la sala dueña de ese schema.
-   - `migrar_db.py` comprueba que cada dependencia exista y se aplique antes.
+   - Una migración solo escribe (DDL o DML: `CREATE/ALTER/DROP`, `ON <schema>.<tabla>`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`) en los schemas de su sala (mapa sala→schema en el árbitro, alineado por prueba con las salas de `features/` y con los `CREATE SCHEMA` de la línea base).
+   - `-- depende: <archivo>` ordena y permite *referenciar* el schema de la sala dependida (`REFERENCES`, lecturas), nunca escribir en él. Si hay que cambiar una tabla ajena, la migración lleva el prefijo de la sala dueña.
+   - Una sala sin schema (p. ej. `herramientas_glamping`) no tiene migraciones; `public` es solo para la infraestructura de persistencia.
+   - Prohibido `search_path`; solo `persistencia_sql` crea schemas (o con ADR). La detección es léxica y falla hacia el lado seguro: quita comentarios y comillas dobles, y una mención dudosa hace fallar la migración.
+   - `migrar_db.py` comprueba que cada dependencia exista y se aplique antes, con la misma función de lectura que el árbitro.
 5. **Árbitro** (`scripts/verificar_migraciones.py` y `tests/persistencia_sql/test_migraciones_ordenadas.py`, prueba del núcleo). Corre en el arnés local y en CI, y falla si:
-   - un nombre no cumple el formato o la sala no existe;
+   - un nombre no cumple el formato, la sala no existe o la marca no es una fecha real o está más de un día en el futuro;
    - dos archivos comparten la marca de tiempo;
    - una migración nueva se ordena antes que la última que ya está en la rama base (`origin/main`): quien fusiona segundo renombra la suya una vez;
    - cambió el contenido de `esquema.sql` o de una migración que ya está en la rama base;
@@ -34,7 +36,7 @@
 ## Consecuencias
 - Desde ahora, cualquier cambio de esquema es una migración nueva con el nombre del formato.
 - Antes de aplicar en Cloud SQL, devops debe confirmar con `SELECT nombre, sha256 FROM public.migraciones_aplicadas` qué tiene registrado cada base real.
-- La comprobación contra la rama base necesita `origin/main` disponible. Si no está (copia sin remoto), el árbitro omite solo esas dos reglas y lo dice en su salida; en CI siempre está.
+- La comprobación contra la rama base necesita la base disponible. En local, si falta, el árbitro omite solo esas dos reglas y lo avisa (la prueba del repositorio real se marca *skip*). En CI corre primero con `--exigir-base` y falla si falta: compara contra la rama destino en un PR y contra el commit anterior en un push a `main`.
 
 ## Árbitro
 `tests/persistencia_sql/test_migraciones_ordenadas.py` (casos sintéticos para cada regla, más el repositorio real) y el paso de CI «Aplicar migraciones y verificar el esquema en PostgreSQL real».

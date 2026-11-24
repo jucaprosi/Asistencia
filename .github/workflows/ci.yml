@@ -29,6 +29,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Primero y sin dependencias: falla rápido. Base = rama destino del PR; en push a main, el commit
+      # anterior (si no, origin/main == HEAD y no compararía nada). Sin base, falla (--exigir-base).
+      - name: Árbitro de migraciones (ADR-0023)
+        env:
+          EVENTO: ${{ github.event_name }}
+          RAMA_DESTINO: ${{ github.base_ref }}
+          ANTERIOR: ${{ github.event.before }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$EVENTO" = "pull_request" ]; then BASE="origin/$RAMA_DESTINO"
+          elif [ "$REF" = "refs/heads/main" ] && [ -n "$ANTERIOR" ] && [ "$ANTERIOR" != "0000000000000000000000000000000000000000" ]; then BASE="$ANTERIOR"
+          else BASE="origin/main"; fi
+          python scripts/verificar_migraciones.py --base "$BASE" --exigir-base
+
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
@@ -46,9 +60,6 @@ jobs:
 
       - name: Sondeo de salud y disponibilidad (RNF-05)
         run: pytest tests/integracion/carga/test_sondeo_salud.py -v
-
-      - name: Árbitro de migraciones (ADR-0023)
-        run: python scripts/verificar_migraciones.py --base origin/main
 
       - name: Aplicar migraciones y verificar el esquema en PostgreSQL real (ADR-0023)
         run: |

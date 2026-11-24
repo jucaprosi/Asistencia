@@ -8,8 +8,15 @@ Reglas:
 - una sola migración por marca de tiempo;
 - una migración nueva no se ordena antes que la última de la rama base;
 - ``esquema.sql`` y las migraciones de la rama base no cambian;
-- cada migración toca solo los schemas de su sala, salvo los de las salas de las que declara ``-- depende:``;
+- la marca de tiempo es una fecha real y no está a más de un día en el futuro;
+- una sala sin schema no tiene migraciones;
+- una migración solo escribe (DDL o DML) en los schemas de su sala; ``-- depende:`` ordena y permite
+  referenciar el schema de la sala dependida, nunca escribir en él;
+- no se usa ``search_path`` y solo persistencia_sql crea schemas;
 - toda dependencia existe y se aplica antes.
+
+La detección es léxica (sin parser SQL) y falla hacia el lado seguro: se quitan comillas dobles y
+comentarios, y una mención dudosa hace fallar la migración.
 
 Uso: ``python scripts/verificar_migraciones.py [--base origin/main]`` (Exit Code 0 si cumple).
 """
@@ -17,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import re
+from datetime import datetime, timedelta
 import subprocess
 import sys
 from pathlib import Path
@@ -38,7 +46,6 @@ SCHEMAS_POR_SALA: dict[str, frozenset[str]] = {
     "conocimiento": frozenset({"conocimiento"}),
     "crm_conector": frozenset({"crm"}),
     "herramientas_glamping": frozenset(),
-    "inferencia": frozenset(),
     "observabilidad": frozenset({"observabilidad"}),
     "panel_operativo": frozenset({"panel"}),
     "persistencia_sql": frozenset({"public"}),
@@ -50,7 +57,23 @@ TODOS_LOS_SCHEMAS = frozenset().union(*SCHEMAS_POR_SALA.values())
 
 _PATRON_NOMBRE = re.compile(r"^(\d{12})_([a-z][a-z0-9_]*?)_([a-z0-9][a-z0-9_]*)\.sql$")
 _PATRON_DEPENDE = re.compile(r"^--\s*depende:\s*(\S+)\s*$", re.MULTILINE)
-_PATRON_SCHEMA = re.compile(r"\b(" + "|".join(sorted(TODOS_LOS_SCHEMAS)) + r")\.[a-z_]", re.IGNORECASE)
+_ID = r"[a-z_][a-z0-9_$]*"
+_PATRON_SCHEMA = re.compile(r"\b(" + "|".join(sorted(TODOS_LOS_SCHEMAS)) + r")\.[a-z_]")
+# Objetos sobre los que una sentencia escribe; grupo 1 = schema (None si no está calificado → public).
+_PATRONES_ESCRITURA = [
+    re.compile(
+        r"\b(?:create|alter|drop)\s+(?:or\s+replace\s+)?(?:unlogged\s+|temporary\s+|temp\s+)?(?:materialized\s+)?"
+        r"(?:table|view|function|procedure|sequence|type|domain)\s+(?:if\s+(?:not\s+)?exists\s+)?(?:only\s+)?"
+        rf"(?:({_ID})\.)?{_ID}"
+    ),
+    re.compile(rf"\bdrop\s+(?:index|trigger)\s+(?:concurrently\s+)?(?:if\s+exists\s+)?({_ID})\.{_ID}"),
+    re.compile(rf"\bon\s+(?:only\s+)?({_ID})\.{_ID}"),
+    re.compile(rf"\binsert\s+into\s+(?:({_ID})\.)?{_ID}"),
+    re.compile(rf"\bupdate\s+(?:only\s+)?(?:({_ID})\.)?{_ID}\s+(?:as\s+)?(?:{_ID}\s+)?set\b"),
+    re.compile(rf"\bdelete\s+from\s+(?:only\s+)?(?:({_ID})\.)?{_ID}"),
+    re.compile(rf"\btruncate\s+(?:table\s+)?(?:only\s+)?(?:({_ID})\.)?{_ID}"),
+]
+_PATRON_REFERENCIA = re.compile(rf"\breferences\s+({_ID})\.{_ID}")
 
 
 # ¤persistencia-sql
@@ -77,9 +100,36 @@ def _sala_de(nombre: str) -> str | None:
 
 
 # ¤persistencia-sql
+def _limpiar(sql: str) -> str:
+    """SQL en minúsculas, sin comentarios ni comillas dobles, para el análisis léxico."""
+    texto = re.sub(r"/\*.*?\*/", " ", _normalizar(sql), flags=re.DOTALL)
+    texto = "\n".join(linea.split("--", 1)[0] for linea in texto.splitlines())
+    return texto.replace('"', "").lower()
+
+
+# ¤persistencia-sql
 def _schemas_tocados(sql: str) -> set[str]:
-    sin_comentarios = "\n".join(linea.split("--", 1)[0] for linea in _normalizar(sql).splitlines())
-    return {m.lower() for m in _PATRON_SCHEMA.findall(sin_comentarios)}
+    return set(_PATRON_SCHEMA.findall(_limpiar(sql)))
+
+
+# ¤persistencia-sql
+def _violaciones_de_contenido(nombre: str, sala: str, sql: str) -> list[str]:
+    """Escritura fuera de la sala, schemas desconocidos, search_path y CREATE SCHEMA."""
+    limpio = _limpiar(sql)
+    propios = SCHEMAS_POR_SALA[sala]
+    violaciones: list[str] = []
+    if not propios:
+        violaciones.append(f"{nombre}: la sala {sala} no tiene schema y no puede tener migraciones")
+    if "search_path" in limpio:
+        violaciones.append(f"{nombre}: usa search_path; califique cada objeto con su schema")
+    if re.search(r"\bcreate\s+schema\b", limpio) and sala != "persistencia_sql":
+        violaciones.append(f"{nombre}: solo persistencia_sql crea schemas (o un ADR)")
+    escritos = {m.group(1) or "public" for patron in _PATRONES_ESCRITURA for m in patron.finditer(limpio)}
+    for schema in sorted(escritos - propios):
+        violaciones.append(f"{nombre}: escribe en el schema '{schema}', que no es de la sala {sala}")
+    for schema in sorted({m.group(1) for m in _PATRON_REFERENCIA.finditer(limpio)} - TODOS_LOS_SCHEMAS):
+        violaciones.append(f"{nombre}: referencia el schema desconocido '{schema}'")
+    return violaciones
 
 
 # ¤persistencia-sql
@@ -119,6 +169,11 @@ def verificar_migraciones(carpeta: Path, ruta_esquema: Path, base: dict[str, str
         if sala not in SCHEMAS_POR_SALA:
             violaciones.append(f"{nombre}: la sala '{sala}' no existe")
         marca = coincidencia.group(1)
+        try:
+            if datetime.strptime(marca, "%Y%m%d%H%M") > datetime.now() + timedelta(days=1):
+                violaciones.append(f"{nombre}: la marca de tiempo está en el futuro")
+        except ValueError:
+            violaciones.append(f"{nombre}: la marca de tiempo no es una fecha real")
         if marca in marcas:
             violaciones.append(f"{nombre}: repite la marca de tiempo de {marcas[marca]}")
         marcas[marca] = nombre
@@ -135,6 +190,7 @@ def verificar_migraciones(carpeta: Path, ruta_esquema: Path, base: dict[str, str
         sala = _sala_de(nombre)
         if sala not in SCHEMAS_POR_SALA:
             continue
+        violaciones += _violaciones_de_contenido(nombre, sala, sql)
         permitidos = set(SCHEMAS_POR_SALA[sala])
         for dependencia in dependencias(sql):
             sala_dependencia = _sala_de(dependencia)
@@ -168,9 +224,13 @@ def verificar_migraciones(carpeta: Path, ruta_esquema: Path, base: dict[str, str
 def main(argumentos: list[str] | None = None) -> int:
     analizador = argparse.ArgumentParser(description="Árbitro de migraciones (ADR-0023)")
     analizador.add_argument("--base", default="origin/main", help="Rama base contra la que se compara")
+    analizador.add_argument("--exigir-base", action="store_true", help="Falla si la rama base no está disponible (CI)")
     opciones = analizador.parse_args(argumentos)
     base = cargar_base(opciones.base)
     if base is None:
+        if opciones.exigir_base:
+            print(f"[FALLO] {opciones.base} no disponible y --exigir-base está activo")
+            return 1
         print(f"[AVISO] {opciones.base} no disponible: se omiten orden e inmutabilidad contra la base")
     violaciones = verificar_migraciones(CARPETA_MIGRACIONES, RUTA_ESQUEMA, base)
     for violacion in violaciones:

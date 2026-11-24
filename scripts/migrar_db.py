@@ -16,6 +16,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from verificar_migraciones import dependencias  # noqa: E402  (misma lectura de «-- depende:» que el árbitro)
+
 RAIZ = Path(__file__).resolve().parent.parent
 RUTA_ESQUEMA_DEFECTO = RAIZ / "docs" / "spec" / "esquema.sql"
 
@@ -104,7 +107,7 @@ def validar_dependencias(archivos: list[tuple[str, str]]) -> None:
     """Exige que cada ``-- depende: <archivo>`` se aplique antes que quien lo declara (ADR-0023)."""
     posiciones = {nombre: i for i, (nombre, _) in enumerate(archivos)}
     for i, (nombre, sql) in enumerate(archivos):
-        for dependencia in re.findall(r"^--\s*depende:\s*(\S+)\s*$", sql.replace("\r\n", "\n"), re.MULTILINE):
+        for dependencia in dependencias(sql):
             if posiciones.get(dependencia, len(archivos)) >= i:
                 raise RuntimeError(f"{nombre} depende de {dependencia}, que no existe o no se aplica antes")
 
