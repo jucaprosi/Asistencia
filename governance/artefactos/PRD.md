@@ -29,6 +29,7 @@ Una **sala** es la unidad autónoma de trabajo y de contención de fallos: tiene
 | `anfitriones` (ADR-0018) | `features/anfitriones` | `anfitriones_service.py` | `¤anfitriones` | `¤¤backend-developer` | RF-ANF-01..08 |
 | `web_huespedes` (ADR-0017) | `features/web_huespedes` | `web_huespedes_service.py` | `¤web-huespedes` | — | — |
 | `persistencia_sql` (ADR-0020) | `features/persistencia_sql`, `scripts/migrar_db.py`, `docs/spec/migraciones/` | `persistencia_sql_service.py` | `¤persistencia-sql` | `¤¤data-engineer` | RNF de durabilidad (ADR-0002, ADR-0019) |
+| `inferencia` (ADR-0021) | `features/inferencia` | `inferencia_service.py` | `¤inferencia` | `¤¤machine-learning-engineer` | RF-INF-01..03 |
 | *pasillo central* | `app_core/` | `main.py`, `contenedor.py` (por crear, TASK-000) | `¤pasillo-central` | `¤¤solutions-architect` | orquestación; sin requisitos propios |
 | *infraestructura* | `compose.yaml`, `compose.production.yaml`, `ejecutar_arnes_glamping.*`, `.env.example`, Google Cloud Platform (ADR-0019) | — | `¤infra-hibrida` `¤infra-cloud` | `¤¤devops-engineer` | RNF-10, RNF-14, RNF-15 |
 

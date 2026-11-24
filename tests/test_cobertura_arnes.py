@@ -17,13 +17,13 @@ from scripts.arnes_glamping import (
 
 
 def test_cobertura_base_existe_y_es_valida() -> None:
-    """Verifica que el archivo de línea base de cobertura exista y contenga los pisos de las 14 salas."""
+    """Verifica que el archivo de línea base de cobertura exista y contenga los pisos de las 15 salas."""
     assert RUTA_COBERTURA_BASE.is_file(), f"Falta {RUTA_COBERTURA_BASE}"
     data = json.loads(RUTA_COBERTURA_BASE.read_text(encoding="utf-8"))
     assert "piso_global" in data
     assert data["piso_global"] >= 80.0
     pisos_sala = data.get("pisos_por_sala", {})
-    assert len(pisos_sala) == 14
+    assert len(pisos_sala) == 15
     for sala, piso in pisos_sala.items():
         assert isinstance(piso, (int, float))
         assert piso > 0.0
@@ -37,7 +37,7 @@ def test_calcular_cobertura_con_archivo_real() -> None:
     assert "total" in medida
     assert "salas" in medida
     assert isinstance(medida["total"], float)
-    assert len(medida["salas"]) == 14
+    assert len(medida["salas"]) == 15
 
 
 def test_cobertura_cumple_piso_actual() -> None:

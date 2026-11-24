@@ -1,0 +1,13 @@
+# ¤inferencia
+# © 2026 Juan Carlos Proaño. Todos los derechos reservados.
+# ADR-0021: lista blanca, región→ubicación y precios viven solo aquí. Sin valores por defecto de proyecto ni región.
+modelos_permitidos:
+  principal: gemini-3.8-flash
+  economico: gemini-3.5-flash-lite
+ubicaciones:
+  us: { pais: Estados Unidos, endpoint: aiplatform.us.rep.googleapis.com }
+# USD por 1M tokens (entrada, salida); tarifa vigente desde 2027-01-01 para no subestimar RNF-16.
+precios_por_millon:
+  gemini-3.8-flash: ["1.50", "7.50"]
+  gemini-3.5-flash-lite: ["0.30", "2.50"]
+reintentos: 1
