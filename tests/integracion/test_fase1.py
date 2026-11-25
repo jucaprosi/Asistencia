@@ -44,7 +44,6 @@ def parchear_uuid_seguro(monkeypatch: pytest.MonkeyPatch) -> None:
 
 ENTORNO_PRUEBA = {
     "APP_ENV": "prueba",
-    "DATABASE_URL": "postgresql://prueba",
     "META_ACCESS_TOKEN": "token_meta_cloud_api_valido",
     "META_VERIFY_TOKEN": "token_verificacion_meta_fase1",
     "META_APP_SECRET": "secreto_hmac_meta_fase1_clave",

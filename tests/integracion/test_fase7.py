@@ -119,7 +119,6 @@ def receptor_crm() -> ReceptorSimuladoCRM:
 def entorno_fase7(receptor_crm: ReceptorSimuladoCRM) -> dict[str, str]:
     return {
         "APP_ENV": "prueba",
-        "DATABASE_URL": "postgresql://prueba",
         "META_ACCESS_TOKEN": "token_fase7_valido",
         "META_VERIFY_TOKEN": "token_verif_fase7",
         "META_APP_SECRET": "secreto_fase7_seguridad",

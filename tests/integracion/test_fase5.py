@@ -34,7 +34,6 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 
 ENTORNO_PRUEBA = {
     "APP_ENV": "prueba",
-    "DATABASE_URL": "postgresql://prueba",
     "META_ACCESS_TOKEN": "token_fase5_valido",
     "META_VERIFY_TOKEN": "token_verif_fase5",
     "META_APP_SECRET": "secreto_fase5_seguridad",

@@ -75,7 +75,6 @@ def test_escenario_calidad_publica_catalogo() -> None:
     """
     entorno_prueba = {
         "APP_ENV": "prueba",
-        "DATABASE_URL": "postgresql://prueba",
         "META_ACCESS_TOKEN": "x",
         "META_VERIFY_TOKEN": "x",
         "META_APP_SECRET": "x",
