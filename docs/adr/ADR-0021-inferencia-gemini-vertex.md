@@ -105,6 +105,14 @@ ADR-0021 se justifica por ADPA §7.1 (sala nueva); no invoca §7.4.
 6. Humo real.
 7. Tráfico real, solo después de aceptar ADR-0012.
 
+## Enmienda 1 (2026-11-25): día de la cuota
+Decisión del propietario: el día del tope diario es el de Google Cloud, cuyas cuotas diarias se reinician a medianoche, hora del Pacífico (`America/Los_Angeles`, con su horario de verano). En Ecuador el día cambia a las 03:00 desde el primer domingo de noviembre hasta el segundo domingo de marzo (PST, UTC−8), y a las 02:00 el resto del año (PDT, UTC−7). Los días del cambio de hora duran 23 y 25 horas; el tope es por día y no cambia.
+
+- `dia_de_cuota()` en `features/observabilidad/cuota_internal.py` calcula el día. La alerta `costo_diario_excedido` usa el mismo día.
+- Sustituye al día UTC del paso 4. El comentario de `202611250145_observabilidad_cuota_inferencia.sql` todavía dice «día UTC». No se corrige, porque una migración fusionada no se edita (ADR-0023); el formato de la columna `dia` no cambia.
+- La base de zonas horarias es `tzdata`, en `dependencies` y en `requirements.lock` con hash, para Windows y para la imagen. Así no depende de que la imagen base traiga `zoneinfo`: si faltara, la app no arrancaría (r5).
+- Árbitro: `tests/observabilidad/test_dia_cuota_pacifico.py`.
+
 ---
 
 © 2026 Juan Carlos Proaño. Todos los derechos reservados.
