@@ -26,12 +26,13 @@ from __future__ import annotations
 import base64
 import importlib.util
 import logging
+import math
 import os
 import random
 import time
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 import yaml
 
@@ -105,6 +106,32 @@ def _reintentable(exc: BaseException) -> bool:
 
 
 # ¤inferencia
+def _retry_after_s(exc: BaseException) -> float | None:
+    """Segundos de ``Retry-After`` si vienen como número >= 0; None si no hay cabecera o es ilegible (T-409)."""
+    cabeceras = getattr(getattr(exc, "response", None), "headers", None)
+    if cabeceras is None:
+        return None
+    try:
+        crudo = cabeceras.get("Retry-After")
+        if crudo is None:
+            crudo = cabeceras.get("retry-after")
+        segundos = float(str(crudo).strip())
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return segundos if math.isfinite(segundos) and segundos >= 0 else None
+
+
+# ¤inferencia
+def _espera_reintento(
+    exc: BaseException, base_s: float, aleatorio: Callable[[float, float], float] = random.uniform
+) -> float:
+    """``max(Retry-After, base con jitter de 0,5x a 1,5x)``; la fecha HTTP o el texto se ignoran (T-409, R1 y R2)."""
+    espera = base_s * aleatorio(0.5, 1.5)
+    retry_after = _retry_after_s(exc)
+    return espera if retry_after is None else max(retry_after, espera)
+
+
+# ¤inferencia
 def cargar_config(ruta: Path = RUTA_CONFIG) -> dict[str, Any]:
     return yaml.safe_load(ruta.read_text(encoding="utf-8"))
 
@@ -129,6 +156,8 @@ def _validar_config(config: Mapping[str, Any]) -> str | None:
     if not set(modelos.values()) <= set(precios):
         return "configuracion_invalida"
     if int(config.get("max_output_tokens") or 0) <= 0:
+        return "configuracion_invalida"
+    if float(config.get("espera_maxima_s", 5.0)) <= float(config.get("espera_reintento_s", 1.0)):
         return "configuracion_invalida"
     return None
 
@@ -227,7 +256,8 @@ class InferenciaService:
         contenidos = [_contenido(m) for m in peticion.mensajes]
         max_salida = int(self._config["max_output_tokens"])
         reintentos = int(self._config.get("reintentos", 1))
-        espera_base = float(self._config.get("espera_reintento_s", 0.2))
+        espera_base = float(self._config.get("espera_reintento_s", 1.0))
+        espera_maxima = float(self._config.get("espera_maxima_s", 5.0))
         for intento in range(reintentos + 1):
             restante = limite - time.monotonic()
             if restante <= 0:
@@ -245,8 +275,11 @@ class InferenciaService:
                 # La reserva se conserva: el proveedor pudo haber cobrado la llamada fallida.
                 if _es_timeout(exc):
                     raise TiempoAgotado(f"tiempo_agotado:{type(exc).__name__}") from exc
-                espera = espera_base * random.uniform(0.5, 1.5)
-                if intento < reintentos and _reintentable(exc) and limite - time.monotonic() > espera:
+                if intento >= reintentos or not _reintentable(exc):
+                    raise InferenciaNoDisponible(f"proveedor_no_disponible:{type(exc).__name__}") from exc
+                espera = _espera_reintento(exc, espera_base, lambda minimo, maximo: random.uniform(minimo, maximo))
+                # R3: tope de espera; R4: tras esperar debe quedar al menos la base para la segunda llamada.
+                if espera <= espera_maxima and limite - time.monotonic() - espera >= espera_base:
                     time.sleep(espera)
                     continue
                 raise InferenciaNoDisponible(f"proveedor_no_disponible:{type(exc).__name__}") from exc

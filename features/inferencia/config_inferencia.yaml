@@ -12,6 +12,8 @@ precios_por_millon:
   gemini-3.5-flash-lite: ["0.30", "2.50"]
 # Salida máxima por llamada: se envía al proveedor y se reserva en el tope diario (C3).
 max_output_tokens: 2048
-# Un único reintento ante 5xx o 429 dentro del plazo del turno; espera de 0,5x a 1,5x la base.
+# Un único reintento ante 5xx o 429 dentro del plazo del turno; espera de 0,5x a 1,5x la base (T-409), o
+# Retry-After si es mayor. Si la espera supera espera_maxima_s, o no deja la base para la segunda llamada, no hay reintento.
 reintentos: 1
-espera_reintento_s: 0.2
+espera_reintento_s: 1.0
+espera_maxima_s: 5.0
