@@ -11,7 +11,8 @@ Lee cada bloque ```toml``` del archivo y comprueba:
 Reglas de ortogonalidad (dictamen del Arquitecto ADPA G.I., 2026-11-25). **Regla de oro:** solo las fichas no selladas
 compiten por un archivo; al sellarse, sus archivos quedan libres.
 - R1: una ficha no sellada declara archivos exactos (sin `*`, `**` ni `/` final); cada uno existe en HEAD o está en
-  `crea`, y lo de `crea` todavía no existe.
+  `crea`, y `crea` está incluida en `propiedad`. `crea` declara intención y no se vuelve a comprobar después de crear:
+  en el PR de la tarea, y en main entre el merge y el sellado, HEAD ya trae el archivo y la ficha sigue pendiente.
 - R2: cada archivo ajeno que una ficha de sala toma lleva su límite en `limites`.
 - R3: ninguna ficha no sellada reclama los archivos de gobernanza comunes.
 - R4: dentro de una ola, dos fichas no selladas nunca comparten ruta, sin exenciones; a lo sumo una toca `app_core/`.
@@ -46,13 +47,12 @@ RECURSOS_POR_SALA = {
 }
 CAMPOS = ("id", "ola", "fase", "estado", "sala", "rol", "propiedad", "arbitro", "depende_de", "bloqueada_por")
 GOBERNANZA_COMUN = frozenset({"governance/tareas/TASKS.md", "docs/adr/README.md", "governance/artefactos/VPA_INDEX.md"})
-# R2: pruebas compartidas que ninguna ficha de sala toma, ni con límite.
-PRUEBAS_NUNCA_AJENAS = frozenset({"tests/conftest.py"})
+# R2: los conftest.py son compartidos (fixtures de toda una carpeta): ninguna ficha de sala los toma, ni con límite.
+def _es_conftest(ruta: str) -> bool:
+    return ruta == "conftest.py" or ruta.endswith("/conftest.py")
 # Deuda de R1 medida en origin/main 077ab65: fichas pendientes escritas con comodines antes de la regla. Solo puede
 # achicarse; el commit de gobernanza (R3) que las reescribe con rutas exactas vacía esta lista.
 DEUDA_R1 = frozenset({"T-410", "T-610", "T-701", "T-810"})
-# Historia de la ola 9 (dictamen v3); G-1 la elimina por la regla de oro.
-EXCEPCION_APP_CORE_OLA_9 = frozenset({"T-110", "T-310", "T-510"})
 
 
 def _tareas() -> list[dict]:
@@ -109,12 +109,9 @@ def _violaciones_de_olas(tareas: list[dict]) -> list[str]:
 # --- R4: colisiones (regla de oro, sin exención por dependencia) -----------------------------------------------------
 def _colisiones(tareas: list[dict]) -> list[str]:
     colisiones: list[str] = []
-    for ola, del_ola in _por_ola(tareas).items():
+    for ola, del_ola in _por_ola(_no_selladas(tareas)).items():
         for i, a in enumerate(del_ola):
             for b in del_ola[i + 1:]:
-                # Tareas secuenciales de la misma sala (b depende de a o viceversa) pueden compartir rutas.
-                if a["id"] in b["depende_de"] or b["id"] in a["depende_de"]:
-                    continue
                 for ra in a["propiedad"]:
                     for rb in b["propiedad"]:
                         if _solapan(ra, rb):
@@ -123,11 +120,9 @@ def _colisiones(tareas: list[dict]) -> list[str]:
 
 
 def _olas_con_varias_tareas_en_app_core(tareas: list[dict]) -> dict[int, list[str]]:
-    """ADPA §3: en cada ola, a lo sumo una tarea toca ``app_core/``."""
+    """ADPA §3: en cada ola, a lo sumo una ficha no sellada toca ``app_core/`` (regla de oro, sin excepciones)."""
     por_ola: dict[int, list[str]] = {}
-    for tarea in tareas:
-        if tarea["id"] in EXCEPCION_APP_CORE_OLA_9:
-            continue
+    for tarea in _no_selladas(tareas):
         if any(_solapan(ruta, "app_core/") for ruta in tarea["propiedad"]):
             por_ola.setdefault(int(tarea["ola"]), []).append(tarea["id"])
     return {ola: ids for ola, ids in por_ola.items() if len(ids) > 1}
@@ -135,38 +130,75 @@ def _olas_con_varias_tareas_en_app_core(tareas: list[dict]) -> dict[int, list[st
 
 # --- Salas y R2 ------------------------------------------------------------------------------------------------------
 def _violaciones_de_sala(tareas: list[dict]) -> list[str]:
+    """Una ficha de sala reclama lo suyo; una prueba ajena solo con su límite (R2); nunca código reservado."""
     violaciones: list[str] = []
     for tarea in tareas:
         sala = tarea["sala"]
         if sala in COORDINADOR:
             continue
         permitidas = {f"features/{sala}/", f"tests/{sala}/", f"docs/modulos/{sala}.md"} | RECURSOS_POR_SALA.get(sala, set())
+        limites = tarea.get("limites", {})
         for ruta in tarea["propiedad"]:
             normal = _normalizar(ruta)
+            if any(_solapan(normal, permitida) for permitida in permitidas):
+                continue
+            if normal.startswith("tests/") and not _es_conftest(normal) and ruta in limites:
+                continue  # R2: prueba ajena tomada con su límite escrito
             if any(_solapan(normal, reservada) for reservada in RESERVADAS):
                 violaciones.append(f"{tarea['id']} ({sala}) reclama ruta reservada {ruta}")
-            elif not any(_solapan(normal, permitida) for permitida in permitidas):
+            else:
                 violaciones.append(f"{tarea['id']} ({sala}) reclama ruta ajena {ruta}")
     return violaciones
 
 
 def _violaciones_r2(tareas: list[dict]) -> list[str]:
-    return []  # rojo de G-1: R2 aún no implementada
+    """``limites`` solo describe archivos de la propia ``propiedad``, con un texto no vacío por archivo."""
+    violaciones: list[str] = []
+    for tarea in _no_selladas(tareas):
+        limites = tarea.get("limites", {})
+        if not isinstance(limites, dict):
+            violaciones.append(f"{tarea['id']}: limites debe ser una tabla archivo = límite")
+            continue
+        for ruta, limite in limites.items():
+            if ruta not in tarea["propiedad"]:
+                violaciones.append(f"{tarea['id']}: limites describe {ruta}, que no está en su propiedad")
+            if not isinstance(limite, str) or not limite.strip():
+                violaciones.append(f"{tarea['id']}: el límite de {ruta} está vacío")
+    return violaciones
 
 
 # --- R1: archivos exactos y crea -------------------------------------------------------------------------------------
 def _violaciones_r1(tareas: list[dict], en_head: frozenset[str]) -> list[str]:
-    return []  # rojo de G-1: R1 aún no implementada
+    violaciones: list[str] = []
+    for tarea in _no_selladas(tareas):
+        crea = list(tarea.get("crea", []))
+        for ruta in tarea["propiedad"]:
+            if "*" in ruta or ruta.endswith("/"):
+                violaciones.append(f"{tarea['id']}: {ruta} no es un archivo exacto (sin *, ** ni / final)")
+            elif ruta not in en_head and ruta not in crea:
+                violaciones.append(f"{tarea['id']}: {ruta} no existe en HEAD y no está en crea")
+        for ruta in crea:  # crea declara intención: no se exige que siga sin existir (ver docstring del módulo)
+            if ruta not in tarea["propiedad"]:
+                violaciones.append(f"{tarea['id']}: {ruta} está en crea pero no en su propiedad")
+    return violaciones
 
 
 # --- R3: gobernanza común --------------------------------------------------------------------------------------------
 def _violaciones_r3(tareas: list[dict]) -> list[str]:
-    return []  # rojo de G-1: R3 aún no implementada
+    return [
+        f"{tarea['id']}: una ficha no sellada no reclama {ruta}; va en un commit de gobernanza"
+        for tarea in _no_selladas(tareas)
+        for ruta in tarea["propiedad"]
+        if any(_solapan(ruta, comun) for comun in GOBERNANZA_COMUN)
+    ]
 
 
 # --- R6: salas del catálogo ------------------------------------------------------------------------------------------
 def _violaciones_r6(tareas: list[dict], catalogo: tuple[str, ...]) -> list[str]:
-    return []  # rojo de G-1: R6 aún no implementada
+    """La sala de cada ficha está en el catálogo del PRD vivo o es de coordinación: ninguna ficha abre una sala sin ADR."""
+    validas = set(catalogo) | COORDINADOR
+    return [f"{t['id']}: sala {t['sala']!r} no está en el catálogo del PRD ni es de coordinación"
+            for t in tareas if t["sala"] not in validas]
 
 
 # === Contra TASKS.md real ============================================================================================
@@ -299,10 +331,15 @@ def test_mutante_r1_archivo_inexistente_sin_crea() -> None:
     assert not _violaciones_r1([_ficha("T-001", 1, [nuevo], sala="agente", crea=[nuevo])], HEAD_FALSO)
 
 
-def test_mutante_r1_crea_de_un_archivo_que_ya_existe_o_ajeno() -> None:
+def test_mutante_r1_crea_ajeno_a_la_propiedad() -> None:
     existente = "tests/agente/test_bucle.py"
-    assert _violaciones_r1([_ficha("T-001", 1, [existente], sala="agente", crea=[existente])], HEAD_FALSO)
     assert _violaciones_r1([_ficha("T-001", 1, [existente], sala="agente", crea=["tests/agente/otro.py"])], HEAD_FALSO)
+
+
+def test_mutante_r1_crea_ya_presente_en_head_no_es_violacion() -> None:
+    """En el PR de la tarea (y en main antes de sellar) HEAD ya trae lo que la ficha pendiente declaró en crea."""
+    creado = "tests/agente/test_bucle.py"
+    assert not _violaciones_r1([_ficha("T-001", 1, [creado], sala="agente", crea=[creado])], HEAD_FALSO)
 
 
 def test_mutante_r1_no_aplica_a_selladas() -> None:
@@ -319,7 +356,7 @@ def test_mutante_r2_prueba_ajena_exige_limite() -> None:
 
 
 def test_mutante_r2_nunca_codigo_reservado_ni_conftest() -> None:
-    for ruta in ("app_core/contenedor.py", "tests/conftest.py"):
+    for ruta in ("app_core/contenedor.py", "tests/conftest.py", "tests/app_core/conftest.py"):
         ficha = _ficha("O-1", 4, [ruta], sala="agente", limites={ruta: "solo una línea"})
         assert _violaciones_de_sala([ficha]), ruta
 
