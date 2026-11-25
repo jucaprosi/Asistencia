@@ -164,7 +164,6 @@ class PIIRedactor:
         # Ordenar por longitud descendente
         candidatos_ordenados = sorted(candidatos_dict.items(), key=lambda x: len(x[0]), reverse=True)
 
-        contadores_tipo: dict[str, int] = {}
         texto_resultado = texto
 
         for valor, tipo in candidatos_ordenados:
@@ -174,21 +173,29 @@ class PIIRedactor:
             if valor in valores_conv:
                 token = valores_conv[valor]
             else:
-                cuenta = contadores_tipo.get(tipo, 0) + 1
-                contadores_tipo[tipo] = cuenta
-                token = f"[{tipo.upper()}_{cuenta}]"
+                # T-406: el número es único dentro de la conversación, también entre llamadas y reinicios;
+                # la bóveda solo guarda la clave (conversación, token), nunca un token global.
+                token = self._siguiente_token(conversacion_id, tipo, tokens_conv)
                 valores_conv[valor] = token
                 tokens_conv[token] = valor
-
                 self._guardar_en_boveda(f"{conversacion_id}:{token}", titular, tipo, valor)
-                try:
-                    self._guardar_en_boveda(token, titular, tipo, valor)
-                except sqlite3.IntegrityError:
-                    pass
 
             texto_resultado = texto_resultado.replace(valor, token)
 
         return texto_resultado
+
+    def _siguiente_token(self, conversacion_id: str, tipo: str, tokens_conv: Mapping[str, str]) -> str:
+        """Primer ``[TIPO_n]`` libre en la conversación, mirando la caché y la bóveda."""
+        numero = 1
+        while True:
+            token = f"[{tipo.upper()}_{numero}]"
+            if token not in tokens_conv and not self._existe_en_boveda(f"{conversacion_id}:{token}"):
+                return token
+            numero += 1
+
+    def _existe_en_boveda(self, token_db: str) -> bool:
+        cursor = self._conn.execute("SELECT 1 FROM seguridad.boveda_tokens WHERE token = ?", (token_db,))
+        return cursor.fetchone() is not None
 
     def limpiar_cache_titular(self, titular_hash: str | None = None) -> None:
         """Limpia los cachés en memoria para garantizar que el criptoborrado sea efectivo inmediatamente."""
@@ -211,11 +218,8 @@ class PIIRedactor:
             if valor is not None:
                 return valor
 
-            valor_directo = self._obtener_de_boveda(token)
-            if valor_directo is not None:
-                return valor_directo
-
-            # Marcador neutro ante token borrado o no disponible (RF-PRIV-04 b)
+            # T-406: nunca se busca el token sin conversación; uno ajeno no rehidrata datos de otra persona.
+            # Marcador neutro ante token borrado, ajeno o no disponible (RF-PRIV-04 b)
             return "[DATO_BORRADO]"
 
         return RX_TOKEN_REHIDRATAR.sub(_reemplazar, texto)
