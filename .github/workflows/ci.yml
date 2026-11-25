@@ -21,10 +21,27 @@ jobs:
           --health-retries 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historial completo: el árbitro de migraciones (ADR-0023) compara contra origin/main.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # Primero y sin dependencias: falla rápido. Base = rama destino del PR; en push a main, el commit
+      # anterior (si no, origin/main == HEAD y no compararía nada). Sin base, falla (--exigir-base).
+      - name: Árbitro de migraciones (ADR-0023)
+        env:
+          EVENTO: ${{ github.event_name }}
+          RAMA_DESTINO: ${{ github.base_ref }}
+          ANTERIOR: ${{ github.event.before }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$EVENTO" = "pull_request" ]; then BASE="origin/$RAMA_DESTINO"
+          elif [ "$REF" = "refs/heads/main" ] && [ -n "$ANTERIOR" ] && [ "$ANTERIOR" != "0000000000000000000000000000000000000000" ]; then BASE="$ANTERIOR"
+          else BASE="origin/main"; fi
+          python scripts/verificar_migraciones.py --base "$BASE" --exigir-base
 
       - name: Instalar dependencias
         run: |
@@ -44,9 +61,10 @@ jobs:
       - name: Sondeo de salud y disponibilidad (RNF-05)
         run: pytest tests/integracion/carga/test_sondeo_salud.py -v
 
-      - name: Aplicar y verificar el esquema canónico en PostgreSQL real
+      - name: Aplicar migraciones y verificar el esquema en PostgreSQL real (ADR-0023)
         run: |
-          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/esquema.sql
+          python scripts/migrar_db.py --url postgresql://postgres@localhost:5432/postgres
+          python scripts/migrar_db.py --url postgresql://postgres@localhost:5432/postgres
           psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docs/spec/verificacion_esquema.sql
 
       - name: Publicar certificado

@@ -24,6 +24,7 @@ Cada decisión duradera se registra aquí. Un ADR nace en estado **Propuesto**; 
 | [ADR-0018](ADR-0018-plataforma-local-de-hospedajes.md) | Plataforma local de hospedajes | Aceptado en lo funcional, con puntos abiertos | `¤spec-glamping` `¤anfitriones` | Publicar hospedajes reales |
 | [ADR-0019](ADR-0019-despliegue-google-cloud-y-gemini.md) | Despliegue en Google Cloud Platform (Cloud Run, Cloud SQL pgvector, Cloud Tasks) y Adopción de Google Gemini | **Aceptado** (2026-11-04) | `¤infra-cloud` `¤agente-enrutador` | — (Ola 13 / T-901..905) |
 | [ADR-0020](ADR-0020-persistencia-sql-postgresql.md) | Persistencia real en PostgreSQL con sala adaptadora común | **Aceptado** (2026-11-22) | `¤persistencia-sql` | — |
+| [ADR-0023](ADR-0023-migraciones-por-sala.md) | Migraciones por sala y línea base congelada | **Aceptado** (2026-11-24) | `¤persistencia-sql` | — |
 
 ## Plantilla
 

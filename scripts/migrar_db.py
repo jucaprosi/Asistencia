@@ -16,6 +16,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from verificar_migraciones import dependencias  # noqa: E402  (misma lectura de «-- depende:» que el árbitro)
+
 RAIZ = Path(__file__).resolve().parent.parent
 RUTA_ESQUEMA_DEFECTO = RAIZ / "docs" / "spec" / "esquema.sql"
 
@@ -100,6 +103,16 @@ def aplicar_esquema(
 
 
 # ¤infra-cloud
+def validar_dependencias(archivos: list[tuple[str, str]]) -> None:
+    """Exige que cada ``-- depende: <archivo>`` se aplique antes que quien lo declara (ADR-0023)."""
+    posiciones = {nombre: i for i, (nombre, _) in enumerate(archivos)}
+    for i, (nombre, sql) in enumerate(archivos):
+        for dependencia in dependencias(sql):
+            if posiciones.get(dependencia, len(archivos)) >= i:
+                raise RuntimeError(f"{nombre} depende de {dependencia}, que no existe o no se aplica antes")
+
+
+# ¤infra-cloud
 def _aplicar_pendientes(conn: Any, ruta_base: Path, contenido_base: str) -> list[str]:
     """Aplica la línea base y luego ``docs/spec/migraciones/*.sql`` una sola vez cada una, en orden.
 
@@ -126,6 +139,7 @@ def _aplicar_pendientes(conn: Any, ruta_base: Path, contenido_base: str) -> list
     carpeta = RAIZ / "docs" / "spec" / "migraciones"
     if ruta_base == RUTA_ESQUEMA_DEFECTO and carpeta.is_dir():
         archivos += [(p.name, p.read_text(encoding="utf-8")) for p in sorted(carpeta.glob("*.sql"))]
+    validar_dependencias(archivos)
     aplicadas: list[str] = []
     for nombre, sql in archivos:
         sha = hashlib.sha256(sql.encode("utf-8")).hexdigest()
