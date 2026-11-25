@@ -17,7 +17,7 @@
     "required": ["propiedad", "direccion", "hora_checkin", "acceso", "wifi", "normas", "contacto_emergencia"],
     "properties": {
       "propiedad": {"type": "string"},
-      "direccion": {"type": "string"},
+      "direccion": {"type": "string", "x-pii": "direccion"},
       "hora_checkin": {"type": "string"},
       "acceso": {
         "type": "array",
@@ -28,14 +28,14 @@
         "required": ["red", "clave_ref"],
         "properties": {
           "red": {"type": "string"},
-          "clave_ref": {"type": "string", "pattern": "^\\[\\[SECRETO:[a-z0-9_-]+\\]\\]$"}
+          "clave_ref": {"type": "string", "pattern": "^\\[\\[SECRETO:[a-z0-9_-]+\\]\\]$", "x-pii-exento": true}
         }
       },
       "normas": {
         "type": "array",
         "items": {"type": "string"}
       },
-      "contacto_emergencia": {"type": "string"}
+      "contacto_emergencia": {"type": "string", "x-pii": "telefono"}
     }
   }
 }

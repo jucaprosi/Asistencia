@@ -21,7 +21,7 @@
     "properties": {
       "incidencia_id": {"type": "string", "pattern": "^I-[0-9]{4}-[0-9]{4,}$"},
       "prioridad": {"enum": ["baja", "media", "alta", "critica"]},
-      "gestor_asignado": {"type": "string"},
+      "gestor_asignado": {"type": "string", "x-pii": "nombre"},
       "eta_respuesta_horas": {"type": "number"}
     }
   }
