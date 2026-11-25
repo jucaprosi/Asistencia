@@ -35,6 +35,13 @@ def _sin_claves(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 # ¤inferencia
+@pytest.fixture(autouse=True)
+def _sin_espera_real(monkeypatch: pytest.MonkeyPatch) -> None:
+    """T-409: la espera del reintento es de hasta 1,5 s; ninguna prueba duerme de verdad."""
+    monkeypatch.setattr(modulo.time, "sleep", lambda segundos: None)
+
+
+# ¤inferencia
 class ErrorProveedor(Exception):
     def __init__(self, code: int) -> None:
         super().__init__(f"error {code}")
