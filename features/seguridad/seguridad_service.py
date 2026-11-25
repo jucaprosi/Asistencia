@@ -9,10 +9,12 @@ rate limiting no anulable, detección de inyecciones y bitácora de auditoría i
 from __future__ import annotations
 
 import hashlib
+import os
+import re
 import sqlite3
 from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping
 
 import yaml
 
@@ -39,7 +41,7 @@ from features.seguridad.injection_internal import (
     detectar_inyeccion,
 )
 from features.seguridad.persistencia_internal import inicializar_base_datos
-from features.seguridad.pii_internal import PIIRedactor, crear_pii_redactor
+from features.seguridad.pii_internal import EstructuraNoAdmitida, PIIRedactor, crear_pii_redactor
 from features.seguridad.retencion_internal import GestorRetencion, crear_gestor_retencion
 from features.seguridad.rls_internal import (
     ROL_APLICACION_RLS,
@@ -87,6 +89,7 @@ __all__ = [
     "AccionNoAutorizada",
     "InyeccionDetectada",
     "TokenDesconocido",
+    "EstructuraNoAdmitida",
     "ActorSinPrivilegio",
     "ReservaNoAutorizada",
     "SolicitudTitular",
@@ -100,6 +103,21 @@ __all__ = [
 ]
 
 RUTA_CONFIG = Path(__file__).with_name("config_seguridad.yaml")
+RX_MARCADOR_ENTORNO = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-(.*))?\}")
+
+
+# ¤seguridad-canal
+def _resolver_clave_boveda(config: dict[str, Any]) -> dict[str, Any]:
+    """T-406-b: un ``${VAR:-defecto}`` sin resolver no es una clave; se resuelve contra el entorno o queda vacío."""
+    pii = config.get("pii")
+    if not isinstance(pii, Mapping):
+        return config
+    clave = pii.get("clave_boveda")
+    marcador = RX_MARCADOR_ENTORNO.fullmatch(clave) if isinstance(clave, str) else None
+    if marcador is None:
+        return config
+    resuelta = os.environ.get(marcador.group(1)) or marcador.group(2) or None
+    return {**config, "pii": {**pii, "clave_boveda": resuelta}}
 
 
 # ¤seguridad-canal
@@ -122,7 +140,7 @@ class SeguridadService:
         observabilidad: Any = None,
         conexion: sqlite3.Connection | None = None,
     ) -> None:
-        self._config = dict(config or cargar_config())
+        self._config = _resolver_clave_boveda(dict(config or cargar_config()))
         self._observabilidad = observabilidad
         self._conn = conexion or inicializar_base_datos()
 
@@ -258,6 +276,27 @@ class SeguridadService:
     ) -> str:
         """Redacta y guarda PII en la bóveda cifrada, devolviendo texto con tokens."""
         return self._pii.tokenizar(texto, conversacion_id, titular_hash=titular_hash)
+
+    def tokenizar_estructura(
+        self,
+        valor: Any,
+        conversacion_id: str,
+        titular_hash: str | None = None,
+        campos_pii: Iterable[str] | None = None,
+        campos_exentos: Mapping[str, str] | None = None,
+    ) -> Any:
+        """Tokeniza dict, list y tuple recursivamente (T-406-b); claves intactas, tipos ajenos -> EstructuraNoAdmitida."""
+        return self._pii.tokenizar_estructura(
+            valor,
+            conversacion_id,
+            titular_hash=titular_hash,
+            campos_pii=campos_pii,
+            campos_exentos=campos_exentos,
+        )
+
+    def estado(self) -> dict[str, bool]:
+        """Estado operativo de la sala: ``clave_efimera`` es True si la bóveda no tiene clave configurada."""
+        return {"clave_efimera": self._pii.clave_efimera}
 
     def rehidratar(self, texto: str, conversacion_id: str) -> str:
         """Reemplaza los tokens de PII por sus valores reales descifrados."""
