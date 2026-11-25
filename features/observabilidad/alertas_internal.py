@@ -239,4 +239,25 @@ class DetectorAlertas:
             if a7:
                 alertas.append(a7)
 
+        # 8. Conciliación de la cuota de inferencia fallida (ADR-0021, r3)
+        if "conciliaciones_fallidas" in datos:
+            a8 = self.verificar_conciliacion_fallida(int(datos["conciliaciones_fallidas"]), instante)
+            if a8:
+                alertas.append(a8)
+
         return tuple(alertas)
+
+    # ¤observabilidad
+    def verificar_conciliacion_fallida(self, fallidas: int, ahora: datetime) -> Alerta | None:
+        """Dispara si la cuota no pudo devolver lo reservado de más: el tope cuenta el peor caso."""
+        if fallidas > 0:
+            return Alerta(
+                nombre="conciliacion_fallida",
+                severidad="aviso",
+                mensaje=(
+                    f"La cuota de inferencia no pudo conciliar {fallidas} respuesta(s); "
+                    "el gasto del día cuenta el peor caso y el tope puede llegar antes."
+                ),
+                disparada_en=ahora,
+            )
+        return None

@@ -32,6 +32,13 @@ class CuotaDiaria:
         self._obtener_conexion = obtener_conexion
         self._tope = _a_micro(tope_usd)
         self._candado = threading.Lock()
+        self._conciliaciones_fallidas = 0
+
+    # ¤observabilidad
+    @property
+    def conciliaciones_fallidas(self) -> int:
+        """Conciliaciones que no llegaron a la base en este proceso (r3: las lee el detector de alertas)."""
+        return self._conciliaciones_fallidas
 
     # ¤observabilidad
     @staticmethod
@@ -71,4 +78,5 @@ class CuotaDiaria:
                     (delta, self._dia()),
                 )
         except Exception as exc:  # noqa: BLE001 - K3: se conserva la reserva del peor caso
+            self._conciliaciones_fallidas += 1
             _LOG.warning("conciliacion_fallida tipo=%s delta_micro=%s", type(exc).__name__, delta)

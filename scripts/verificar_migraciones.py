@@ -46,6 +46,7 @@ SCHEMAS_POR_SALA: dict[str, frozenset[str]] = {
     "conocimiento": frozenset({"conocimiento"}),
     "crm_conector": frozenset({"crm"}),
     "herramientas_glamping": frozenset(),
+    "inferencia": frozenset(),  # ADR-0021: la cuota la persiste observabilidad
     "observabilidad": frozenset({"observabilidad"}),
     "panel_operativo": frozenset({"panel"}),
     "persistencia_sql": frozenset({"public"}),
@@ -151,6 +152,36 @@ def _schemas_tocados(sql: str) -> set[str]:
     return set(_PATRON_SCHEMA.findall(_limpiar(sql)))
 
 
+_PRIVILEGIOS = r"(?:select|insert|update|delete|references|trigger)(?:\s*,\s*(?:select|insert|update|delete|references|trigger))*"
+_OBJETOS = rf"(?:table\s+)?(?P<objetos>{_ID}(?:\.{_ID})?(?:\s*,\s*{_ID}(?:\.{_ID})?)*)"
+_ROLES = rf"(?P<roles>{_ID}(?:\s*,\s*{_ID})*)"
+_GRANT_MINIMO = re.compile(rf"\s*grant\s+{_PRIVILEGIOS}\s+on\s+{_OBJETOS}\s+to\s+{_ROLES}\s*")
+_REVOKE_MINIMO = re.compile(
+    rf"\s*revoke\s+(?:all(?:\s+privileges)?|{_PRIVILEGIOS})\s+on\s+{_OBJETOS}\s+from\s+{_ROLES}(?:\s+(?:cascade|restrict))?\s*"
+)
+
+
+# ¤persistencia-sql
+def _violaciones_de_permiso(sentencia: str) -> list[str]:
+    """A1 y A2 (dictamen K1): GRANT solo de privilegios de tabla, a roles con nombre, sobre schemas conocidos.
+
+    Fuera de la forma mínima (PUBLIC, WITH GRANT OPTION, ALL, ON ALL TABLES/SCHEMA, rol a rol) requiere un ADR.
+    REVOKE solo quita, así que admite ALL; también exige schemas conocidos.
+    """
+    es_grant = sentencia.lstrip().startswith("grant")
+    forma = (_GRANT_MINIMO if es_grant else _REVOKE_MINIMO).fullmatch(sentencia)
+    if not forma:
+        return [f"{'GRANT' if es_grant else 'REVOKE'} fuera de la forma mínima: requiere un ADR (ADR-0023, Decisión 4)"]
+    violaciones: list[str] = []
+    if es_grant and "public" in re.split(r"\s*,\s*", forma.group("roles")):
+        violaciones.append("GRANT a PUBLIC: requiere un ADR (ADR-0023, Decisión 4)")
+    for objeto in re.split(r"\s*,\s*", forma.group("objetos")):
+        schema = objeto.split(".")[0] if "." in objeto else None
+        if schema not in TODOS_LOS_SCHEMAS:
+            violaciones.append(f"permiso sobre '{objeto}': califique el objeto con un schema conocido")
+    return violaciones
+
+
 # ¤persistencia-sql
 def _violaciones_de_contenido(nombre: str, sala: str, sql: str) -> list[str]:
     """Escritura fuera de la sala, schemas desconocidos, search_path y CREATE SCHEMA."""
@@ -169,7 +200,16 @@ def _violaciones_de_contenido(nombre: str, sala: str, sql: str) -> list[str]:
         violaciones.append(f"{nombre}: SQL dinámico (DO / EXECUTE) no auditable; requiere un ADR")
     if re.search(r"\b(?:grant|revoke)\b", limpio) and sala not in {"seguridad", "persistencia_sql"}:
         violaciones.append(f"{nombre}: GRANT/REVOKE solo desde seguridad o persistencia_sql")
-    escritos = {m.group(1) or "public" for patron in _PATRONES_ESCRITURA for m in patron.finditer(limpio)}
+    # El ON de un GRANT/REVOKE de seguridad o persistencia_sql da permisos, no escribe (K1 del ADR-0021),
+    # siempre que tenga la forma mínima sobre objetos de schemas conocidos; lo demás requiere un ADR.
+    analizable = limpio
+    if sala in {"seguridad", "persistencia_sql"}:
+        sentencias = limpio.split(";")
+        for sentencia in sentencias:
+            if re.match(r"\s*(?:grant|revoke)\b", sentencia):
+                violaciones.extend(f"{nombre}: {v}" for v in _violaciones_de_permiso(sentencia))
+        analizable = ";".join(s for s in sentencias if not re.match(r"\s*(?:grant|revoke)\b", s))
+    escritos = {m.group(1) or "public" for patron in _PATRONES_ESCRITURA for m in patron.finditer(analizable)}
     for schema in sorted(escritos - propios):
         violaciones.append(f"{nombre}: escribe en el schema '{schema}', que no es de la sala {sala}")
     for schema in sorted({m.group(1) for m in _PATRON_REFERENCIA.finditer(limpio)} - TODOS_LOS_SCHEMAS):

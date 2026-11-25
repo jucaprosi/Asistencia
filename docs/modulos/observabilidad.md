@@ -120,6 +120,15 @@ Despacha la ejecución de las suites de evaluación (`rag`, `enrutador`, `ventas
 - `observabilidad.spans`: `span_id PK, traza_id FK, sala, nombre, inicio, duracion_ms, modelo, tokens_in, tokens_out, costo_usd, atributos`.
 - `observabilidad.evaluaciones`: ejecuciones históricas de suites.
 - `observabilidad.alertas`: historial de alertas.
+- `observabilidad.cuota_inferencia`: `dia PK (AAAA-MM-DD, día UTC), gastado_micro bigint ≥ 0`. Tope diario del gasto en inferencia (ADR-0021, K1).
+
+### Runbook: cuota de inferencia en PostgreSQL
+
+- La tabla la crea la migración `202611250145_observabilidad_cuota_inferencia.sql` y el permiso de `app_glamping` (SELECT, INSERT, UPDATE; sin DELETE) lo da `202611250146_seguridad_permisos_cuota_inferencia.sql`. Se aplican con `python scripts/migrar_db.py --url <DATABASE_URL>` antes de desplegar.
+- **Sin la tabla, la cuota niega toda inferencia** (falla cerrada): el síntoma es que el agente nunca llama al modelo. Se comprueba con `SELECT * FROM observabilidad.cuota_inferencia ORDER BY dia DESC LIMIT 3;`.
+- La reserva es un único `UPDATE … WHERE gastado_micro + costo <= tope RETURNING`; varias instancias de Cloud Run comparten el tope sin pasarlo. La prueba `tests/observabilidad/test_k1_cuota_postgresql.py` lo verifica en CI con `TEST_DATABASE_URL`.
+- Si la base cae entre reservar y conciliar, la reserva del peor caso se queda y aparece la alerta `conciliacion_fallida` (contador del proceso; se reinicia al reiniciar la instancia).
+- Ajuste manual de un día (solo con el propietario): `UPDATE observabilidad.cuota_inferencia SET gastado_micro = 0 WHERE dia = 'AAAA-MM-DD';`, como un rol con permiso de escritura.
 
 ## Tests (árbitro)
 - `tests/observabilidad/test_logs.py`: rechazo de PII en claro, campos requeridos, ausencia de patrones.
