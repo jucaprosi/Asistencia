@@ -39,7 +39,8 @@ steps:
       - '--min-instances=1'
       - '--max-instances=5'
       - '--add-cloudsql-instances=$PROJECT_ID:$_LOCATION:glamping-db'
-      - '--set-secrets=DATABASE_URL=DATABASE_URL:latest'
+      - '--update-secrets=DATABASE_URL=DATABASE_URL:latest,PII_VAULT_KEY=PII_VAULT_KEY:latest'
+      - '--update-env-vars=APP_ENV=produccion'
       - '--allow-unauthenticated'
 
 substitutions:

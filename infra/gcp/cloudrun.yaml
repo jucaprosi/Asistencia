@@ -54,6 +54,11 @@ spec:
                 secretKeyRef:
                   name: DATABASE_URL
                   key: latest
+            - name: PII_VAULT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: PII_VAULT_KEY
+                  key: latest
             - name: META_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:

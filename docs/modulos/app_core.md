@@ -57,8 +57,15 @@ Orden de construcción (una compuerta solo recibe las ya construidas): `observab
 ## Errores
 `ConfiguracionInvalida` (falta una variable referenciada, YAML inválido) detiene el arranque con mensaje que nombra la variable, nunca su valor.
 
+### Arranque productivo (T-412)
+- **Qué es productivo.** `K_SERVICE` no vacío (Cloud Run) o un entorno resuelto fuera de `ENTORNOS_NO_PRODUCTIVOS = {beta, prueba}`; un valor desconocido (`prod`, `Produccion`, `staging`) falla cerrado. `APP_ENV` vacío o ausente resuelve a `beta`.
+- **Sin PostgreSQL.** Un arranque productivo con `DATABASE_URL` que no es PostgreSQL construye la inferencia con `cuota=None` y la sala responde `sin_tope_diario`.
+- **Clave efímera.** Un arranque productivo con la bóveda PII sin clave lanza `ConfiguracionInvalida("bóveda PII sin clave configurada en producción")`, justo después de construir `SeguridadService`; el mensaje es fijo y no nombra valores.
+- **Fuera de producción** no cambia nada: SQLite conserva su cuota y la clave efímera se acepta.
+- **Manifiestos.** `infra/gcp/cloudrun.yaml` declara `APP_ENV=produccion` y el paso `run deploy` de `cloudbuild.yaml` lo fija con `--update-env-vars` (nunca `--set-env-vars`, que borraría las demás variables).
+
 ## Tests (árbitro)
-`tests/test_estructura_adpa.py` (solo importa `_service`), `tests/app_core/test_contenedor.py` (construye con `Fake*` y variables de entorno de prueba; falla si falta una variable), `tests/app_core/test_salud.py`.
+`tests/test_estructura_adpa.py` (solo importa `_service`), `tests/app_core/test_contenedor.py` (construye con `Fake*` y variables de entorno de prueba; falla si falta una variable), `tests/app_core/test_salud.py`, `tests/app_core/test_o1_entorno_cuota.py` (T-412: entorno productivo, cuota, clave y manifiestos).
 
 `¤pasillo-central/`
 
