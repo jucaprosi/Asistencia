@@ -129,6 +129,7 @@ Despacha la ejecución de las suites de evaluación (`rag`, `enrutador`, `ventas
 - La reserva es un único `UPDATE … WHERE gastado_micro + costo <= tope RETURNING`; varias instancias de Cloud Run comparten el tope sin pasarlo. La prueba `tests/observabilidad/test_k1_cuota_postgresql.py` lo verifica en CI con `TEST_DATABASE_URL`.
 - Si la base cae entre reservar y conciliar, la reserva del peor caso se queda y aparece la alerta `conciliacion_fallida` (contador del proceso; se reinicia al reiniciar la instancia).
 - El día cambia a medianoche del Pacífico (`America/Los_Angeles`): a las 03:00 de Ecuador desde el primer domingo de noviembre hasta el segundo domingo de marzo, y a las 02:00 el resto del año.
+- En `APP_ENV=produccion` sin una `DATABASE_URL` de PostgreSQL, `construir()` no inyecta la cuota (sería por instancia, en SQLite en memoria): la inferencia queda no disponible con motivo `sin_tope_diario` (falla cerrada, r4). Se prueba en `tests/app_core/test_r4_cuota_produccion.py`.
 - Ajuste manual de un día (solo con el propietario): `UPDATE observabilidad.cuota_inferencia SET gastado_micro = 0 WHERE dia = 'AAAA-MM-DD';`, como un rol con permiso de escritura.
 
 ## Tests (árbitro)

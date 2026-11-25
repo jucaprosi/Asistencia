@@ -41,6 +41,7 @@ from features.web_huespedes.web_huespedes_service import WebHuespedesService
 from features.web_huespedes.web_huespedes_service import cargar_config as cargar_config_web
 from features.pms_conector.pms_conector_service import PMSConectorService
 from features.pms_conector.pms_conector_service import cargar_config as cargar_config_pms
+from features.persistencia_sql.persistencia_sql_service import es_postgres
 from features.seguridad.seguridad_service import SeguridadService
 from features.seguridad.seguridad_service import cargar_config as cargar_config_seguridad
 
@@ -308,8 +309,10 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
         arm=arm, comisiones=comisiones, anfitriones=anfitriones, observabilidad=observabilidad,
     )
     # ADR-0021: la compuerta de inferencia se construye una sola vez con el entorno del proceso y se inyecta,
-    # con el tope diario atómico de observabilidad (C2): sin él la sala no responde.
-    inferencia = InferenciaService(env, cuota=observabilidad.cuota_inferencia())
+    # con el tope diario atómico de observabilidad (C2): sin él la sala no responde. En producción sin PostgreSQL
+    # la cuota sería por instancia (SQLite en memoria) y no es tope: se pasa None y la sala falla cerrada (r4).
+    sin_tope_compartido = config_app["aplicacion"]["entorno"] == "produccion" and not es_postgres(env.get("DATABASE_URL"))
+    inferencia = InferenciaService(env, cuota=None if sin_tope_compartido else observabilidad.cuota_inferencia())
     agente = AgenteService(
         _config(cargar_config_agente), seguridad=seguridad, herramientas=herramientas, conocimiento=conocimiento,
         canal=canal, observabilidad=observabilidad, inferencia=inferencia,
