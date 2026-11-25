@@ -1308,15 +1308,43 @@ propiedad = [
   "features/observabilidad/trazas_internal.py",
   "tests/observabilidad/test_o1_almacen_db_url.py",
   "tests/app_core/test_contenedor.py",
+  "tests/app_core/test_mcp_compose.py",
+  "tests/app_core/test_vendedores_app.py",
+  "tests/app_core/test_webhook_app.py",
+  "tests/app_core/test_worker_y_panel.py",
+  "tests/integracion/carga/test_carga_concurrente.py",
+  "tests/integracion/carga/test_sondeo_salud.py",
+  "tests/integracion/test_fase1.py",
+  "tests/integracion/test_fase3.py",
+  "tests/integracion/test_fase4.py",
+  "tests/integracion/test_fase5.py",
+  "tests/integracion/test_fase6.py",
+  "tests/integracion/test_fase7.py",
+  "tests/integracion/test_terminal_movil_despliegue.py",
+  "tests/test_interfaz_purificada.py",
 ]
 crea = ["tests/observabilidad/test_o1_almacen_db_url.py"]
 consume = ["persistencia_sql_service"]
-arbitro = "tests/observabilidad/test_o1_almacen_db_url.py (rojo del QA, 3 rojos); tests/app_core completo (test_inferencia_con_tope.py también importa ENTORNO_PRUEBA); arnés Exit Code 0"
+arbitro = "tests/observabilidad/test_o1_almacen_db_url.py (6 casos, A1 a A6 de la spec); tests/observabilidad, tests/app_core, tests/integracion y tests/test_interfaz_purificada.py sin DATABASE_URL; arnés Exit Code 0"
 
 [limites]
 "tests/app_core/test_contenedor.py" = "Solo la constante ENTORNO_PRUEBA pierde DATABASE_URL."
+"tests/app_core/test_mcp_compose.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_vendedores_app.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_webhook_app.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_worker_y_panel.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/carga/test_carga_concurrente.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/carga/test_sondeo_salud.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase1.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase3.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase4.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase5.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase6.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase7.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_terminal_movil_despliegue.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/test_interfaz_purificada.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
 ```
-Entregables: `AlmacenTrazas` abre la base con `config["db_url"]`, que `app_core` ya resuelve con el `env` inyectado, y deja de leer `os.environ`. **Primero en rojo:** demostrar que, con el arreglo aplicado y sin el ajuste de `ENTORNO_PRUEBA`, la suite `tests/app_core` falla; después, el ajuste del límite y la suite completa en verde. El verde corre `tests/app_core` completo, no solo `test_contenedor.py`: `tests/app_core/test_inferencia_con_tope.py` también importa `ENTORNO_PRUEBA`.
+Entregables: `AlmacenTrazas` abre la base con `config["db_url"]`, que `app_core` ya resuelve con el `env` inyectado, y deja de leer `os.environ`. **Primero en rojo:** demostrar que, con el arreglo aplicado y sin el ajuste de `ENTORNO_PRUEBA`, la suite `tests/app_core` falla; después, el ajuste del límite y la suite completa en verde. El verde corre `tests/observabilidad`, `tests/app_core`, `tests/integracion` y `tests/test_interfaz_purificada.py` sin `DATABASE_URL`: además de `ENTORNO_PRUEBA` (que también importa `tests/app_core/test_inferencia_con_tope.py`), otros 14 archivos arman su propio entorno con `"DATABASE_URL": "postgresql://prueba"` y, con el arreglo, intentarían conectar a un PostgreSQL inexistente (82 pruebas en rojo medidas por el Arquitecto). Esas pruebas usan SQLite en memoria: dejan de declarar PostgreSQL, y el almacén sigue fallando cerrado ante un PostgreSQL inalcanzable. Si al tomar T-414 alguna de T-111, T-211, T-311, T-410, T-411, T-511, T-810 o T-611 sigue sin sellar, T-414 rebasa su cambio de una línea sobre ella; quien llega después, carga.
 
 ### T-415 — Agente: los argumentos inválidos se devuelven al modelo, tokenizados (A8-bis, A5)
 `¤agente-enrutador`
