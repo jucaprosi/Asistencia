@@ -89,7 +89,9 @@ def evaluar_suite(nombre: str) -> tuple[str, int]:
             if not hasattr(AgenteService, "evaluar"):
                 return "OMITIDA (agente_service no expone evaluar)", 0
 
-            servicio = AgenteService(cargar_config_agente())
+            from features.seguridad.seguridad_service import SeguridadService
+
+            servicio = AgenteService(cargar_config_agente(), seguridad=SeguridadService())
             metricas = servicio.evaluar(archivo)
             aciertos = float(metricas.get("aciertos", 0.0))
             total = int(metricas.get("total", 0))

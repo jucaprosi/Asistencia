@@ -157,10 +157,14 @@ class ObservabilidadService:
                         AgenteService,
                         cargar_config as cargar_config_agente,
                     )
-                    servicio_agente = AgenteService(cargar_config_agente())
+                    from features.seguridad.seguridad_service import SeguridadService
+                    servicio_agente = AgenteService(
+                        cargar_config_agente(), seguridad=SeguridadService()
+                    )
                     resultados["enrutador"] = dict(servicio_agente.evaluar(archivo))
-                except Exception:
-                    pass
+                except Exception as exc:  # noqa: BLE001
+                    # Solo el tipo: el mensaje de la excepción podría traer datos.
+                    self.log("warning", "evaluacion_fallida", suite="enrutador", tipo=type(exc).__name__)
             elif s == "ventas":
                 try:
                     from features.arm_jarvis.arm_jarvis_service import (
