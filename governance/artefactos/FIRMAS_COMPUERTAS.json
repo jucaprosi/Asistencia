@@ -1105,6 +1105,17 @@
         "conversacion_id",
         "titular_hash"
       ],
+      "tokenizar_estructura": [
+        "self",
+        "valor",
+        "conversacion_id",
+        "titular_hash",
+        "campos_pii",
+        "campos_exentos"
+      ],
+      "estado": [
+        "self"
+      ],
       "rehidratar": [
         "self",
         "texto",

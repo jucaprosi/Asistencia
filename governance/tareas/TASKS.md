@@ -67,6 +67,10 @@
 | **Ola 13** | `T-901` (C1 — Fail-fast en montaje de panel operativo y CRM) | Calidad pasillo central (`app_core`) |
 | **Ola 14** | `T-902` (C2 — Profundizar pruebas de contrato dobles vs compuertas) | Contratos tipados y mutantes muertos |
 | **Ola 15** | `T-903` (C3 — Árbitro real de escritura conforme y casos sintéticos) | Verificación formal UTF-8, huellas e IP safety |
+| **Ola 16** (A) | `T-408` (H-1, `herramientas_glamping`) · `T-409` (I-1, `inferencia`) · `T-416` (`observabilidad`) | Anotaciones `x-pii` y espera ante 429 |
+| **Ola 17** (B) | `T-412` (P-1, pasillo) · `T-407` (A11 con A2, `agente`) · `T-413` (S-2, `seguridad`) · `T-414` (O-1, `observabilidad`) | Entorno de producción, salidas de herramientas tokenizadas y suite PII real |
+| **Ola 18** (C) | `T-415` (A8-bis, `agente`) · `T-507` (TL-2, `arm_jarvis`) · `G-2` (árbitro de especificaciones) · `S-3` (`seguridad`, secretos sin clave publicada) | Argumentos inválidos al modelo, ARM con inferencia y secretos con clave efímera |
+| **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) | Ensamblaje del ARM con inferencia |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -845,14 +849,14 @@ rol = "¤¤devops-engineer"
 requisitos = ["RNF-05", "RNF-06", "RNF-10", "INV_RED_AISLADA"]
 depende_de = ["T-401", "T-402", "T-403", "T-404", "T-405", "T-310"]
 bloqueada_por = []
-propiedad = ["tests/integracion/carga/**", ".github/**", "scripts/verificar_secretos.py"]
+propiedad = ["tests/integracion/carga/__init__.py", "tests/integracion/carga/test_aislamiento_red.py", "tests/integracion/carga/test_carga_concurrente.py", "tests/integracion/carga/test_sondeo_salud.py", ".github/workflows/ci.yml", ".github/workflows/health_probe.yml", "scripts/verificar_secretos.py"]
 consume = ["todas las compuertas"]
 arbitro = "prueba de carga (50 conversaciones, 200 msg/min) con RNF-01 dentro de umbral; prueba de conexión negativa desde agent-net; sondeo de salud; arnés Exit Code 0"
 entorno_arbitro = "carga_sintetica_local"
 fecha_arbitro = "2026-11-03"
 comando_arbitro = "pytest tests/integracion/carga/"
 ```
-Entregables: suite de carga en `tests/integracion/carga/`, pipeline en `.github/` con prueba de conexión negativa desde `agent-net`, sondeo externo de `/health` y alertas conectadas al canal del administrador. **Estado:** Pendiente de prueba de carga sobre infraestructura final en Cloud Run / Cloud SQL (validada en simulación local).
+Entregables: suite de carga en `tests/integracion/carga/`, pipeline en `.github/workflows/` con prueba de conexión negativa desde `agent-net`, sondeo externo de `/health` y alertas conectadas al canal del administrador. **Estado:** Pendiente de prueba de carga sobre infraestructura final en Cloud Run / Cloud SQL (validada en simulación local).
 
 ---
 
@@ -912,14 +916,14 @@ rol = "¤¤devops-engineer"
 requisitos = ["RNF-14", "RNF-15", "INV_RED_AISLADA", "INV_MISMO_COMPOSE", "S-08"]
 depende_de = ["T-601", "T-602", "T-603", "T-604", "T-410"]
 bloqueada_por = ["S-08"]
-propiedad = ["compose.production.yaml", "infra/backups/**", "tests/integracion/test_aislamiento_produccion.py"]
+propiedad = ["compose.production.yaml", "infra/backups/README.md", "infra/backups/backup.sh", "infra/backups/restaurar.sh", "tests/integracion/test_aislamiento_produccion.py"]
 consume = ["todas las compuertas"]
 arbitro = "stack levantado en el servidor propio con compose.production.yaml; tests/integracion/test_aislamiento_produccion.py verifica conexión negativa hacia servicios contables; restauración de backup documentada; arnés Exit Code 0"
 entorno_arbitro = "compose_local"
 fecha_arbitro = "2026-11-03"
 comando_arbitro = "pytest tests/integracion/test_aislamiento_produccion.py"
 ```
-Entregables: configuración productiva en `compose.production.yaml`, scripts de backup cifrado y restauración en `infra/backups/**`, y prueba de aislamiento de red contable en `tests/integracion/test_aislamiento_produccion.py`. **Estado:** Pendiente de despliegue en servidor productivo en Google Cloud Platform (ADR-0019); validada en compose local.
+Entregables: configuración productiva en `compose.production.yaml`, scripts de backup cifrado y restauración en `infra/backups/` (`backup.sh`, `restaurar.sh`, `README.md`), y prueba de aislamiento de red contable en `tests/integracion/test_aislamiento_produccion.py`. **Estado:** Pendiente de despliegue en servidor productivo en Google Cloud Platform (ADR-0019); validada en compose local.
 
 ### T-810 — Despliegue Cloud/HTTPS de la Terminal Móvil: proxy TLS, cabeceras `no-store` y claves VAPID Web Push
 `¤infra-hibrida`
@@ -933,14 +937,14 @@ rol = "¤¤devops-engineer"
 requisitos = ["RF-PAN-11", "RF-PAN-12", "INV_SIN_SECRETOS_EN_REPO"]
 depende_de = ["T-801", "T-310"]
 bloqueada_por = []
-propiedad = ["infra/proxy/**", "tests/integracion/test_terminal_movil_despliegue.py"]
+propiedad = ["infra/proxy/Caddyfile", "infra/proxy/README.md", "infra/proxy/nginx.conf", "infra/proxy/vapid.env.example", "tests/integracion/test_terminal_movil_despliegue.py"]
 consume = ["panel_operativo_service"]
 arbitro = "tests/integracion/test_terminal_movil_despliegue.py (HTTPS, manifiesto y cabecera no-store); arnés Exit Code 0"
 entorno_arbitro = "proxy_test_local"
 fecha_arbitro = "2026-11-03"
 comando_arbitro = "pytest tests/integracion/test_terminal_movil_despliegue.py"
 ```
-Entregables: configuración del proxy inverso en `infra/proxy/**` para servir manifiesto y service worker por HTTPS conservando `Cache-Control: no-store`, variables VAPID declaradas sin secretos en el repositorio y prueba en `tests/integracion/test_terminal_movil_despliegue.py`. **Estado:** Pendiente de verificación bajo dominio HTTPS y Web Push VAPID en producción (validada con servidor de pruebas local).
+Entregables: configuración del proxy inverso en `infra/proxy/` (`Caddyfile`, `nginx.conf`, `README.md`, `vapid.env.example`) para servir manifiesto y service worker por HTTPS conservando `Cache-Control: no-store`, variables VAPID declaradas sin secretos en el repositorio y prueba en `tests/integracion/test_terminal_movil_despliegue.py`. **Estado:** Pendiente de verificación bajo dominio HTTPS y Web Push VAPID en producción (validada con servidor de pruebas local).
 
 ---
 
@@ -979,12 +983,37 @@ rol = "¤¤frontend-developer"
 requisitos = ["RF-PAN-07 (extensión)", "TASK-008"]
 depende_de = ["T-801"]
 bloqueada_por = []
-propiedad = ["features/panel_operativo/**", "tests/panel_operativo/**", "tests/e2e/**", "docs/modulos/panel_operativo.md"]
+propiedad = [
+  "features/panel_operativo/bff_internal.py",
+  "features/panel_operativo/panel_operativo_service.py",
+  "features/panel_operativo/tipos.py",
+  "features/panel_operativo/config_panel_operativo.yaml",
+  "features/panel_operativo/ui/p13_inbox_huespedes.ts",
+  "features/panel_operativo/estaticos/app.js",
+  "features/panel_operativo/estaticos/styles.css",
+  "features/panel_operativo/ui/tests/bffSimulado.ts",
+  "features/panel_operativo/ui/tests/inbox/inbox.spec.ts",
+  "tests/panel_operativo/dobles.py",
+  "tests/panel_operativo/test_bff_inbox.py",
+  "tests/e2e/test_inbox_huespedes.py",
+  "docs/modulos/panel_operativo.md",
+]
+crea = ["features/panel_operativo/ui/tests/inbox/inbox.spec.ts", "tests/panel_operativo/test_bff_inbox.py"]
 consume = ["agente_service", "seguridad_service", "canal_whatsapp_service", "observabilidad_service"]
 arbitro = "tests/e2e/test_inbox_huespedes.py; arnés Exit Code 0"
 entorno_arbitro = "doble_testclient_fastapi"
 fecha_arbitro = "2026-11-03"
 comando_arbitro = "pytest tests/e2e/test_inbox_huespedes.py"
+
+# Archivos compartidos dentro de la propia sala (rutas exactas de UX/UI, 2026-11-25). No son pruebas de otra sala (R2):
+# el árbitro los admite como límite de alcance, no como permiso para tocar otra sala.
+[limites]
+"features/panel_operativo/estaticos/app.js" = "Solo el registro de la ruta y la navegación de P-13. No cambia el código de otras pantallas."
+"features/panel_operativo/estaticos/styles.css" = "Solo añade clases con el prefijo .inbox-. No cambia tokens ni clases que ya existen."
+"features/panel_operativo/ui/tests/bffSimulado.ts" = "Solo añade respuestas simuladas de los endpoints del inbox. No cambia las que ya existen."
+"tests/panel_operativo/dobles.py" = "Solo añade dobles para el inbox. No cambia los dobles que ya existen."
+"features/panel_operativo/config_panel_operativo.yaml" = "Solo la clave del disparador de volumen del ADR-0010. No toca otras claves."
+"docs/modulos/panel_operativo.md" = "Solo la sección de P-13."
 ```
 Entregables: vista de inbox completo de conversaciones de huéspedes si se activa el disparador de volumen definido en `ADR-0010`. **Estado:** Pendiente de validación e2e con navegador real (Playwright) y tráfico real de WhatsApp (validada con TestClient).
 
@@ -1062,6 +1091,315 @@ fecha_arbitro = "2026-11-22"
 comando_arbitro = "pytest tests/test_escritura_conforme.py"
 ```
 Entregables: prueba `tests/test_escritura_conforme.py` que audita UTF-8 sin BOM, ausencia de huellas abiertas e IP safety sobre el repositorio, casos de prueba sintéticos que fallan ante transgresiones, y actualización de `CLAUDE.md` para que los 7 árbitros ejecuten pruebas físicas y `check_arbitros_cliente.py` termine en Exit Code 0.
+
+---
+
+## Olas 16 a 19 — Plan v3: PII fuera del modelo, entorno de producción y ARM con inferencia
+
+> **Origen:** dictámenes del Arquitecto ADPA G.I. del 2026-11-25 (`TL1_TL5` con A1-A5, `TL1_TL5.v2`, `T406_y_olas.v3` y `practicas_ortogonalidad`). Las olas A, B y C del plan v3 son las olas 16, 17 y 18 de este archivo; la 19 recibe la parte de pasillo de TL-2 (`T-508`). Fichas escritas con R1 a R3: archivos exactos, `crea` para lo que no existe y `limites` para cada prueba de otra sala.
+>
+> **Tareas del plan sin ficha en este archivo:** TL-1 (PR #5), T-406 (PR #6), G-1 (PR #7) y T-406-b (PR #8) se hicieron sin ficha en este archivo y ya están fusionados en `main`; ninguna ficha de las olas 16 a 19 queda bloqueada por ellas.
+
+### T-408 — Herramientas MCP: anotaciones `x-pii` y `x-pii-exento` en los esquemas de salida (H-1)
+`¤herramientas-mcp` `¤seguridad-canal`
+```toml
+id = "T-408"
+ola = 16
+fase = 5
+estado = "pendiente"
+sala = "herramientas_glamping"
+rol = "¤¤backend-developer"
+requisitos = ["RF-SEC-05", "RF-AG-04", "INV_PII_FUERA_DEL_MODELO"]
+depende_de = ["T-504"]
+bloqueada_por = []
+propiedad = [
+  "features/herramientas_glamping/esquemas/actualizar_calendario.json",
+  "features/herramientas_glamping/esquemas/buscar_contacto_crm.json",
+  "features/herramientas_glamping/esquemas/consultar_comision_propia.json",
+  "features/herramientas_glamping/esquemas/consultar_disponibilidad.json",
+  "features/herramientas_glamping/esquemas/cotizar.json",
+  "features/herramientas_glamping/esquemas/crear_oportunidad_crm.json",
+  "features/herramientas_glamping/esquemas/crear_reserva_preliminar.json",
+  "features/herramientas_glamping/esquemas/obtener_instrucciones_checkin.json",
+  "features/herramientas_glamping/esquemas/registrar_venta.json",
+  "features/herramientas_glamping/esquemas/reportar_incidencia.json",
+  "features/herramientas_glamping/esquemas/reportar_resultado_estadia.json",
+  "features/herramientas_glamping/esquemas/responder_solicitud.json",
+  "features/herramientas_glamping/esquemas/solicitar_humano.json",
+  "features/herramientas_glamping/esquemas/solicitar_reserva.json",
+  "tests/herramientas_glamping/test_x_pii_esquemas.py",
+  "docs/modulos/herramientas_glamping.md",
+]
+crea = ["tests/herramientas_glamping/test_x_pii_esquemas.py"]
+consume = ["seguridad_service (semántica de x-pii, decisión A1)"]
+arbitro = "tests/herramientas_glamping/test_x_pii_esquemas.py; tests/herramientas_glamping/test_contratos.py; arnés Exit Code 0"
+```
+Entregables (decisión A1): la sala dueña del dato declara en el esquema de `salida` qué campos son PII. Un campo `x-pii` se tokeniza entero, sin detector; un campo `x-pii-exento` (por ejemplo `codigo_reserva`) solo queda exento si su esquema declara un `pattern`; todo campo de texto no declarado pasa por el detector. La prueba nueva recorre los catorce esquemas y falla si un `x-pii-exento` no trae `pattern` o si un campo con PII conocida (`contacto_emergencia`, `direccion`, nombres y teléfonos de contacto) queda sin anotar. `docs/modulos/herramientas_glamping.md` documenta la anotación. No toca el código de la sala: la compuerta ya expone `esquema_salida`.
+
+### T-409 — Inferencia: espera ante 429 de 1,0 s con jitter, `Retry-After` y solo si cabe en el plazo (I-1, A4)
+`¤inferencia`
+```toml
+id = "T-409"
+ola = 16
+fase = 5
+estado = "pendiente"
+sala = "inferencia"
+rol = "¤¤machine-learning-engineer"
+requisitos = ["RF-AG-05"]
+depende_de = ["TASK-000"]
+bloqueada_por = ["Enmienda 2 del ADR-0021, aceptada por el propietario"]
+propiedad = [
+  "features/inferencia/config_inferencia.yaml",
+  "features/inferencia/inferencia_service.py",
+  "tests/inferencia/test_paso4_adr0021.py",
+  "tests/inferencia/test_reintento_429.py",
+]
+crea = ["tests/inferencia/test_reintento_429.py"]
+consume = ["observabilidad_service (cuota_inferencia, ya inyectada)"]
+arbitro = "tests/inferencia/test_reintento_429.py; tests/inferencia/test_paso4_adr0021.py; arnés Exit Code 0"
+```
+Entregables (decisión A4): el reintento único ante 429 se mantiene (Decisión 6 del ADR-0021); cambia la espera. `espera_reintento_s: 1.0` con su jitter en `config_inferencia.yaml`; si el proveedor envía `Retry-After`, se respeta; el reintento solo ocurre si la espera cabe en el plazo restante y, si no cabe, falla cerrado con `InferenciaNoDisponible`. Pruebas nuevas en rojo primero. La Enmienda 2 del ADR-0021 no está en esta propiedad (`docs/adr/` es ruta del coordinador): la escribe el Arquitecto en un commit de gobernanza.
+
+### T-416 — Observabilidad: `run_evals` y la evaluación interna construyen `AgenteService` con `SeguridadService` real, y la suite `enrutador` no se omite en silencio
+`¤observabilidad` `¤seguridad-canal`
+```toml
+id = "T-416"
+ola = 16
+fase = 5
+estado = "pendiente"
+sala = "observabilidad"
+rol = "¤¤devops-engineer"
+requisitos = ["RF-OBS-03", "RF-SEC-05"]
+depende_de = ["T-402"]
+bloqueada_por = []
+propiedad = [
+  "features/observabilidad/observabilidad_service.py",
+  "scripts/run_evals.py",
+  "tests/observabilidad/test_t416_enrutador_con_seguridad.py",
+]
+crea = ["tests/observabilidad/test_t416_enrutador_con_seguridad.py"]
+consume = ["agente_service", "seguridad_service"]
+arbitro = "tests/observabilidad/test_t416_enrutador_con_seguridad.py; scripts/run_evals.py --suite enrutador; arnés Exit Code 0"
+```
+Entregables: `features/observabilidad/observabilidad_service.py` (evaluación de la suite `enrutador`) y `scripts/run_evals.py` dejan de construir `AgenteService(cargar_config_agente())` sin `seguridad`: lo construyen con un `SeguridadService` real, importado por su compuerta. Funciona hoy sin romper nada, porque el parámetro ya existe, y deja libre a `T-407` para exigirlo (A2). La prueba nueva fija que la suite `enrutador` no queda omitida en silencio: hoy la llamada de `observabilidad_service.py` está envuelta en `except Exception: pass`. No pone un doble por defecto en `AgenteService`.
+
+### T-412 — Pasillo central: con `K_SERVICE` se exige PostgreSQL, SQLite solo en beta o prueba, y producción rechaza la clave efímera (P-1)
+`¤pasillo-central`
+```toml
+id = "T-412"
+ola = 17
+fase = 5
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤solutions-architect"
+requisitos = ["RNF-16", "RNF-18"]
+depende_de = ["T-510", "T-901"]
+bloqueada_por = []
+propiedad = [
+  "app_core/contenedor.py",
+  "infra/gcp/cloudrun.yaml",
+  "infra/gcp/cloudbuild.yaml",
+  "tests/app_core/test_o1_entorno_cuota.py",
+  "docs/modulos/app_core.md",
+]
+crea = ["tests/app_core/test_o1_entorno_cuota.py"]
+consume = ["persistencia_sql_service (es_postgres)", "seguridad_service (estado().clave_efimera)", "observabilidad_service"]
+arbitro = "tests/app_core/test_o1_entorno_cuota.py (rojo del QA: 8 rojos y 6 guardas); arnés Exit Code 0"
+```
+Entregables (T1-a, O1 del QA): `K_SERVICE` manda: si está, `construir` exige PostgreSQL sea cual sea `APP_ENV`. Sin `K_SERVICE`, SQLite solo con `APP_ENV` en {beta, prueba}; cualquier otro valor, también uno desconocido, exige PostgreSQL. Un árbitro estático exige `APP_ENV=produccion` en `infra/gcp/cloudrun.yaml` y en el `run deploy` de `infra/gcp/cloudbuild.yaml`. En producción, `construir` rechaza `seguridad.estado().clave_efimera`. `tests/app_core/test_o1_entorno_cuota.py` define su propio entorno y **no importa** `ENTORNO_PRUEBA` de `tests/app_core/test_contenedor.py` (cada suite monta sus datos), porque `T-414` cambia esa constante en la misma ola. Es la única ficha de la ola 17 sobre `app_core/`; no reclama `tests/app_core/test_contenedor.py`, que es de `T-414`.
+
+### T-407 — Agente: tokenizar cada salida de herramienta con `tokenizar_estructura` y exigir `seguridad` (A11 con A2)
+`¤agente-enrutador` `¤seguridad-canal`
+```toml
+id = "T-407"
+ola = 17
+fase = 5
+estado = "pendiente"
+sala = "agente"
+rol = "¤¤machine-learning-engineer"
+requisitos = ["RF-AG-04", "RF-SEC-05", "INV_PII_FUERA_DEL_MODELO"]
+depende_de = ["T-403", "T-408", "T-416"]
+bloqueada_por = []
+propiedad = [
+  "features/agente/agente_service.py",
+  "features/agente/bucle_herramientas_internal.py",
+  "docs/modulos/agente.md",
+  "tests/agente/dobles.py",
+  "tests/agente/test_pii_salidas_herramientas.py",
+  "tests/agente/test_sin_doble_seguridad_en_servicios.py",
+  "tests/agente/test_allowlist_herramientas.py",
+  "tests/agente/test_bucle_herramientas.py",
+  "tests/agente/test_enrutador.py",
+  "tests/agente/test_enrutamiento_modelos.py",
+  "tests/agente/test_planificador.py",
+  "tests/agente/test_plazo_turno_adr0021.py",
+  "tests/test_contratos_compuertas_vs_dobles.py",
+]
+crea = ["tests/agente/dobles.py", "tests/agente/test_pii_salidas_herramientas.py", "tests/agente/test_sin_doble_seguridad_en_servicios.py"]
+consume = ["seguridad_service (tokenizar_estructura)", "herramientas_glamping_service (esquema_salida con x-pii)", "inferencia_service (solo en pruebas, con inyectar_cliente_de_prueba)", "observabilidad_service"]
+arbitro = "tests/agente/test_pii_salidas_herramientas.py; tests/agente/test_sin_doble_seguridad_en_servicios.py; tests/agente/test_bucle_herramientas.py; arnés Exit Code 0"
+
+[limites]
+"tests/test_contratos_compuertas_vs_dobles.py" = "Solo la construcción de AgenteService real: recibe un doble de seguridad explícito. No cambia ninguna aserción."
+```
+Entregables (A1 y A2): justo antes de anexar el resultado al historial, `bucle_herramientas_internal.py` pasa `resultado_h.salida` por `seguridad.tokenizar_estructura(...)` con las anotaciones `x-pii` y `x-pii-exento` del esquema de salida (`T-408`); si la tokenización falla, el turno se degrada y la salida nunca llega a `inferencia`. `AgenteService` exige `seguridad`, sin valor por defecto; `_DobleSeguridadNulo` sale de `agente_service.py` y se muda a `tests/agente/dobles.py`; las pruebas de la sala que dependían del valor por defecto pasan el doble de forma explícita. La prueba de estructura exige que ningún `*_service.py` instancie un doble de seguridad.
+
+### T-413 — Seguridad: la suite PII mide de verdad sobre `evals/pii.jsonl` (S-2, reabre T-401)
+`¤seguridad-canal`
+```toml
+id = "T-413"
+ola = 17
+fase = 5
+estado = "pendiente"
+sala = "seguridad"
+rol = "¤¤security-engineer"
+requisitos = ["RF-SEC-05", "RF-OBS-03"]
+depende_de = ["T-401"]
+bloqueada_por = []
+propiedad = [
+  "features/seguridad/seguridad_service.py",
+  "evals/pii.jsonl",
+  "tests/seguridad/test_evaluar_pii.py",
+  "docs/modulos/seguridad.md",
+]
+crea = ["tests/seguridad/test_evaluar_pii.py"]
+consume = ["observabilidad_service"]
+arbitro = "tests/seguridad/test_evaluar_pii.py; scripts/run_evals.py --suite pii sobre umbral medido; arnés Exit Code 0"
+```
+Entregables: `SeguridadService.evaluar_pii` deja de devolver constantes y mide sobre `evals/pii.jsonl` (200 casos sintéticos, RF-SEC-05 e): recall de 100 % en teléfono, correo, documento y tarjeta, y al menos 95 % en nombres y direcciones. La prueba nueva falla si el archivo está vacío o si la métrica no depende de los casos. El fallo honesto de `T-401` (suite PII sin medir) se cierra con esta ficha.
+
+### T-414 — Observabilidad: `AlmacenTrazas` abre con el `db_url` inyectado, sin `os.environ` (O-1, T1-b)
+`¤observabilidad`
+```toml
+id = "T-414"
+ola = 17
+fase = 5
+estado = "pendiente"
+sala = "observabilidad"
+rol = "¤¤devops-engineer"
+requisitos = ["RF-OBS-02", "RNF-16"]
+depende_de = ["T-402"]
+bloqueada_por = []
+propiedad = [
+  "features/observabilidad/trazas_internal.py",
+  "tests/observabilidad/test_o1_almacen_db_url.py",
+  "tests/app_core/test_contenedor.py",
+]
+crea = ["tests/observabilidad/test_o1_almacen_db_url.py"]
+consume = ["persistencia_sql_service"]
+arbitro = "tests/observabilidad/test_o1_almacen_db_url.py (rojo del QA, 3 rojos); tests/app_core completo (test_inferencia_con_tope.py también importa ENTORNO_PRUEBA); arnés Exit Code 0"
+
+[limites]
+"tests/app_core/test_contenedor.py" = "Solo la constante ENTORNO_PRUEBA pierde DATABASE_URL."
+```
+Entregables: `AlmacenTrazas` abre la base con `config["db_url"]`, que `app_core` ya resuelve con el `env` inyectado, y deja de leer `os.environ`. **Primero en rojo:** demostrar que, con el arreglo aplicado y sin el ajuste de `ENTORNO_PRUEBA`, la suite `tests/app_core` falla; después, el ajuste del límite y la suite completa en verde. El verde corre `tests/app_core` completo, no solo `test_contenedor.py`: `tests/app_core/test_inferencia_con_tope.py` también importa `ENTORNO_PRUEBA`.
+
+### T-415 — Agente: los argumentos inválidos se devuelven al modelo, tokenizados (A8-bis, A5)
+`¤agente-enrutador`
+```toml
+id = "T-415"
+ola = 18
+fase = 5
+estado = "pendiente"
+sala = "agente"
+rol = "¤¤machine-learning-engineer"
+requisitos = ["RF-AG-04", "RF-SEC-05"]
+depende_de = ["T-407"]
+bloqueada_por = []
+propiedad = [
+  "features/agente/bucle_herramientas_internal.py",
+  "tests/agente/test_argumentos_invalidos.py",
+  "docs/modulos/agente.md",
+]
+crea = ["tests/agente/test_argumentos_invalidos.py"]
+consume = ["seguridad_service (tokenizar_estructura)", "herramientas_glamping_service", "observabilidad_service"]
+arbitro = "tests/agente/test_argumentos_invalidos.py; tests/agente/test_bucle_herramientas.py; arnés Exit Code 0"
+```
+Entregables: si los argumentos de una llamada no validan (`EntradaInvalida`), el bucle devuelve al modelo un error tipado para que corrija la llamada, dentro del tope de iteraciones, en lugar de degradar el turno a `herramienta_caida`. El mensaje de error pasa por `tokenizar_estructura` antes de volver al modelo, porque puede repetir argumentos con PII (A5).
+
+### T-507 — ARM «Jarvis»: extracción de ventas con el modelo a través de la compuerta `inferencia` (TL-2, sala)
+`¤arm-jarvis` `¤inferencia`
+```toml
+id = "T-507"
+ola = 18
+fase = 6
+estado = "pendiente"
+sala = "arm_jarvis"
+rol = "¤¤backend-developer"
+requisitos = ["RF-ARM-02", "RF-SEC-05"]
+depende_de = ["T-602", "T-407", "T-409"]
+bloqueada_por = ["diseño con el Arquitecto: falla cerrada de inferencia y salida estructurada"]
+propiedad = [
+  "features/arm_jarvis/arm_jarvis_service.py",
+  "features/arm_jarvis/extractor_internal.py",
+  "features/arm_jarvis/config_arm_jarvis.yaml",
+  "tests/arm_jarvis/test_extraccion_inferencia.py",
+  "docs/modulos/arm_jarvis.md",
+]
+crea = ["tests/arm_jarvis/test_extraccion_inferencia.py"]
+consume = ["inferencia_service", "seguridad_service (tokenizar_estructura)", "comisiones_service", "crm_conector_service", "canal_whatsapp_service", "observabilidad_service"]
+arbitro = "tests/arm_jarvis/test_extraccion_inferencia.py (extracción correcta, inferencia falla cerrada, salida inválida no crea venta, reserva y conciliación de cuota); tests/test_interfaz_purificada.py; arnés Exit Code 0"
+```
+Entregables: `ArmJarvisService(..., inferencia=None)` acepta la compuerta como parámetro opcional (la firma solo crece); `extractor_internal.py` extrae de texto (nunca imágenes, Decisión 12 del ADR-0021) con prompts y esquema propios del ARM, y lo que envía a `inferencia` va tokenizado por `seguridad`. Las pruebas inyectan `inferencia` con `inyectar_cliente_de_prueba()`. No toca `app_core/`: la inyección en `app_core/contenedor.py` es de `T-508`, en la ola 19.
+
+### G-2 — Gobernanza: árbitro de especificaciones de ficha (`docs/spec/tareas/<id>.md`, reglas E1-E7)
+`¤spec-glamping` `¤tareas-glamping`
+```toml
+id = "G-2"
+ola = 18
+fase = 9
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤qa-engineer"
+requisitos = []
+depende_de = ["TASK-000"]
+bloqueada_por = []
+propiedad = ["scripts/verificar_especificaciones.py", "tests/test_verificar_especificaciones.py"]
+crea = ["scripts/verificar_especificaciones.py", "tests/test_verificar_especificaciones.py"]
+consume = []
+arbitro = "tests/test_verificar_especificaciones.py"
+```
+Entregables: según `2026-11-25_spec_G-2.md` del QA. Las especificaciones de `docs/spec/tareas/` no están en esta propiedad: las escribe el Arquitecto en su propio PR.
+
+### S-3 — Seguridad: `secretos_internal.py` sin `CLAVE_DEFECTO_BOVEDA`, con aviso de clave efímera y `InvalidTag` como marcador neutro
+`¤seguridad-canal`
+```toml
+id = "S-3"
+ola = 18
+fase = 5
+estado = "pendiente"
+sala = "seguridad"
+rol = "¤¤security-engineer"
+requisitos = ["RF-PRIV-04", "INV_SIN_SECRETOS_EN_REPO"]
+depende_de = ["T-401"]
+bloqueada_por = []
+propiedad = ["features/seguridad/secretos_internal.py", "tests/seguridad/test_s3_secretos_clave_efimera.py"]
+crea = ["tests/seguridad/test_s3_secretos_clave_efimera.py"]
+consume = ["observabilidad_service"]
+arbitro = "tests/seguridad/test_s3_secretos_clave_efimera.py"
+```
+Entregables: `secretos_internal.py` deja de importar `CLAVE_DEFECTO_BOVEDA`; reporta cuando usa la clave efímera; ante `InvalidTag` actúa como T-406-b (C2): devuelve el marcador neutro y registra un aviso sin PII, en lugar de lanzar. Va en la ola 18 porque la 17 ya tiene cuatro fichas; es disjunta de `T-413` (S-2).
+
+### T-508 — Pasillo central: `app_core` inyecta `inferencia` en `ArmJarvisService` (TL-2, pasillo)
+`¤pasillo-central` `¤arm-jarvis`
+```toml
+id = "T-508"
+ola = 19
+fase = 6
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤solutions-architect"
+requisitos = ["RF-ARM-02"]
+depende_de = ["T-507", "T-412"]
+bloqueada_por = []
+propiedad = ["app_core/contenedor.py"]
+consume = ["arm_jarvis_service", "inferencia_service"]
+arbitro = "tests/app_core (suite completa); tests/arm_jarvis/test_extraccion_inferencia.py; arnés Exit Code 0"
+
+[limites]
+"app_core/contenedor.py" = "Solo pasa inferencia= a ArmJarvisService."
+```
+Entregables: `construir` pasa a `ArmJarvisService` la misma instancia de `InferenciaService` que ya recibe el agente. Es la única ficha de la ola 19 y la única sobre `app_core/`.
 
 ---
 
