@@ -75,6 +75,14 @@ Respuesta de CTO Evydentia (2026-11-23). Es **criterio técnico de cumplimiento,
 
 Hasta que este ADR pase a Aceptado, ningún mensaje de huéspedes reales se envía a Vertex.
 
+## Avance 2026-11-25: aviso aprobado y derivación
+- El propietario aprobó el texto del aviso al titular en su **variante informativa**, validada por CTO Evydentia. El texto y sus reglas están en la Enmienda 3 del [ADR-0021](ADR-0021-inferencia-gemini-vertex.md). Cubre el punto 1 de la decisión del 2026-11-23 (aviso, art. 12). El contenido mínimo que el cuerpo no trae lo da la página del enlace.
+- La alternativa humana (punto 4) se concreta así: con la palabra PERSONA (y sus equivalentes) el caso pasa a una persona sin llamar al modelo.
+- **[DECISIÓN PENDIENTE]**, a cargo del abogado del propietario: si hace falta **consentimiento expreso**. Si hace falta, se usa la variante con consentimiento de la Enmienda 3 del ADR-0021.
+- **[DECISIÓN PENDIENTE]**, a cargo del propietario: el **nombre jurídico del responsable** que va en la página del enlace.
+- **[DECISIÓN PENDIENTE]:** verificar las **reglas de bots de Meta** antes de publicar.
+- **El estado no cambia.** Mientras estos tres puntos y los pendientes del abogado (arts. 34, 55 y 59 y la retención en Vertex) sigan abiertos, ningún mensaje de huéspedes reales se envía a Vertex.
+
 ## Decisión
 Aceptado en lo funcional: ver la decisión del propietario del 2026-11-23 más arriba. Solo queda pendiente lo legal (artículos 34, 55 y 59 y la retención en Vertex), que condiciona el tráfico real.
 

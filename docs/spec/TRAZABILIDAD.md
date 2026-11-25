@@ -10,14 +10,14 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-GW-03 | T-101 | checkin.feature: Fuera de la ventana de 24 horas<br>plataforma.feature: Texto libre fuera de ventana |
 | RF-GW-04 | T-101 | plataforma.feature: Plantilla con variables incorrectas o sin aprobar |
 | RF-GW-05 | T-101 | plataforma.feature: Medio recibido |
-| RF-GW-06 | T-503, T-510 | plataforma.feature: Canales separados |
+| RF-GW-06 | T-503, T-510, T-509 | plataforma.feature: Canales separados |
 | RF-GW-07 | T-101 | ingesta_mensajes.feature: Un mensaje válido queda persistido antes de responder a Meta<br>ingesta_mensajes.feature: Un reintento de Meta no duplica el mensaje<br>ingesta_mensajes.feature: Una caída del proceso no pierde el mensaje |
 | RF-GW-08 | T-101 | ingesta_mensajes.feature: Los mensajes seguidos de un remitente se atienden como un solo turno |
 | RF-AG-01 | T-301 | conocimiento.feature: Propiedad ambigua |
 | RF-AG-02 | T-104 | plataforma.feature: Prompt por propiedad |
 | RF-AG-03 | T-301 | plataforma.feature: Herramientas expuestas por rol |
 | RF-AG-04 | T-104, T-408, T-407, T-415 | plataforma.feature: Tope de iteraciones |
-| RF-AG-05 | T-104, T-409, T-417, T-420, T-702 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
+| RF-AG-05 | T-104, T-409, T-417, T-420, T-702, T-421, T-509 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
 | RF-AG-06 | T-104 | plataforma.feature: Memoria tras un reinicio |
 | RF-AG-07 | T-403 | plataforma.feature: Caché semántico |
 | RF-AG-08 | T-301 | plataforma.feature: El planificador se reinicia |
@@ -55,15 +55,15 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-COM-02 | T-501 | comisiones.feature: Cierre de período<br>comisiones.feature: Venta tardía<br>comisiones.feature: Venta tardía con escalón |
 | RF-COM-03 | T-603 | plataforma.feature: Exportación del período |
 | RF-COM-04 | T-501 | comisiones.feature: Anular una venta no toca a las demás<br>ventas.feature: Anular una venta publicada |
-| RF-SEC-01 | T-102 | seguridad.feature: Un número nuevo puede preguntar como huésped potencial<br>seguridad.feature: Un número bloqueado se ignora<br>seguridad.feature: Pasar a huésped activo |
+| RF-SEC-01 | T-102, T-509 | seguridad.feature: Un número nuevo puede preguntar como huésped potencial<br>seguridad.feature: Un número bloqueado se ignora<br>seguridad.feature: Pasar a huésped activo |
 | RF-SEC-02 | T-102 | seguridad.feature: Pasar a huésped activo<br>seguridad.feature: El modelo pide una herramienta prohibida |
 | RF-SEC-03 | T-102 | seguridad.feature: Límite por remitente |
 | RF-SEC-04 | T-102, T-401 | seguridad.feature: Intento de inyección |
-| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507, T-419 | privacidad.feature: Nada de PII hacia el modelo |
+| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507, T-422, T-419 | privacidad.feature: Nada de PII hacia el modelo |
 | RF-SEC-06 | T-102 | plataforma.feature: Audit log inalterable |
 | RF-SEC-07 | T-304 | plataforma.feature: Aislamiento por propiedad en la base |
 | RF-SEC-08 | T-304 | checkin.feature: Un código de reserva ajeno no abre las instrucciones<br>checkin.feature: Los secretos operativos no pasan por el modelo |
-| RF-PRIV-01 | T-102 | privacidad.feature: Aviso en el primer contacto |
+| RF-PRIV-01 | T-102, T-422, T-509 | privacidad.feature: Aviso en el primer contacto |
 | RF-PRIV-02 | T-102 | plataforma.feature: Inventario completo |
 | RF-PRIV-03 | T-401 | privacidad.feature: Retención automática |
 | RF-PRIV-04 | T-401, S-3 | privacidad.feature: Eliminación por criptoborrado |
@@ -78,7 +78,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-MCP-03 | T-203 | reservas.feature: Reserva preliminar<br>reservas.feature: Reintento idempotente |
 | RF-MCP-04 | T-203 | checkin.feature: Instrucciones de la propiedad correcta<br>checkin.feature: Un código de reserva ajeno no abre las instrucciones |
 | RF-MCP-05 | T-203 | incidencias_handoff.feature: Registro de incidencia<br>incidencias_handoff.feature: Incidencia crítica |
-| RF-MCP-06 | T-203, T-302 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: Cancelar o cambiar una reserva pasa por una persona |
+| RF-MCP-06 | T-203, T-302, T-421 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: Cancelar o cambiar una reserva pasa por una persona |
 | RF-MCP-07 | T-203 | plataforma.feature: Herramientas internas de CRM |
 | RF-MCP-08 | T-504 | plataforma.feature: El vendedor no se declara en la entrada |
 | RF-MCP-09 | T-504 | plataforma.feature: Consulta sin período |
