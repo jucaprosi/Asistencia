@@ -1,15 +1,16 @@
 # ¤agente-enrutador
 # ¤¤machine-learning-engineer
 # © 2026 Juan Carlos Proaño. Todos los derechos reservados.
-"""Cliente de modelo con timeout configurable, conteo de tokens y estimación de costos (RF-AG-05)."""
+"""Adaptador del turno al modelo (RF-AG-05, ADR-0021).
+
+El transporte, la lista blanca, la región, los precios y el tope diario son de la sala ``inferencia``.
+Aquí solo se traduce el historial neutro del bucle a la petición de la compuerta, se pasa el plazo y se
+mapean errores. Sin compuerta inyectada no hay respuesta (falla cerrada): ``app_core`` es quien la inyecta.
+"""
 from __future__ import annotations
 
-import concurrent.futures
 import json
-import os
-import time
-from decimal import Decimal
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 from features.agente.tipos import (
     DefinicionHerramienta,
@@ -18,29 +19,18 @@ from features.agente.tipos import (
     RespuestaModelo,
     TimeoutModelo,
 )
+from features.inferencia.inferencia_service import (
+    EsquemaHerramienta,
+    InferenciaNoDisponible,
+    MensajeNeutro,
+    PeticionInferencia,
+    ResultadoNeutro,
+    TiempoAgotado,
+)
 
 __all__ = ["ClienteModelo", "DobleClienteModelo", "estimar_tokens"]
 
-
-# ¤agente-enrutador
-def _resolver_valor_config(valor: Any, defecto: str = "") -> str:
-    if not isinstance(valor, str):
-        return defecto
-    if valor.startswith("${") and ":-" in valor and valor.endswith("}"):
-        var_name, default_val = valor[2:-1].split(":-", 1)
-        return os.environ.get(var_name, default_val)
-    return valor
-
-# Costos por 1M tokens en USD (entrada, salida). Gemini: tarifa estándar de pago de
-# ai.google.dev/gemini-api/docs/pricing (consulta 2026-11-04); para gemini-3.8-flash se usa la
-# tarifa vigente desde 2027-01-01, más alta que la promocional, para no subestimar RNF-16.
-PRECIOS_POR_MILLON = {
-    "gemini-3.8-flash": (Decimal("1.50"), Decimal("7.50")),
-    "gemini-3.5-flash-lite": (Decimal("0.30"), Decimal("2.50")),
-    "claude-opus-5-5": (Decimal("15.00"), Decimal("75.00")),
-    "claude-haiku-5-5": (Decimal("0.80"), Decimal("4.00")),
-}
-PRECIO_DEFECTO = (Decimal("3.00"), Decimal("15.00"))
+PERFIL_DEFECTO = "principal"
 
 
 # ¤agente-enrutador
@@ -52,27 +42,44 @@ def estimar_tokens(texto: str) -> int:
 
 
 # ¤agente-enrutador
+def _a_neutros(mensajes: Sequence[Mapping[str, Any]]) -> tuple[MensajeNeutro, ...]:
+    """Historial del bucle → turnos neutros; los resultados de herramientas consecutivos van juntos."""
+    neutros: list[MensajeNeutro] = []
+    pendientes: list[ResultadoNeutro] = []
+
+    def volcar() -> None:
+        if pendientes:
+            neutros.append(MensajeNeutro("resultados", resultados=tuple(pendientes)))
+            pendientes.clear()
+
+    for m in mensajes:
+        rol = m.get("role")
+        if rol == "tool":
+            try:
+                contenido = json.loads(m.get("content") or "{}")
+            except (TypeError, ValueError):
+                contenido = {"resultado": m.get("content")}
+            if not isinstance(contenido, dict):
+                contenido = {"resultado": contenido}
+            pendientes.append(ResultadoNeutro(str(m.get("id", "")), str(m.get("name", "")), contenido))
+            continue
+        volcar()
+        if rol == "assistant":
+            neutros.append(MensajeNeutro("modelo", str(m.get("content", "")), contexto_turno=m.get("contexto_turno")))
+        else:
+            neutros.append(MensajeNeutro("usuario", str(m.get("content", ""))))
+    volcar()
+    return tuple(neutros)
+
+
+# ¤agente-enrutador
 class ClienteModelo:
-    """Cliente para interactuar con el modelo de lenguaje con timeout y telemetría de tokens."""
+    """Adaptador de un turno: presupuesto de tiempo y mapeo a ``RespuestaModelo``."""
 
-    def __init__(
-        self,
-        config: Mapping[str, Any],
-        observabilidad: Any = None,
-        llamador: Callable[..., RespuestaModelo] | None = None,
-    ) -> None:
-        self._config = config
+    def __init__(self, config: Mapping[str, Any], observabilidad: Any = None, inferencia: Any = None) -> None:
         self._observabilidad = observabilidad
-        self._timeout_s = float(config.get("timeout_modelo_s", 30))
-        self._modelo = _resolver_valor_config(config.get("modelos", {}).get("principal"), "claude-opus-5-5")
-        self._llamador = llamador
-
-    # ¤agente-enrutador
-    def calcular_costo(self, tokens_in: int, tokens_out: int, modelo: str) -> Decimal:
-        precio_in, precio_out = PRECIOS_POR_MILLON.get(modelo, PRECIO_DEFECTO)
-        costo_in = (Decimal(tokens_in) / Decimal("1000000")) * precio_in
-        costo_out = (Decimal(tokens_out) / Decimal("1000000")) * precio_out
-        return (costo_in + costo_out).quantize(Decimal("0.000001"))
+        self._timeout_s = float(config.get("timeout_modelo_s", 45))
+        self._inferencia = inferencia
 
     # ¤agente-enrutador
     def generar(
@@ -81,52 +88,37 @@ class ClienteModelo:
         system_prompt: str,
         herramientas: Sequence[DefinicionHerramienta] = (),
         modelo: str | None = None,
+        plazo_s: float | None = None,
     ) -> RespuestaModelo:
-        """Invoca al modelo asegurando timeout de 30s y telemetría de tokens."""
-        modelo_activo = modelo or self._modelo
-        tokens_in = estimar_tokens(system_prompt)
-        for m in mensajes:
-            tokens_in += estimar_tokens(str(m.get("content", "")))
-        for h in herramientas:
-            tokens_in += estimar_tokens(h.nombre + h.descripcion + json.dumps(dict(h.esquema_entrada)))
-
-        def _invocacion() -> RespuestaModelo:
-            if self._llamador is not None:
-                return self._llamador(mensajes, system_prompt, herramientas)
-            # Simulación por defecto si no hay backend activo en Clean-Room
-            texto_default = "Entendido, soy el asistente virtual del glamping. ¿En qué puedo ayudarte?"
-            return RespuestaModelo(
-                texto=texto_default,
-                llamadas_herramientas=(),
-                tokens_in=tokens_in,
-                tokens_out=estimar_tokens(texto_default),
-                costo_usd=self.calcular_costo(tokens_in, estimar_tokens(texto_default), modelo_activo),
-                modelo=modelo_activo,
-            )
-
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            futuro = executor.submit(_invocacion)
-            try:
-                respuesta = futuro.result(timeout=self._timeout_s)
-                # Asegurar tokens y costo si el llamador no los calculó
-                t_in = respuesta.tokens_in or tokens_in
-                t_out = respuesta.tokens_out or estimar_tokens(respuesta.texto)
-                mod_resp = respuesta.modelo or modelo_activo
-                costo = respuesta.costo_usd or self.calcular_costo(t_in, t_out, mod_resp)
-                return RespuestaModelo(
-                    texto=respuesta.texto,
-                    llamadas_herramientas=respuesta.llamadas_herramientas,
-                    tokens_in=t_in,
-                    tokens_out=t_out,
-                    costo_usd=costo,
-                    modelo=mod_resp,
-                )
-            except concurrent.futures.TimeoutError as exc:
-                raise TimeoutModelo(self._timeout_s, detalle_tecnico=f"Llamada al modelo superó {self._timeout_s}s") from exc
-            except TimeoutModelo:
-                raise
-            except Exception as exc:
-                raise ModeloNoDisponible(detalle_tecnico=str(exc)) from exc
+        """``modelo`` es el perfil enrutado (``principal`` o ``economico``), nunca un nombre de modelo."""
+        if self._inferencia is None:
+            raise ModeloNoDisponible(detalle_tecnico="sin compuerta de inferencia inyectada")
+        peticion = PeticionInferencia(
+            system=system_prompt,
+            mensajes=_a_neutros(mensajes),
+            perfil=modelo or PERFIL_DEFECTO,  # type: ignore[arg-type]
+            plazo_s=self._timeout_s if plazo_s is None else plazo_s,
+            herramientas=tuple(
+                EsquemaHerramienta(h.nombre, h.descripcion, dict(h.esquema_entrada)) for h in herramientas
+            ),
+        )
+        try:
+            respuesta = self._inferencia.generar(peticion)
+        except TiempoAgotado as exc:
+            raise TimeoutModelo(peticion.plazo_s, detalle_tecnico=str(exc)) from exc
+        except InferenciaNoDisponible as exc:
+            raise ModeloNoDisponible(detalle_tecnico=str(exc)) from exc
+        return RespuestaModelo(
+            texto=respuesta.texto,
+            llamadas_herramientas=tuple(
+                LlamadaHerramienta(id=l.id, nombre=l.nombre, argumentos=dict(l.argumentos)) for l in respuesta.llamadas
+            ),
+            tokens_in=respuesta.uso.entrada,
+            tokens_out=respuesta.uso.salida,
+            costo_usd=respuesta.uso.costo_usd,
+            modelo=respuesta.modelo,
+            contexto_turno=dict(respuesta.contexto_turno),
+        )
 
 
 # ¤agente-enrutador
@@ -136,10 +128,11 @@ class DobleClienteModelo(ClienteModelo):
     def __init__(
         self,
         respuestas_programadas: Sequence[RespuestaModelo | Exception] | None = None,
-        timeout_s: float = 30.0,
-        modelo: str = "claude-opus-5-5",
+        timeout_s: float = 45.0,
+        modelo: str = PERFIL_DEFECTO,
     ) -> None:
-        super().__init__(config={"timeout_modelo_s": timeout_s, "modelos": {"principal": modelo}})
+        super().__init__(config={"timeout_modelo_s": timeout_s})
+        self._modelo = modelo
         self._cola: list[RespuestaModelo | Exception] = list(respuestas_programadas or [])
         self.llamadas: list[dict[str, Any]] = []
 
@@ -158,6 +151,7 @@ class DobleClienteModelo(ClienteModelo):
         system_prompt: str,
         herramientas: Sequence[DefinicionHerramienta] = (),
         modelo: str | None = None,
+        plazo_s: float | None = None,
     ) -> RespuestaModelo:
         modelo_activo = modelo or self._modelo
         self.llamadas.append({
@@ -168,14 +162,10 @@ class DobleClienteModelo(ClienteModelo):
         })
         if not self._cola:
             texto = "Respuesta por defecto del doble de pruebas."
-            t_in = estimar_tokens(system_prompt)
-            t_out = estimar_tokens(texto)
             return RespuestaModelo(
                 texto=texto,
-                llamadas_herramientas=(),
-                tokens_in=t_in,
-                tokens_out=t_out,
-                costo_usd=self.calcular_costo(t_in, t_out, modelo_activo),
+                tokens_in=estimar_tokens(system_prompt),
+                tokens_out=estimar_tokens(texto),
                 modelo=modelo_activo,
             )
         siguiente = self._cola.pop(0)

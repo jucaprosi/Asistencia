@@ -89,6 +89,7 @@ class RespuestaModelo:
     tokens_out: int = 0
     costo_usd: Decimal = Decimal("0")
     modelo: str = ""
+    contexto_turno: Mapping[str, Any] = field(default_factory=dict)
 
 
 # ¤agente-enrutador

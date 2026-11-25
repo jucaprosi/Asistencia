@@ -8,7 +8,7 @@ import json
 import threading
 import time
 from decimal import Decimal
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 from features.agente.cliente_modelo_internal import ClienteModelo
 from features.agente.tipos import (
@@ -41,8 +41,12 @@ class BucleHerramientas:
         cliente_modelo: ClienteModelo,
         herramientas_service: Any,
         observabilidad: Any,
+        reloj: Callable[[], float] = time.monotonic,
     ) -> None:
         self._config = config
+        self._reloj = reloj
+        # ADR-0021, C1: un solo presupuesto de tiempo para todo el turno, no uno por vuelta.
+        self._plazo_turno_s = float(config.get("timeout_modelo_s", 45))
         self._cliente_modelo = cliente_modelo
         self._herramientas_service = herramientas_service
         self._observabilidad = observabilidad
@@ -76,17 +80,22 @@ class BucleHerramientas:
         costo_total = Decimal("0")
         ultimo_modelo = modelo or ""
         hubo_acuse = [False]
+        fin_turno = self._reloj() + self._plazo_turno_s
 
         while iteracion < self._tope_iteraciones:
             iteracion += 1
 
-            # Invocación al modelo de lenguaje
+            # Invocación al modelo de lenguaje con lo que queda del plazo del turno
             try:
+                restante = fin_turno - self._reloj()
+                if restante <= 0:
+                    raise TimeoutModelo(self._plazo_turno_s, detalle_tecnico="plazo_del_turno_agotado")
                 resp_modelo = self._cliente_modelo.generar(
                     mensajes=mensajes,
                     system_prompt=system_prompt,
                     herramientas=herramientas_disponibles,
                     modelo=modelo,
+                    plazo_s=restante,
                 )
             except TimeoutModelo as exc:
                 self._observabilidad.log(
@@ -98,7 +107,7 @@ class BucleHerramientas:
                 )
                 return self._generar_degradacion(
                     motivo="timeout_modelo",
-                    detalle="El modelo tardó más de 30 segundos en responder.",
+                    detalle="El modelo superó el tiempo máximo de respuesta.",
                     propiedad_id=propiedad_id,
                     herramientas_usadas=herramientas_usadas,
                     tokens_in=total_tokens_in,
@@ -108,10 +117,12 @@ class BucleHerramientas:
                     acuse_emitido=hubo_acuse[0],
                 )
             except Exception as exc:
+                causa = exc.__cause__ or exc
                 self._observabilidad.log(
                     "ERROR",
                     "modelo_no_disponible",
-                    motivo=str(exc),
+                    motivo=getattr(exc, "detalle_tecnico", None) or str(exc),
+                    tipo_error=type(causa).__name__,
                     traza_id=traza_id,
                     conversacion_id=conversacion_id,
                 )
@@ -146,7 +157,9 @@ class BucleHerramientas:
                 )
 
             # Agregar respuesta del asistente a la conversación antes de los resultados de herramientas
-            mensajes.append({"role": "assistant", "content": resp_modelo.texto})
+            mensajes.append({
+                "role": "assistant", "content": resp_modelo.texto, "contexto_turno": resp_modelo.contexto_turno,
+            })
 
             # Ejecución de herramientas invocadas
             for llamada in resp_modelo.llamadas_herramientas:
@@ -264,6 +277,7 @@ class BucleHerramientas:
                 # Inyectar resultado de herramienta al historial para la siguiente iteración
                 mensajes.append({
                     "role": "tool",
+                    "id": llamada.id,
                     "name": nombre_h,
                     "content": json.dumps(dict(resultado_h.salida)),
                 })

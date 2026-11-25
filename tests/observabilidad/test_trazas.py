@@ -13,7 +13,7 @@ import pytest
 
 from features.observabilidad.observabilidad_service import ObservabilidadService, cargar_config
 from features.observabilidad.tipos import TrazaDesconocida
-from features.observabilidad.trazas_internal import AlmacenTrazas, GestorTrazas, calcular_costo_tokens
+from features.observabilidad.trazas_internal import AlmacenTrazas, GestorTrazas
 
 
 # ¤observabilidad
@@ -41,9 +41,10 @@ def test_traza_por_mensaje_con_spans_tokens_y_costo() -> None:
         traza_id,
         "agente",
         "llamada_modelo",
-        modelo="claude-opus-5-5",
+        modelo="gemini-3.8-flash",
         tokens_in=1200,
         tokens_out=350,
+        costo_usd=Decimal("0.004425"),  # lo calcula inferencia (ADR-0021, C5); aquí solo se guarda
     ):
         time.sleep(0.010)
 
@@ -59,12 +60,11 @@ def test_traza_por_mensaje_con_spans_tokens_y_costo() -> None:
 
     # Verificar span de agente con cálculo de tokens y costo
     span_agente = [s for s in traza_cerrada.spans if s.sala == "agente"][0]
-    assert span_agente.modelo == "claude-opus-5-5"
+    assert span_agente.modelo == "gemini-3.8-flash"
     assert span_agente.tokens_in == 1200
     assert span_agente.tokens_out == 350
     assert span_agente.costo_usd is not None
-    # 1200 * 15 / 1M = 0.018 ; 350 * 75 / 1M = 0.02625 -> total = 0.044250
-    assert span_agente.costo_usd == Decimal("0.044250")
+    assert span_agente.costo_usd == Decimal("0.004425")
     assert span_agente.duracion_ms >= 5
 
 
@@ -89,9 +89,10 @@ def test_traza_sintetica_con_tres_spans_se_persiste_y_se_recupera() -> None:
             tid,
             "agente",
             "bucle_tool_use",
-            modelo="claude-haiku-5-5",
+            modelo="gemini-3.5-flash-lite",
             tokens_in=500,
             tokens_out=150,
+            costo_usd=Decimal("0.000525"),
         ):
             time.sleep(0.002)
 
@@ -116,31 +117,12 @@ def test_traza_sintetica_con_tres_spans_se_persiste_y_se_recupera() -> None:
         assert salas_spans == ["seguridad", "agente", "herramientas_glamping"]
 
         span_modelo = [s for s in traza_recuperada.spans if s.sala == "agente"][0]
-        assert span_modelo.modelo == "claude-haiku-5-5"
+        assert span_modelo.modelo == "gemini-3.5-flash-lite"
         assert span_modelo.tokens_in == 500
         assert span_modelo.tokens_out == 150
-        # Haiku: 500 * 0.80 / 1M = 0.0004 ; 150 * 4.00 / 1M = 0.0006 -> 0.001000 USD
-        assert span_modelo.costo_usd == Decimal("0.001000")
+        assert span_modelo.costo_usd == Decimal("0.000525")
 
         almacen_recuperado.cerrar()
-
-
-# ¤observabilidad
-def test_calculo_costo_tokens_recalibrado() -> None:
-    """Verifica el cálculo de tokens y costo según modelo y tabla configurable."""
-    # Modelo Opus por defecto
-    costo_opus = calcular_costo_tokens("claude-opus-5-5", 1000000, 1000000)
-    assert costo_opus == Decimal("90.000000")  # 15 + 75
-
-    # Modelo Haiku por defecto
-    costo_haiku = calcular_costo_tokens("claude-haiku-5-5", 1000000, 1000000)
-    assert costo_haiku == Decimal("4.800000")  # 0.80 + 4.00
-
-    # Tabla recalibrada personalizada
-    tabla_custom = {"modelo-propio": {"in": 2.0, "out": 10.0}}
-    costo_custom = calcular_costo_tokens("modelo-propio", 500000, 200000, tabla_custom)
-    # 500000 * 2 / 1M = 1.0 ; 200000 * 10 / 1M = 2.0 -> 3.000000
-    assert costo_custom == Decimal("3.000000")
 
 
 # ¤observabilidad
@@ -151,7 +133,7 @@ def test_metricas_op_calculables_directamente_de_trazas() -> None:
 
     # 1. Traza sin herramientas (para OP-01)
     t1 = servicio.iniciar_traza("m1", "c1", canal="huespedes")
-    with servicio.span(t1, "agente", "respuesta_directa", modelo="claude-haiku-5-5", tokens_in=200, tokens_out=100):
+    with servicio.span(t1, "agente", "respuesta_directa", modelo="gemini-3.5-flash-lite", tokens_in=200, tokens_out=100):
         time.sleep(0.005)
     servicio.cerrar_traza(t1, resultado="resuelta")
 

@@ -12,7 +12,7 @@
 | Tareas | TASK-001 (02, 04, 05, 06), TASK-004 (01, 03), TASK-005 (07), T-903 (ADR-0019) |
 
 ## Propósito
-Atender conversaciones de huéspedes: resolver la propiedad, componer el prompt del glamping/propiedad aislando datos sintéticos, exponer solo las herramientas del rol, ejecutar el bucle de *tool use* con Google Gemini (`gemini-3.8-flash` y `gemini-3.5-flash-lite` vía Vertex AI, o Claude como alternativa interoperable) con tope de 6 iteraciones, mantener memoria persistida de los últimos 30 mensajes (24 horas) redactada de PII y degradar de forma explícita ante caídas de servicios externos o del modelo. El ARM tiene su propio cliente de modelo (DPD): esta sala no lo atiende.
+Atender conversaciones de huéspedes: resolver la propiedad, componer el prompt del glamping/propiedad aislando datos sintéticos, exponer solo las herramientas del rol, ejecutar el bucle de *tool use* con Google Gemini (`gemini-3.8-flash` y `gemini-3.5-flash-lite` vía Vertex AI, a través de la compuerta de la sala `inferencia`; ADR-0021) con tope de 6 iteraciones, mantener memoria persistida de los últimos 30 mensajes (24 horas) redactada de PII y degradar de forma explícita ante caídas de servicios externos o del modelo. El ARM consume el modelo por la misma compuerta `inferencia_service.py`, no por esta sala: compuerta de inferencia inyectada por `app_core` (ADR-0021).
 
 ## Tipos del dominio (`tipos.py`)
 

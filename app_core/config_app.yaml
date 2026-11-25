@@ -26,6 +26,7 @@ salas:
   - canal_whatsapp
   - arm_jarvis
   - herramientas_glamping
+  - inferencia
   - agente
   - panel_operativo
   - web_huespedes
@@ -34,7 +35,7 @@ salas:
 egreso_permitido:
   # Destinos de red salientes autorizados (RNF-10). El arnés de despliegue lo verifica.
   - graph.facebook.com
-  - api.anthropic.com
+  - aiplatform.us.rep.googleapis.com   # Vertex AI multirregión us (ADR-0021)
   - ${POSTGRES_HOST:-postgres-beta}
   - ${S3_ENDPOINT:-s3.local}
   - ${PMS_HOST:-pms.local}

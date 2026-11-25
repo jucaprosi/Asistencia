@@ -1,17 +1,7 @@
 # ¤agente-enrutador
 # © 2026 Juan Carlos Proaño. Todos los derechos reservados.
-proveedor: ${PROVEEDOR_LLM:-google}
-modelos:
-  principal: ${MODELO_PRINCIPAL:-claude-opus-5-5}
-  economico: ${MODELO_ECONOMICO:-claude-haiku-5-5}
-  gemini_principal: ${MODELO_GEMINI_PRINCIPAL:-gemini-3.8-flash}
-  gemini_economico: ${MODELO_GEMINI_ECONOMICO:-gemini-3.5-flash-lite}
-clave_api: ${GEMINI_API_KEY:-${ANTHROPIC_API_KEY:-}}
-gcp:
-  project_id: ${GCP_PROJECT_ID:-glamping-imbabura}
-  location: ${GCP_LOCATION:-us-central1}
 tope_iteraciones: 6
-timeout_modelo_s: 30
+timeout_modelo_s: 45
 acuse_si_tarda_s: 3
 memoria:
   mensajes: 30

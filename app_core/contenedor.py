@@ -29,6 +29,7 @@ from features.conocimiento.conocimiento_service import cargar_config as cargar_c
 from features.crm_conector.crm_conector_service import CRMConectorService
 from features.crm_conector.crm_conector_service import cargar_config as cargar_config_crm
 from features.herramientas_glamping.herramientas_glamping_service import HerramientasGlampingService
+from features.inferencia.inferencia_service import InferenciaService
 from features.herramientas_glamping.herramientas_glamping_service import cargar_config as cargar_config_herramientas
 from features.observabilidad.observabilidad_service import ObservabilidadService
 from features.observabilidad.observabilidad_service import cargar_config as cargar_config_observabilidad
@@ -67,6 +68,7 @@ class Contenedor:
     canal: CanalWhatsappService
     arm: ArmJarvisService
     herramientas: HerramientasGlampingService
+    inferencia: InferenciaService
     agente: AgenteService
     panel: PanelOperativoService
     web: WebHuespedesService
@@ -305,9 +307,12 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
         _config(cargar_config_herramientas), seguridad=seguridad, pms=pms, conocimiento=conocimiento, crm=crm,
         arm=arm, comisiones=comisiones, anfitriones=anfitriones, observabilidad=observabilidad,
     )
+    # ADR-0021: la compuerta de inferencia se construye una sola vez con el entorno del proceso y se inyecta,
+    # con el tope diario atómico de observabilidad (C2): sin él la sala no responde.
+    inferencia = InferenciaService(env, cuota=observabilidad.cuota_inferencia())
     agente = AgenteService(
         _config(cargar_config_agente), seguridad=seguridad, herramientas=herramientas, conocimiento=conocimiento,
-        canal=canal, observabilidad=observabilidad,
+        canal=canal, observabilidad=observabilidad, inferencia=inferencia,
     )
     panel = PanelOperativoService(
         _config(cargar_config_panel), seguridad=seguridad, arm=arm, comisiones=comisiones, agente=agente,
@@ -319,7 +324,7 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
 
     return Contenedor(
         config_app=config_app, observabilidad=observabilidad, seguridad=seguridad, conocimiento=conocimiento,
-        pms=pms, crm=crm, comisiones=comisiones, canal=canal, arm=arm, herramientas=herramientas, agente=agente,
+        pms=pms, crm=crm, comisiones=comisiones, canal=canal, arm=arm, herramientas=herramientas, inferencia=inferencia, agente=agente,
         panel=panel,
         web=WebHuespedesService(_config(cargar_config_web), pms=pms, observabilidad=observabilidad),
         anfitriones=anfitriones,

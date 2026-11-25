@@ -78,7 +78,7 @@ def verificar_egreso() -> tuple[int, str]:
         return 1, "egreso_permitido debe ser una lista no vacía en config_app.yaml"
 
     tiene_pms = any("PMS" in item or "pms" in item for item in egreso)
-    tiene_embeddings = any("anthropic" in item or "embedding" in item for item in egreso)
+    tiene_embeddings = any("aiplatform" in item or "embedding" in item for item in egreso)
     if not tiene_pms:
         return 1, "La lista de egreso no incluye el PMS"
     if not tiene_embeddings:

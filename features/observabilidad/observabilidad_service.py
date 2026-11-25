@@ -6,12 +6,14 @@ from __future__ import annotations
 
 from contextlib import AbstractContextManager
 from datetime import datetime, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Mapping
 
 import yaml
 
 from features.observabilidad.alertas_internal import DetectorAlertas
+from features.observabilidad.cuota_internal import CuotaDiaria
 from features.observabilidad.logs_internal import LoggerObservabilidad
 from features.observabilidad.metricas_internal import calcular_metricas_prd
 from features.observabilidad.tipos import (
@@ -63,6 +65,16 @@ class ObservabilidadService:
         self._gestor_trazas = gestor_trazas or GestorTrazas(config)
         self._logger = logger or LoggerObservabilidad(config)
         self._detector_alertas = detector_alertas or DetectorAlertas(config)
+        self._cuotas: list[CuotaDiaria] = []
+
+    # ¤observabilidad
+    def cuota_inferencia(self, tope_usd: Decimal | None = None) -> CuotaDiaria:
+        """Tope diario atómico para la sala inferencia (ADR-0021, C2). Por defecto, ``alertas.costo_diario_usd``."""
+        if tope_usd is None:
+            tope_usd = Decimal(str(self._config["alertas"]["costo_diario_usd"]))
+        cuota = CuotaDiaria(self._gestor_trazas.conexion_cuota, tope_usd)
+        self._cuotas.append(cuota)  # r3: sus conciliaciones fallidas llegan a alertas_activas
+        return cuota
 
     # ¤observabilidad
     def iniciar_traza(self, mensaje_id: str | None, conversacion_id: str | None, canal: str = "huespedes") -> str:
@@ -198,4 +210,6 @@ class ObservabilidadService:
             ahora = datetime.now(timezone.utc)
             trazas_hoy = [t for t in trazas if t.inicio.date() == ahora.date()]
             datos["costo_diario_usd"] = sum(float(s.costo_usd or 0) for t in trazas_hoy for s in t.spans)
+        if "conciliaciones_fallidas" not in datos and self._cuotas:
+            datos["conciliaciones_fallidas"] = sum(c.conciliaciones_fallidas for c in self._cuotas)
         return self._detector_alertas.verificar_todas(fuente_datos=datos)

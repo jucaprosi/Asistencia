@@ -190,7 +190,7 @@ def test_conjunto_completo_op_01_a_10_desde_servicio() -> None:
     t1 = servicio.iniciar_traza("m1", "c1", canal="huespedes")
     with servicio.span(t1, "seguridad", "filtrar_entrada"):
         pass
-    with servicio.span(t1, "agente", "respuesta", modelo="claude-haiku-5-5", tokens_in=500, tokens_out=100):
+    with servicio.span(t1, "agente", "respuesta", modelo="gemini-3.5-flash-lite", tokens_in=500, tokens_out=100):
         pass
     servicio.cerrar_traza(t1, resultado="resuelta")
 

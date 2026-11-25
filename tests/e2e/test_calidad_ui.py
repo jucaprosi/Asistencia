@@ -52,6 +52,28 @@ def test_interfaz_purificada_detecta_violaciones_negativas() -> None:
         assert "proveedor prohibido" in textos
 
 
+def test_interfaz_purificada_ignora_artefactos_del_arnes_ui(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Los artefactos que genera Playwright en ui/ no son interfaz: el árbitro no los juzga.
+
+    El informe HTML de Playwright trae su propio código («Meta» en atajos de teclado) y tumbaba el
+    árbitro tras un ``npx playwright test`` con CI=true. El código fuente de ui/ sí se sigue juzgando.
+    """
+    import features.panel_operativo.panel_operativo_service as servicio
+
+    ui = tmp_path / "ui"
+    for carpeta in ("playwright-report", "test-results", "node_modules", "blob-report"):
+        (ui / carpeta).mkdir(parents=True)
+        (ui / carpeta / "index.html").write_text("<kbd>Meta</kbd> + K\n", encoding="utf-8")
+    (ui / "p99_prueba.ts").write_text("export const t = 'Conectado a OpenAI';\n", encoding="utf-8")
+    build = tmp_path / "estaticos"
+    build.mkdir()
+    monkeypatch.setattr(servicio, "RUTA_UI", ui)
+
+    violaciones = comprobar_interfaz_purificada(build)
+
+    assert violaciones == ["p99_prueba.ts:1 menciona proveedor prohibido 'OpenAI'"]
+
+
 def test_accesibilidad_wcag_21_aa_movil_primero() -> None:
     """RF-PAN-10: Verificación de accesibilidad WCAG 2.1 AA y viewport móvil primero (360 px)."""
     index_html = RUTA_ESTATICOS / "index.html"
