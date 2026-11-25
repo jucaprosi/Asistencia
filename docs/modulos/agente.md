@@ -23,6 +23,8 @@ class ContextoConversacion: conversacion_id: str; identidad_token: str; rol: str
 @dataclass(frozen=True)
 class Respuesta: texto: str; botones: tuple[tuple[str, str], ...]; lista: tuple[tuple[str, str], ...]; herramientas_usadas: tuple[str, ...]; chunks_citados: tuple[str, ...]; modelo: str; tokens_in: int; tokens_out: int; costo_usd: Decimal; degradada: bool
 @dataclass(frozen=True)
+class EstadoAsistente: disponible: bool; motivo: str; desde: datetime | None; derivadas: int   # T-417: motivo es un código ("" si disponible), nunca texto de cara al usuario
+@dataclass(frozen=True)
 class ResolucionPropiedad: propiedad_id: str | None; metodo: Literal["codigo_reserva", "nombre", "direccion", "contexto", "pregunta"]; candidatas: tuple[str, ...]
 @dataclass(frozen=True)
 class LlamadaHerramienta: id: str; nombre: str; argumentos: Mapping[str, Any]
@@ -51,7 +53,14 @@ class AgenteService:
     def reanudar(self, conversacion_id: str) -> None: ...
     def enviar_checkins_del_dia(self, fecha: date) -> int: ...                                 # tarea programada (US-03)
     def contexto(self, conversacion_id: str) -> ContextoConversacion: ...                     # RF-AG-06
+    def estado_asistente(self) -> EstadoAsistente: ...                                         # RF-AG-05, T-417: estado para el panel
 ```
+
+**`estado_asistente` (T-417).** Barato y sin efectos: solo consulta `inferencia.estado()` y un estado privado en proceso (cada instancia de Cloud Run cuenta lo suyo; el agregado entre instancias requeriría persistencia y queda fuera de alcance).
+- **R1/R2.** `disponible` es `True` solo con una inferencia inyectada cuyo `estado().disponible` es `True`. El `motivo` es un código: `sin_inferencia` sin compuerta, `estado_inferencia_ilegible` si `estado()` lanza (no propaga) y, en los demás casos, el `motivo` de `EstadoInferencia`.
+- **R3.** `desde` (UTC, reloj `_ahora()` del módulo) se abre al observar la indisponibilidad por primera vez, no cambia mientras dure y vuelve a `None` con `derivadas = 0` en la transición a disponible, que es el único punto de reinicio.
+- **R4.** `atender` consulta la inferencia por sí mismo y suma 1 a `derivadas` cuando entrega una respuesta `degradada` con texto mientras el agente está indisponible. El silencio por handoff (texto vacío) y la degradación con el agente disponible no suman.
+- **Aviso.** `disponible` refleja solo la configuración: con la cuota agotada o el proveedor caído sigue `True` y el agente responde degradado. La pausa dinámica es de T-420; hasta entonces el panel no puede presentarlo como garantía.
 
 ## Configuración (`config_agente.yaml`)
 `modelos {principal: ${MODELO_PRINCIPAL}, economico: ${MODELO_ECONOMICO}}`, `clave_api: ${ANTHROPIC_API_KEY}`, `tope_iteraciones: 6`, `timeout_modelo_s: 30`, `memoria {mensajes: 30, horas: 24}`, `prompts {enrutador: docs/prompts/system-prompt-enrutador.md, glamping: ..., departamentos: ...}`, `propiedades {glamping: {...}, departamento_centro: {...}}`, `escalamiento {contacto_humano_defecto, nombre_gestor_defecto}`.

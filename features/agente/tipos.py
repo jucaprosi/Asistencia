@@ -46,6 +46,17 @@ class Respuesta:
 
 # ¤agente-enrutador
 @dataclass(frozen=True)
+class EstadoAsistente:
+    """Estado del asistente para el equipo (RF-AG-05). `motivo` es un código estable, nunca texto de cara al usuario."""
+
+    disponible: bool
+    motivo: str
+    desde: datetime | None
+    derivadas: int
+
+
+# ¤agente-enrutador
+@dataclass(frozen=True)
 class ResolucionPropiedad:
     propiedad_id: str | None
     metodo: Literal["codigo_reserva", "nombre", "direccion", "contexto", "pregunta"]
