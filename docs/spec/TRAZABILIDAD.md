@@ -16,8 +16,8 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-AG-01 | T-301 | conocimiento.feature: Propiedad ambigua |
 | RF-AG-02 | T-104 | plataforma.feature: Prompt por propiedad |
 | RF-AG-03 | T-301 | plataforma.feature: Herramientas expuestas por rol |
-| RF-AG-04 | T-104 | plataforma.feature: Tope de iteraciones |
-| RF-AG-05 | T-104 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
+| RF-AG-04 | T-104, T-408, T-407, T-415 | plataforma.feature: Tope de iteraciones |
+| RF-AG-05 | T-104, T-409 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
 | RF-AG-06 | T-104 | plataforma.feature: Memoria tras un reinicio |
 | RF-AG-07 | T-403 | plataforma.feature: Caché semántico |
 | RF-AG-08 | T-301 | plataforma.feature: El planificador se reinicia |
@@ -42,7 +42,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-CRM-05 | T-601, T-310 | plataforma.feature: Confinamiento de MCP de comunidad |
 | RF-CRM-06 | T-302 | incidencias_handoff.feature: Handoff al gestor de la zona<br>incidencias_handoff.feature: Handoff sin zona resuelta<br>incidencias_handoff.feature: Nadie toma el handoff<br>incidencias_handoff.feature: La atención queda abandonada |
 | RF-ARM-01 | T-502 | ventas.feature: Remitente no registrado en el canal de vendedores |
-| RF-ARM-02 | T-502 | ventas.feature: Venta completa<br>ventas.feature: Falta un campo obligatorio<br>ventas.feature: No es una venta |
+| RF-ARM-02 | T-502, T-507, T-508 | ventas.feature: Venta completa<br>ventas.feature: Falta un campo obligatorio<br>ventas.feature: No es una venta |
 | RF-ARM-03 | T-502 | plataforma.feature: Transición inválida<br>ventas.feature: Validar una venta<br>ventas.feature: Rechazar una venta<br>ventas.feature: Una venta validada no se edita |
 | RF-ARM-04 | T-502 | plataforma.feature: Validaciones concurrentes del mismo vendedor |
 | RF-ARM-05 | T-502 | plataforma.feature: Tickets bajo concurrencia<br>ventas.feature: Venta completa |
@@ -59,19 +59,19 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-SEC-02 | T-102 | seguridad.feature: Pasar a huésped activo<br>seguridad.feature: El modelo pide una herramienta prohibida |
 | RF-SEC-03 | T-102 | seguridad.feature: Límite por remitente |
 | RF-SEC-04 | T-102, T-401 | seguridad.feature: Intento de inyección |
-| RF-SEC-05 | T-102 | privacidad.feature: Nada de PII hacia el modelo |
+| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507 | privacidad.feature: Nada de PII hacia el modelo |
 | RF-SEC-06 | T-102 | plataforma.feature: Audit log inalterable |
 | RF-SEC-07 | T-304 | plataforma.feature: Aislamiento por propiedad en la base |
 | RF-SEC-08 | T-304 | checkin.feature: Un código de reserva ajeno no abre las instrucciones<br>checkin.feature: Los secretos operativos no pasan por el modelo |
 | RF-PRIV-01 | T-102 | privacidad.feature: Aviso en el primer contacto |
 | RF-PRIV-02 | T-102 | plataforma.feature: Inventario completo |
 | RF-PRIV-03 | T-401 | privacidad.feature: Retención automática |
-| RF-PRIV-04 | T-401 | privacidad.feature: Eliminación por criptoborrado |
+| RF-PRIV-04 | T-401, S-3 | privacidad.feature: Eliminación por criptoborrado |
 | RF-PRIV-05 | T-401 | privacidad.feature: Conservación por obligación legal |
 | RF-PRIV-06 | T-401 | plataforma.feature: Inventario completo |
 | RF-OBS-01 | T-103 | plataforma.feature: Logs sin datos personales |
-| RF-OBS-02 | T-103 | plataforma.feature: Traza por mensaje |
-| RF-OBS-03 | T-402 | plataforma.feature: Evaluación bajo umbral |
+| RF-OBS-02 | T-103, T-414 | plataforma.feature: Traza por mensaje |
+| RF-OBS-03 | T-402, T-416, T-413 | plataforma.feature: Evaluación bajo umbral |
 | RF-OBS-04 | T-402 | plataforma.feature: Alertas |
 | RF-MCP-01 | T-203 | reservas.feature: Consulta con disponibilidad<br>reservas.feature: Consulta sin disponibilidad |
 | RF-MCP-02 | T-203 | reservas.feature: Consulta con disponibilidad |
@@ -125,9 +125,9 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RNF-13 | T-402, T-411 | por árbitro de la tabla del PRD |
 | RNF-14 | T-110, T-210, T-610 | por árbitro de la tabla del PRD |
 | RNF-15 | T-610 | por árbitro de la tabla del PRD |
-| RNF-16 | T-403 | por árbitro de la tabla del PRD |
+| RNF-16 | T-403, T-412, T-414 | por árbitro de la tabla del PRD |
 | RNF-17 | T-401 | por árbitro de la tabla del PRD |
-| RNF-18 | T-102 | por árbitro de la tabla del PRD |
+| RNF-18 | T-102, T-412 | por árbitro de la tabla del PRD |
 | RNF-19 | T-110 | por árbitro de la tabla del PRD |
 | US-01 | T-211 | reservas.feature: Consulta con disponibilidad<br>reservas.feature: Consulta sin disponibilidad<br>reservas.feature: El PMS no responde |
 | US-02 | T-211 | reservas.feature: Reserva preliminar<br>reservas.feature: Reintento idempotente<br>reservas.feature: Una reserva preliminar sin pago expira<br>reservas.feature: Cancelar o cambiar una reserva pasa por una persona |

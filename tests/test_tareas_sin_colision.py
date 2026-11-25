@@ -52,7 +52,7 @@ def _es_conftest(ruta: str) -> bool:
     return ruta == "conftest.py" or ruta.endswith("/conftest.py")
 # Deuda de R1 medida en origin/main 077ab65: fichas pendientes escritas con comodines antes de la regla. Solo puede
 # achicarse; el commit de gobernanza (R3) que las reescribe con rutas exactas vacía esta lista.
-DEUDA_R1 = frozenset({"T-410", "T-610", "T-701", "T-810"})
+DEUDA_R1: frozenset[str] = frozenset()
 
 
 def _tareas() -> list[dict]:
