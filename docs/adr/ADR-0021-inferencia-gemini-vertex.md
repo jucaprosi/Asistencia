@@ -124,6 +124,38 @@ Propuesta del Arquitecto ADPA (decisión A4), aceptada por el propietario el 202
 - Los valores viven en `features/inferencia/config_inferencia.yaml`. 400, 403 y 404 siguen sin reintentarse.
 - Árbitro: `tests/inferencia/test_reintento_429.py` (T-409).
 
+## Enmienda 3 (2026-11-25): aviso del primer mensaje y derivación a una persona
+Decisión del propietario del 2026-11-25, con la validación de CTO Evydentia. Concreta la Decisión 12 y la Decisión 10.
+
+**Aviso del primer mensaje.** Lo envía el sistema antes de que el primer mensaje del huésped llegue al modelo, una vez por huésped. Este es el texto aprobado, en su variante informativa:
+
+> Hola, gracias por escribirnos. Soy Andrés, el asistente virtual de Glamping Imbabura. Te respondo al momento sobre disponibilidad, precios, cómo llegar y tu reserva. Para hacerlo, tus mensajes se procesan con un servicio de inteligencia artificial en servidores ubicados en {{1}}. Quién es responsable de tus datos, cómo los cuidamos y cómo ejercer tus derechos: {{2}}. ¿En qué te puedo ayudar hoy? Si en algún momento prefieres a una persona de nuestro equipo, escribe PERSONA.
+
+- **`{{1}}` es el país.** `app_core` lo lee de `inferencia.estado().pais`, que sale de `UBICACION_POR_REGION`. Si no hay país, no se envía el aviso, ningún mensaje llega al modelo y el caso pasa a una persona (falla cerrada).
+- **`{{2}}` es el enlace de privacidad.** Viene de la configuración de `seguridad` y empieza por `https://`. Si falta o no empieza así, también se falla cerrado.
+- **El dueño es la sala `seguridad`**, que da el texto, la versión y el hash. `seguridad` no importa `inferencia`: el país se lo pasa `app_core`. El texto reemplaza al aviso provisional, que citaba una ruta interna del repositorio.
+- **Es un mensaje de sesión, no una plantilla de Meta.** El huésped escribe primero, así que el aviso sale dentro de la ventana de 24 h. Si algún día hiciera falta enviarlo fuera de la ventana, se necesitaría una plantilla aprobada.
+- **Lo que delega en `{{2}}`.** El cuerpo no nombra al destinatario (Google, como encargado), ni el plazo, ni la base, ni los derechos en detalle. La página del enlace tiene que traer todo el contenido mínimo de la Decisión 12. Ni el aviso ni la página califican la transferencia como «adecuada», «conforme» ni «garantiza».
+- **Interfaz purificada.** Ni el texto ni las variables ya sustituidas, salvo `{{2}}`, contienen nombres de proveedor ni marcadores internos.
+
+**Derivación a una persona.**
+- **Palabras clave:** PERSONA, persona, humano y agente, sin distinguir mayúsculas, tildes ni espacios. Cuentan solo si son **el mensaje completo** después de normalizarlo. Así «¿cuánto cuesta por persona?» no deriva. El caso pasa a una persona sin llamar al modelo.
+- **Malentendidos y frustración:** si Andrés no entiende dos veces seguidas, o detecta frustración, ofrece él la salida: «¿Prefieres que te atienda una persona? Escribe PERSONA». Es una regla del prompt de cada propiedad, y su árbitro son evaluaciones, no pruebas unitarias.
+- **Sin manipulación:** no se piden confirmaciones antes de derivar, no se exagera la espera de una persona y la salida no se manda a un menú ni al enlace.
+
+**[DECISIÓN PENDIENTE]**
+1. **Consentimiento.** Si hace falta consentimiento expreso lo decide el abogado del propietario. El texto de la variante con consentimiento está en `briefs\2026-11-25_textos_ux_vertex_lopdp.md`, junto con sus reglas: nada llega al modelo hasta que el huésped responda SÍ, cualquier otra respuesta repite la pregunta una vez y después deriva, y quien no acepta sigue atendido por una persona. No se implementa hasta que el abogado decida.
+2. **Nombre jurídico del responsable,** para la página de `{{2}}`.
+3. **Reglas de bots de Meta:** hay que verificarlas en su documentación antes de publicar.
+
+**El tráfico real sigue bloqueado por el ADR-0012** mientras estos tres puntos y los pendientes legales del ADR-0012 sigan abiertos.
+
+- **Fichas:**
+  - T-422, `seguridad`: el aviso, con texto, versión y hash;
+  - T-421, `agente`: las palabras clave y la regla del prompt;
+  - T-509, pasillo: el lazo del huésped, que envía el aviso y la respuesta.
+- Árbitro: `tests/seguridad/test_aviso_primer_mensaje.py`, `tests/agente/test_derivacion_persona.py` y `tests/app_core/test_lazo_huesped.py`.
+
 ---
 
 © 2026 Juan Carlos Proaño. Todos los derechos reservados.

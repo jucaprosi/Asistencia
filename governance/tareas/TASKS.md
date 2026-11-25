@@ -71,7 +71,8 @@
 | **Ola 17** (B) | `T-412` (P-1, pasillo) · `T-407` (A11 con A2, `agente`) · `T-413` (S-2, `seguridad`) · `T-414` (O-1, `observabilidad`) | Entorno de producción, salidas de herramientas tokenizadas y suite PII real |
 | **Ola 18** (C) | `T-415` (A8-bis, `agente`) · `T-507` (TL-2, `arm_jarvis`) · `G-2` (árbitro de especificaciones) · `S-3` (`seguridad`, secretos sin clave publicada) | Argumentos inválidos al modelo, ARM con inferencia y secretos con clave efímera |
 | **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) · `T-420` (`agente`, pausa dinámica) · `T-418` (`web_huespedes`, contraste de `--aviso`) · `T-419` (`herramientas_glamping`, `incidencia_id` acotado) | Ensamblaje del ARM con inferencia, pausa dinámica del asistente, contraste AA e `incidencia_id` sin forma de teléfono |
-| **Ola 20** | `T-702` (`panel_operativo`, estado del asistente) | Estado del asistente en el panel, con la pausa dinámica |
+| **Ola 20** | `T-702` (`panel_operativo`, estado del asistente) · `T-421` (`agente`, derivación a una persona) · `T-422` (`seguridad`, aviso LOPDP) | Estado del asistente en el panel, con la pausa dinámica; aviso LOPDP y derivación |
+| **Ola 21** | `T-509` (pasillo: lazo del huésped con aviso) | Filtro de entrada, aviso y respuesta enviada al huésped |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1526,6 +1527,121 @@ arbitro = "tests/panel_operativo/test_bff_estado_asistente.py; features/panel_op
 "docs/modulos/panel_operativo.md" = "Solo las secciones de P-02, P-08 y de salud del sistema (P-11)."
 ```
 Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). Si P-08 lo toma de `GET /inicio` o del endpoint de handoffs lo decide la especificación. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. La pausa muestra su causa (`motivo`) y no presenta "disponible" como garantía de cuota ni de proveedor activos. Los textos de cara al equipo son del UX/UI.
+
+### T-421 — Agente: la derivación a una persona (PERSONA, persona, humano y agente) y la oferta en los prompts
+`¤agente-enrutador` `¤seguridad-canal`
+```toml
+id = "T-421"
+ola = 20
+fase = 5
+estado = "pendiente"
+sala = "agente"
+rol = "¤¤machine-learning-engineer"
+requisitos = ["RF-AG-05", "RF-MCP-06"]
+depende_de = ["T-420"]
+bloqueada_por = []
+propiedad = [
+  "features/agente/derivacion_internal.py",
+  "features/agente/agente_service.py",
+  "docs/prompts/system-prompt-glamping.md",
+  "docs/prompts/system-prompt-hospedaje.md",
+  "docs/prompts/system-prompt-departamentos.md",
+  "docs/modulos/agente.md",
+  "tests/agente/test_derivacion_persona.py",
+]
+crea = ["features/agente/derivacion_internal.py", "tests/agente/test_derivacion_persona.py"]
+consume = ["herramientas_glamping_service (solicitar_humano)"]
+arbitro = "tests/agente/test_derivacion_persona.py; tests/agente/test_estado_asistente.py; tests/test_firmas_compuertas.py; arnés Exit Code 0"
+
+# agente_service.py ya lo tocaron T-417 (ola 16), T-407 (ola 17), T-415 (ola 18) y T-420 (ola 19).
+[limites]
+"features/agente/agente_service.py" = "Solo el método derivar_a_persona y la comprobación de la palabra clave en atender, entre el silencio y la tokenización."
+"docs/prompts/system-prompt-glamping.md" = "Solo el párrafo de la regla de derivación."
+"docs/prompts/system-prompt-hospedaje.md" = "Solo el párrafo de la regla de derivación."
+"docs/prompts/system-prompt-departamentos.md" = "Solo el párrafo de la regla de derivación."
+"docs/modulos/agente.md" = "Solo la sección de la derivación."
+```
+Entregables: PERSONA, persona, humano y agente, como mensaje completo y normalizado, derivan a una persona sin llamar al modelo (`AgenteService.derivar_a_persona`), y los tres prompts traen la oferta "¿Prefieres que te atienda una persona? Escribe PERSONA".
+
+### T-422 — Seguridad: el aviso LOPDP del primer mensaje, con texto, versión y hash (`aviso_primer_mensaje`)
+`¤seguridad-canal` `¤inferencia`
+```toml
+id = "T-422"
+ola = 20
+fase = 5
+estado = "pendiente"
+sala = "seguridad"
+rol = "¤¤security-engineer"
+requisitos = ["RF-PRIV-01", "RF-SEC-05"]
+depende_de = ["S-3"]
+bloqueada_por = []
+propiedad = [
+  "features/seguridad/consentimiento_internal.py",
+  "features/seguridad/seguridad_service.py",
+  "features/seguridad/tipos.py",
+  "features/seguridad/config_seguridad.yaml",
+  "docs/modulos/seguridad.md",
+  "tests/seguridad/test_consentimiento.py",
+  "tests/integracion/test_fase5.py",
+  "tests/seguridad/test_identidad.py",
+  "tests/seguridad/test_aviso_primer_mensaje.py",
+]
+crea = ["tests/seguridad/test_aviso_primer_mensaje.py"]
+consume = []
+arbitro = "tests/seguridad/test_aviso_primer_mensaje.py; tests/seguridad/test_consentimiento.py; tests/integracion/test_fase5.py; arnés Exit Code 0"
+
+# Cada ruta de propiedad se limita a lo que dice su especificación (T-422).
+[limites]
+"features/seguridad/consentimiento_internal.py" = "Solo el texto, la versión y el registro del aviso."
+"features/seguridad/seguridad_service.py" = "Solo aviso_primer_mensaje, registrar_aviso_enviado y el paso 5 de filtrar_entrada."
+"features/seguridad/tipos.py" = "Solo AvisoPrivacidad y AvisoNoDisponible."
+"features/seguridad/config_seguridad.yaml" = "Solo la clave aviso."
+"docs/modulos/seguridad.md" = "Solo la sección del aviso."
+"tests/seguridad/test_consentimiento.py" = "Solo las aserciones sobre la versión del aviso y sobre cuándo se registra."
+"tests/integracion/test_fase5.py" = "Solo las aserciones sobre la versión del aviso y sobre cuándo se registra."
+"tests/seguridad/test_identidad.py" = "Solo las aserciones sobre la versión del aviso y sobre cuándo se registra."
+```
+Entregables: `SeguridadService.aviso_primer_mensaje(pais)` devuelve el aviso aprobado de la Enmienda 3 con versión 2.0 y hash, y falla cerrado sin país o sin enlace https. El aviso se registra cuando se envía (`registrar_aviso_enviado`), no al filtrar. Fuera de alcance: las columnas de hash, canal y respuesta del huésped, que solo necesita la variante con consentimiento, todavía [DECISIÓN PENDIENTE].
+
+### T-509 — Pasillo central: el lazo del huésped (filtro de entrada, aviso LOPDP y respuesta enviada)
+`¤pasillo-central` `¤seguridad-canal` `¤canal-whatsapp`
+```toml
+id = "T-509"
+ola = 21
+fase = 5
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤solutions-architect"
+requisitos = ["RF-PRIV-01", "RF-GW-06", "RF-SEC-01", "RF-AG-05"]
+depende_de = ["T-421", "T-422", "T-508"]
+bloqueada_por = []
+propiedad = [
+  "app_core/lazo_huesped.py",
+  "app_core/contenedor.py",
+  "tests/app_core/test_contenedor.py",
+  ".env.example",
+  "infra/gcp/cloudrun.yaml",
+  "docs/modulos/app_core.md",
+  "tests/app_core/test_lazo_huesped.py",
+]
+crea = ["app_core/lazo_huesped.py", "tests/app_core/test_lazo_huesped.py"]
+consume = [
+  "seguridad_service (filtrar_entrada, aviso_primer_mensaje, registrar_aviso_enviado)",
+  "agente_service (atender, derivar_a_persona)",
+  "canal_whatsapp_service (enviar)",
+  "inferencia_service (estado)",
+]
+arbitro = "tests/app_core/test_lazo_huesped.py; tests/app_core/test_contenedor.py; arnés Exit Code 0"
+
+# app_core/contenedor.py ya lo toca T-508 (ola 19); esta ficha va después y solo cambia el receptor de huéspedes.
+[limites]
+"app_core/contenedor.py" = "Solo la línea que registra el receptor de huéspedes."
+"tests/app_core/test_contenedor.py" = "Solo la aserción del receptor de huéspedes."
+".env.example" = "Solo la línea PRIVACIDAD_URL."
+"infra/gcp/cloudrun.yaml" = "Solo la variable PRIVACIDAD_URL en env, sin secretKeyRef."
+"docs/modulos/app_core.md" = "Solo la sección del lazo del huésped."
+```
+Entregables: el receptor de huéspedes pasa a ser `LazoHuesped`: filtra la entrada, envía el aviso antes del primer mensaje al modelo, falla cerrado hacia una persona y envía la respuesta del agente. Hallazgo medido sobre `origin/main ecf9119`: en producción la respuesta del agente nunca llega al huésped y `filtrar_entrada` no tiene llamador fuera de `tests/` (`contenedor.py:325`, `trabajador_internal.py:140-145`, `enrutamiento_canal_internal.py:166`). Fuera de alcance: botones y listas con formato propio, el lazo del canal de vendedores, la cortesía de caída por conversación y la variante con consentimiento, todavía [DECISIÓN PENDIENTE].
 
 ### T-418 — Web pública: el valor claro de `--aviso` pasa a `#8A5300` (contraste AA)
 `¤web-huespedes`
