@@ -74,6 +74,8 @@ class SeguridadService:
     def tokenizar(self, texto: str, conversacion_id: str, titular_hash: str | None = None) -> str: ...
     def rehidratar(self, texto: str, conversacion_id: str) -> str: ...
     def filtrar_salida(self, texto: str, conversacion_id: str) -> str: ...
+    def tokenizar_estructura(self, valor: Any, conversacion_id: str, titular_hash: str | None = None, campos_pii: Iterable[str] | None = None, campos_exentos: Mapping[str, str] | None = None) -> Any: ...
+    def estado(self) -> dict[str, bool]: ...  # {"clave_efimera": bool}
     def auditar(self, evento: EventoAuditoria) -> None: ...
     def informe_semanal(self, desde: date, hasta: date) -> bytes: ...
     def administrar_usuarios(self, actor: Identidad, numero: str, rol: Rol, alta: bool, sujeto_id: str | None = None, correo: str | None = None) -> None: ...
@@ -105,6 +107,27 @@ class SeguridadService:
 7. **`INV_SECRETO_OPERATIVO`**: `∀ s ∈ secretos : s ∉ payload ∪ historial ∧ (enviado(s, r) ⇒ titular(r))`. Las credenciales de WiFi y códigos de acceso viven en la bóveda cifrada AES-256-GCM. El modelo y el historial de la conversación solo ven marcadores opacos `[[SECRETO:...]]`. El valor real se resuelve única y exclusivamente en el mensaje saliente (`filtrar_salida`) hacia el titular con reserva confirmada dentro de las 24 horas de la llegada.
 8. **`INV_SIN_FUGA_ENTRE_PROPIEDADES`**: Políticas de Row-Level Security activas (`FORCE ROW LEVEL SECURITY`) con rol de aplicación `NOBYPASSRLS` (`app_glamping`) que restringen toda consulta en tablas con `propiedad_id` a la propiedad fijada en `app.propiedad_id` o filas marcadas como `'global'`.
 
+## Bóveda de tokens PII (T-406, T-406-b)
+
+- **Clave (T-406-b).** La bóveda cifra con `pii.clave_boveda` o, en su defecto, `PII_VAULT_KEY`. Un marcador `${VAR:-defecto}` sin resolver (la configuración YAML leída sin el pasillo central) se resuelve contra el entorno y, si queda vacío, cuenta como clave no configurada. Sin clave configurada no se falla cerrado: la sala usa una **clave aleatoria efímera por proceso** (`secrets.token_hex(32)` al importar `pii_internal`), compartida por las instancias del mismo proceso (y por los secretos operativos, que la reciben como respaldo), nunca una constante del repositorio. `SeguridadService.estado()` devuelve `{"clave_efimera": True}` en ese caso.
+- **Conducta deliberada sin clave configurada.** Los tokens dejan de ser legibles tras reiniciar el proceso: la fila sigue en la bóveda, pero su descifrado falla y `rehidratar` devuelve el marcador neutro `[DATO_BORRADO]`, igual que ante un token borrado o ajeno. Dos arranques sin clave no se leen entre sí. En producción el arranque con clave efímera lo rechaza otra tarea (P-1); dos instancias con la misma clave configurada sí rehidratan los tokens de la otra.
+- **Numeración y colisiones.** El token es `[TIPO_n]` y la fila de la bóveda se guarda con la clave `conversacion_id:[TIPO_n]`. El número es el primero libre en la caché y en la bóveda; si el `INSERT` choca con la clave primaria (`IntegrityError`: otro escritor eligió el mismo número entre la consulta y la escritura), ese número se descarta y se prueba el siguiente. Nunca se sobrescribe ni se reutiliza un token que pertenece a otro valor. Tras `MAX_NUMEROS_DESCARTADOS` (5) números descartados el error ya no es una carrera (`NOT NULL`, `CHECK`, FK) y se relanza el `IntegrityError` original.
+- **Fila ilegible.** Si una fila no se descifra con la clave actual (`InvalidTag`: rotación de clave o manipulación), `rehidratar` devuelve `[DATO_BORRADO]` y la sala registra un aviso `bóveda: fila ilegible con la clave actual` en el logger `features.seguridad.pii_internal`, sin token, valor ni conversación.
+
+### `tokenizar_estructura`
+
+Tokeniza recursivamente `dict` (cualquier `Mapping`), `list` y `tuple`, conservando la forma (una tupla sigue siendo tupla). Las claves nunca se tokenizan.
+
+| Valor en la ruta | Tratamiento |
+| :--- | :--- |
+| Ruta en `campos_pii`, texto no vacío | Se tokeniza entero, como un solo valor. Tipo: el último segmento de la ruta si es un tipo PII (`telefono`, `correo`…); si no, el que el detector reconoce en el valor completo; si no, `nombre`. |
+| Ruta en `campos_exentos`, texto que cumple `re.fullmatch(pattern)` | Pasa intacto. Si no lo cumple, pasa por el detector como cualquier texto. |
+| Otro texto | Pasa por `tokenizar` (detector). |
+| `int`, `float`, `bool`, `None` | Sin cambio, también en rutas declaradas. |
+| Cualquier otro tipo (`set`, `bytes`, `Path`, objetos…) | `EstructuraNoAdmitida` (subclase de `ErrorSeguridad` y de `TypeError`, exportada por la compuerta). |
+
+**Nomenclatura de rutas.** `.` anida campos de un mapa (`huesped.contacto.telefono`) y `[]` marca los elementos de una lista o tupla, sin índice (`unidades[].nombre`; los elementos de una raíz lista son `[]`, y sus campos `[].nombre`). Un mismo valor recibe el mismo token en `tokenizar` y en `tokenizar_estructura` dentro de la misma conversación.
+
 ## Persistencia y Tablas del Esquema `seguridad`
 
 - `seguridad.usuarios`: Credenciales anonimizadas (hash SHA-256) de colaboradores internos.
@@ -131,6 +154,7 @@ class SeguridadService:
 - `tests/seguridad/test_solicitudes_titular.py` (Árbitro RF-PRIV-05: solicitudes ARCO, 15 días de plazo y conservación legal)
 - `tests/seguridad/test_rls.py` (Árbitro RF-SEC-07: migraciones RLS, rol `NOBYPASSRLS`, aislamiento de consultas entre propiedades)
 - `tests/seguridad/test_secretos_operativos.py` (Árbitro RF-SEC-08: marcadores `[[SECRETO:...]]`, resolución exclusiva en salida, validación de titular, auditoría y 5 intentos escalando a humano)
+- `tests/seguridad/test_t406_contador_tokens.py` y `tests/seguridad/test_t406b_clave_y_estructura.py` (Árbitro T-406 / T-406-b: tokens únicos por conversación, clave efímera, reintento ante colisión y `tokenizar_estructura`)
 - `scripts/run_evals.py --suite inyecciones` (Árbitro RF-SEC-04 / OP-10: 0 ataques exitosos y ≤ 2% falsos positivos sobre `evals/inyecciones.jsonl`)
 
 `¤seguridad-canal/`
