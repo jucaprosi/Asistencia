@@ -70,7 +70,8 @@
 | **Ola 16** (A) | `T-408` (H-1, `herramientas_glamping`) · `T-409` (I-1, `inferencia`) · `T-416` (`observabilidad`) · `T-417` (`agente`, `estado_asistente`) | Anotaciones `x-pii`, espera ante 429 y estado del asistente |
 | **Ola 17** (B) | `T-412` (P-1, pasillo) · `T-407` (A11 con A2, `agente`) · `T-413` (S-2, `seguridad`) · `T-414` (O-1, `observabilidad`) | Entorno de producción, salidas de herramientas tokenizadas y suite PII real |
 | **Ola 18** (C) | `T-415` (A8-bis, `agente`) · `T-507` (TL-2, `arm_jarvis`) · `G-2` (árbitro de especificaciones) · `S-3` (`seguridad`, secretos sin clave publicada) | Argumentos inválidos al modelo, ARM con inferencia y secretos con clave efímera |
-| **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) · `T-702` (`panel_operativo`, estado del asistente) · `T-418` (`web_huespedes`, contraste de `--aviso`) · `T-419` (`herramientas_glamping`, `incidencia_id` acotado) | Ensamblaje del ARM con inferencia, estado del asistente en el panel, contraste AA e `incidencia_id` sin forma de teléfono |
+| **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) · `T-420` (`agente`, pausa dinámica) · `T-418` (`web_huespedes`, contraste de `--aviso`) · `T-419` (`herramientas_glamping`, `incidencia_id` acotado) | Ensamblaje del ARM con inferencia, pausa dinámica del asistente, contraste AA e `incidencia_id` sin forma de teléfono |
+| **Ola 20** | `T-702` (`panel_operativo`, estado del asistente) | Estado del asistente en el panel, con la pausa dinámica |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1453,17 +1454,49 @@ arbitro = "tests/app_core (suite completa); tests/arm_jarvis/test_extraccion_inf
 ```
 Entregables: `construir` pasa a `ArmJarvisService` la misma instancia de `InferenciaService` que ya recibe el agente. Es la única ficha de la ola 19 sobre `app_core/`.
 
+### T-420 — Agente: la pausa dinámica del asistente (cuota agotada, proveedor caído o modelo lento)
+`¤agente-enrutador` `¤inferencia`
+```toml
+id = "T-420"
+ola = 19
+fase = 5
+estado = "pendiente"
+sala = "agente"
+rol = "¤¤machine-learning-engineer"
+requisitos = ["RF-AG-05", "RF-PAN-09"]
+depende_de = ["T-415", "T-417"]
+bloqueada_por = []
+propiedad = [
+  "features/agente/tipos.py",
+  "features/agente/bucle_herramientas_internal.py",
+  "features/agente/agente_service.py",
+  "docs/modulos/agente.md",
+  "tests/agente/test_pausa_dinamica.py",
+]
+crea = ["tests/agente/test_pausa_dinamica.py"]
+consume = ["inferencia_service (códigos de InferenciaNoDisponible, a través de ClienteModelo)", "observabilidad_service"]
+arbitro = "tests/agente/test_pausa_dinamica.py; tests/agente/test_estado_asistente.py; tests/test_firmas_compuertas.py; arnés Exit Code 0"
+
+# Archivos de la sala que ya tocaron T-417 (ola 16), T-407 (ola 17) y T-415 (ola 18).
+[limites]
+"features/agente/tipos.py" = "Solo añade el campo Respuesta.motivo_degradacion (al final, con defecto \"\") y la constante MOTIVOS_PAUSA."
+"features/agente/bucle_herramientas_internal.py" = "Solo _generar_degradacion y las dos ramas de error del modelo fijan motivo_degradacion; los textos de cara al huésped no cambian."
+"features/agente/agente_service.py" = "Solo la transición de la pausa después de self._bucle.ejecutar, la copia de motivo_degradacion en la respuesta final y estado_asistente."
+"docs/modulos/agente.md" = "Solo la sección de estado_asistente."
+```
+Entregables: el motivo de cada degradación viaja en `Respuesta.motivo_degradacion`. Si el modelo falla por cuota agotada, proveedor caído o tiempo agotado, `estado_asistente()` informa una pausa con ese código, hasta que el modelo vuelve a responder. Los textos al huésped no cambian.
+
 ### T-702 — Panel operativo: estado del asistente en el inicio (P-02), los handoffs (P-08) y la salud del sistema (P-11)
 `¤panel-operativo`
 ```toml
 id = "T-702"
-ola = 19
+ola = 20
 fase = 8
 estado = "pendiente"
 sala = "panel_operativo"
 rol = "¤¤frontend-developer"
 requisitos = ["RF-PAN-09", "RF-AG-05"]
-depende_de = ["T-417", "T-701"]
+depende_de = ["T-417", "T-420", "T-701"]
 bloqueada_por = []
 propiedad = [
   "features/panel_operativo/bff_internal.py",
@@ -1492,7 +1525,7 @@ arbitro = "tests/panel_operativo/test_bff_estado_asistente.py; features/panel_op
 "tests/panel_operativo/dobles.py" = "Solo añade estado_asistente a DobleAgenteService; no cambia los dobles existentes."
 "docs/modulos/panel_operativo.md" = "Solo las secciones de P-02, P-08 y de salud del sistema (P-11)."
 ```
-Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). Si P-08 lo toma de `GET /inicio` o del endpoint de handoffs lo decide la especificación. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. Los textos de cara al equipo son del UX/UI.
+Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). Si P-08 lo toma de `GET /inicio` o del endpoint de handoffs lo decide la especificación. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. La pausa muestra su causa (`motivo`) y no presenta "disponible" como garantía de cuota ni de proveedor activos. Los textos de cara al equipo son del UX/UI.
 
 ### T-418 — Web pública: el valor claro de `--aviso` pasa a `#8A5300` (contraste AA)
 `¤web-huespedes`
