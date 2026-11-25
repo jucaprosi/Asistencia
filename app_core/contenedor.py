@@ -249,6 +249,16 @@ class _AdaptadorCanalParaArm:
 
 
 # ¤pasillo-central
+ENTORNOS_NO_PRODUCTIVOS: frozenset[str] = frozenset({"beta", "prueba"})
+
+
+# ¤pasillo-central
+def _es_productivo(entorno_app: str, env: Mapping[str, str]) -> bool:
+    """T-412 R1: ``K_SERVICE`` no vacío (Cloud Run) o un entorno resuelto fuera de {beta, prueba} es productivo; falla cerrado."""
+    return bool(env.get("K_SERVICE")) or entorno_app not in ENTORNOS_NO_PRODUCTIVOS
+
+
+# ¤pasillo-central
 def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None = None) -> Contenedor:
     """Construye las compuertas en el orden declarado y registra los receptores del canal."""
     env = dict(os.environ if entorno is None else entorno)
@@ -259,6 +269,10 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
 
     observabilidad = ObservabilidadService(_config(cargar_config_observabilidad))
     seguridad_base = SeguridadService(_config(cargar_config_seguridad), observabilidad=observabilidad)
+    productivo = _es_productivo(config_app["aplicacion"]["entorno"], env)
+    if productivo and seguridad_base.estado()["clave_efimera"]:
+        # T-412 R3: una clave efímera deja ilegibles los tokens tras cada reinicio (pérdida silenciosa); mensaje fijo, sin valores.
+        raise ConfiguracionInvalida("bóveda PII sin clave configurada en producción")
     seguridad = _AdaptadorSeguridadParaArm(seguridad_base)
     conocimiento = ConocimientoService(_config(cargar_config_conocimiento), observabilidad=observabilidad)
     pms_base = PMSConectorService(_config(cargar_config_pms), observabilidad=observabilidad)
@@ -311,7 +325,7 @@ def construir(ruta_config: Path = RUTA_CONFIG, entorno: Mapping[str, str] | None
     # ADR-0021: la compuerta de inferencia se construye una sola vez con el entorno del proceso y se inyecta,
     # con el tope diario atómico de observabilidad (C2): sin él la sala no responde. En producción sin PostgreSQL
     # la cuota sería por instancia (SQLite en memoria) y no es tope: se pasa None y la sala falla cerrada (r4).
-    sin_tope_compartido = config_app["aplicacion"]["entorno"] == "produccion" and not es_postgres(env.get("DATABASE_URL"))
+    sin_tope_compartido = productivo and not es_postgres(env.get("DATABASE_URL"))
     inferencia = InferenciaService(env, cuota=None if sin_tope_compartido else observabilidad.cuota_inferencia())
     agente = AgenteService(
         _config(cargar_config_agente), seguridad=seguridad, herramientas=herramientas, conocimiento=conocimiento,
