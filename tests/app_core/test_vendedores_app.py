@@ -24,7 +24,6 @@ from features.canal_whatsapp.tipos import MensajeEntrante, TipoContenido
 
 ENTORNO_PRUEBA = {
     "APP_ENV": "prueba",
-    "DATABASE_URL": "postgresql://prueba",
     "META_ACCESS_TOKEN": "token_prueba",
     "META_VERIFY_TOKEN": "verify_prueba",
     "META_APP_SECRET": "secret_prueba",

@@ -23,11 +23,14 @@ __all__ = ["GestorTrazas", "AlmacenTrazas"]
 class AlmacenTrazas:
     """Persistencia de trazas y spans en SQLite según el esquema observabilidad."""
 
-    def __init__(self, db_path: Path | str | None = None) -> None:
+    def __init__(self, db_path: Path | str | None = None, db_url: str = "") -> None:
         if db_path is None or str(db_path) == ":memory:":
-            # None: DATABASE_URL (PostgreSQL, esquema observabilidad) o SQLite en memoria; ":memory:" fuerza SQLite.
+            # La sala solo lee su configuración (ADPA §2.4): db_url resuelto por app_core, nunca os.environ.
+            # Vacío o con un placeholder sin resolver ("${"), SQLite en memoria; una URL PostgreSQL inalcanzable falla cerrado.
+            url = (db_url or "").strip()
+            origen = ":memory:" if not url or "${" in url else url
             self._ruta_db = ":memory:"
-            self._con_memoria: Any = envolver(None if db_path is None else ":memory:", ruta_busqueda="observabilidad")
+            self._con_memoria: Any = envolver(origen, ruta_busqueda="observabilidad")
         else:
             self._ruta_db = str(db_path)
             self._con_memoria = None
@@ -241,7 +244,7 @@ class GestorTrazas:
 
     def __init__(self, config: Mapping[str, Any], almacen: AlmacenTrazas | None = None) -> None:
         self._config = config
-        self._almacen = almacen or AlmacenTrazas(db_path=config.get("db_path"))
+        self._almacen = almacen or AlmacenTrazas(db_path=config.get("db_path"), db_url=str(config.get("db_url") or ""))
 
     # ¤observabilidad
     def conexion_cuota(self) -> Any:

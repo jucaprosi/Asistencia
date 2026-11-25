@@ -18,7 +18,6 @@ from tests.conftest import RAIZ
 
 ENTORNO_PRUEBA = {
     "APP_ENV": "prueba",
-    "DATABASE_URL": "postgresql://prueba",
     "META_ACCESS_TOKEN": "x",
     "META_VERIFY_TOKEN": "x",
     "META_APP_SECRET": "x",

@@ -23,7 +23,6 @@ from app_core.app_core_service import Contenedor, construir
 
 ENTORNO_PRUEBA = {
     "APP_ENV": "prueba",
-    "DATABASE_URL": "postgresql://prueba",
     "META_ACCESS_TOKEN": "token_acceso_prueba",
     "META_VERIFY_TOKEN": "token_verificacion_prueba",
     "META_APP_SECRET": "secreto_app_prueba",
