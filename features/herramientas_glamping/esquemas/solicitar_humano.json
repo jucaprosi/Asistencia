@@ -19,7 +19,7 @@
     "required": ["handoff_id", "asignado_a", "canal", "minutos_estimados"],
     "properties": {
       "handoff_id": {"type": "string"},
-      "asignado_a": {"type": "string"},
+      "asignado_a": {"type": "string", "x-pii": "nombre"},
       "canal": {"const": "panel"},
       "minutos_estimados": {"type": "integer"}
     }

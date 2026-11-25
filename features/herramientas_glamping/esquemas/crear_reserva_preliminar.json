@@ -22,7 +22,7 @@
     "additionalProperties": false,
     "required": ["codigo_reserva", "estado", "expira_en"],
     "properties": {
-      "codigo_reserva": {"type": "string"},
+      "codigo_reserva": {"type": "string", "pattern": "^RES-(\\d{4}-\\d{4,5}|PREL-\\d{1,6})$", "x-pii-exento": true},
       "estado": {"const": "preliminar"},
       "expira_en": {"type": "string", "format": "date-time"}
     }

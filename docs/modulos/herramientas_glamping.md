@@ -86,6 +86,25 @@ class HerramientasGlampingService:
 | `registrar_venta` | RF-MCP-08 | `arm_jarvis` | `vendedor` | `{ticket: str (V-AAAA-NNNN), estado: "por_validar", comision_estimada?: str, posible_duplicado: bool}` |
 | `consultar_comision_propia` | RF-MCP-09 | `arm_jarvis` | `vendedor` | `{validada: str, pendiente: str, ventas: int, periodo: str (AAAA-MM)}` |
 
+## Anotaciones PII en los esquemas de salida (T-408, decisión A1)
+
+La sala dueña del dato declara en el esquema de `salida` qué campos son PII, con dos palabras clave de anotación (JSON Schema 2020-12). `entrada` nunca las lleva: los argumentos del modelo ya llegan tokenizados.
+
+- **`x-pii`**: su valor es uno de `nombre`, `telefono`, `correo`, `documento`, `tarjeta` o `direccion` (`TIPOS_PII` de la sala `seguridad`). El campo se tokeniza entero, sin detector.
+- **`x-pii-exento`**: vale `true` y exige un `pattern` en el mismo nodo. El valor queda intacto solo si cumple `re.fullmatch(pattern)`; el resto pasa por el detector. Un nodo no lleva `x-pii` y `x-pii-exento` a la vez.
+- Los campos de texto sin anotación pasan por el detector.
+
+| Herramienta | Ruta de `salida` | Anotación |
+| :--- | :--- | :--- |
+| `obtener_instrucciones_checkin` | `contacto_emergencia` | `x-pii: telefono` |
+| `obtener_instrucciones_checkin` | `direccion` | `x-pii: direccion` |
+| `obtener_instrucciones_checkin` | `wifi.clave_ref` | `x-pii-exento` (por origen: marcador `[[SECRETO:...]]` que genera el sistema) |
+| `solicitar_humano` | `asignado_a` | `x-pii: nombre` (defensa en profundidad: hoy lleva un id) |
+| `reportar_incidencia` | `gestor_asignado` | `x-pii: nombre` (defensa en profundidad: hoy lleva un id) |
+| `crear_reserva_preliminar` | `codigo_reserva` | `x-pii-exento`, pattern `^RES-(\d{4}-\d{4,5}|PREL-\d{1,6})$` (por forma) |
+
+`reportar_incidencia.incidencia_id` queda sin anotación: su pattern acepta sufijos de 6 dígitos o más que el detector lee como teléfono. Acotarlo y eximirlo es de T-419. Las rutas se arman como `a.b` y `lista[]`; el consumo de las anotaciones en producción es de T-407.
+
 ## Manejo de Errores e Invariantes
 
 - **`INV_ALLOWLIST_POR_ACCION`**: Se verifica siempre llamando a `seguridad.autorizar(rol, nombre)`. Si el veredicto no es permitido, levanta `HerramientaNoAutorizada`.
@@ -110,6 +129,7 @@ Implementa el protocolo JSON-RPC 2.0 estándar de Model Context Protocol:
 - `tests/herramientas_glamping/test_contratos.py`: Dobles de compuertas, validación de esquemas, invariantes de seguridad y contratos de las herramientas de huéspedes y vendedores (T-203, T-504).
 - `tests/herramientas_glamping/test_server.py`: Transporte stdio y procesamiento JSON-RPC.
 - `tests/herramientas_glamping/test_anfitriones.py`: Árbitro de T-306 (solicitud, confirmación/rechazo, reporte de estadía y actualización de calendario con aislamiento de anfitrión).
+- `tests/herramientas_glamping/test_x_pii_esquemas.py`: Árbitro de T-408 (anotaciones `x-pii` y `x-pii-exento`, pattern de `codigo_reserva` y su integración con `tokenizar_estructura`).
 
 ---
 
