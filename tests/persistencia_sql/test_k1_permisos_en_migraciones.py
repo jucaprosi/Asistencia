@@ -74,3 +74,18 @@ def test_a2_un_grant_amplio_exige_un_adr(sql: str) -> None:
 )
 def test_a1_un_permiso_no_tapa_una_escritura_ajena(sql: str) -> None:
     assert any("escribe en el schema" in v for v in _violaciones_de_contenido("x_seguridad_p.sql", "seguridad", sql))
+
+
+# ¤inferencia
+def test_n1_grant_execute_on_function_solo_pide_adr() -> None:
+    sql = "GRANT EXECUTE ON FUNCTION observabilidad.f() TO app_glamping;"
+    violaciones = _violaciones_de_contenido("x_seguridad_p.sql", "seguridad", sql)
+    assert any("GRANT fuera de la forma mínima: requiere un ADR" in v for v in violaciones), violaciones
+    assert not any("SQL dinámico" in v for v in violaciones), violaciones
+
+
+# ¤inferencia
+def test_n1_un_bloque_do_con_execute_sigue_siendo_sql_dinamico() -> None:
+    sql = "DO $$ BEGIN EXECUTE 'select 1'; END $$;"
+    violaciones = _violaciones_de_contenido("x_seguridad_p.sql", "seguridad", sql)
+    assert any("SQL dinámico" in v for v in violaciones), violaciones
