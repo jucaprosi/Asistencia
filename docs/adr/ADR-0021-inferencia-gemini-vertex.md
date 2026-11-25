@@ -114,7 +114,7 @@ Decisión del propietario: el día del tope diario es el de Google Cloud, cuyas 
 - Árbitro: `tests/observabilidad/test_dia_cuota_pacifico.py`.
 
 ## Enmienda 2 (2026-11-25): espera del reintento
-Propuesta del Arquitecto ADPA (decisión A4), pendiente de aceptación del propietario. Ajusta la Decisión 6: el reintento único ante 5xx o 429 se mantiene y el presupuesto de 45 s por turno no cambia. Cambia cuánto se espera antes de reintentar.
+Propuesta del Arquitecto ADPA (decisión A4), aceptada por el propietario el 2026-11-25. Ajusta la Decisión 6: el reintento único ante 5xx o 429 se mantiene y el presupuesto de 45 s por turno no cambia. Cambia cuánto se espera antes de reintentar.
 
 - **Base:** `espera_reintento_s` pasa de 0,2 s a 1,0 s, con jitter de 0,5× a 1,5× (de 0,5 s a 1,5 s). En Vertex, el 429 `RESOURCE_EXHAUSTED` suele ser transitorio (cuota compartida dinámica), y 0,2 s es demasiado poco para que la cuota se recupere.
 - **`Retry-After`:** si el error del proveedor trae la cabecera `Retry-After` en segundos (entero o decimal, mayor o igual a 0), la espera es el mayor valor entre `Retry-After` y la base con jitter. Si la cabecera viene con fecha HTTP o es ilegible, se ignora y se usa la base.

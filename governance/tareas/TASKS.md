@@ -1147,7 +1147,7 @@ sala = "inferencia"
 rol = "¤¤machine-learning-engineer"
 requisitos = ["RF-AG-05"]
 depende_de = ["TASK-000"]
-bloqueada_por = ["Enmienda 2 del ADR-0021, aceptada por el propietario"]
+bloqueada_por = []
 propiedad = [
   "features/inferencia/config_inferencia.yaml",
   "features/inferencia/inferencia_service.py",
@@ -1158,7 +1158,7 @@ crea = ["tests/inferencia/test_reintento_429.py"]
 consume = ["observabilidad_service (cuota_inferencia, ya inyectada)"]
 arbitro = "tests/inferencia/test_reintento_429.py; tests/inferencia/test_paso4_adr0021.py; arnés Exit Code 0"
 ```
-Entregables (decisión A4): el reintento único ante 429 se mantiene (Decisión 6 del ADR-0021); cambia la espera. `espera_reintento_s: 1.0` con su jitter en `config_inferencia.yaml`; si el proveedor envía `Retry-After`, se respeta; el reintento solo ocurre si la espera cabe en el plazo restante y, si no cabe, falla cerrado con `InferenciaNoDisponible`. Pruebas nuevas en rojo primero. La Enmienda 2 del ADR-0021 no está en esta propiedad (`docs/adr/` es ruta del coordinador): la escribe el Arquitecto en un commit de gobernanza.
+Entregables (decisión A4): el reintento único ante 429 se mantiene (Decisión 6 del ADR-0021); cambia la espera. `espera_reintento_s: 1.0` con su jitter en `config_inferencia.yaml`; si el proveedor envía `Retry-After`, se respeta; el reintento solo ocurre si la espera cabe en el plazo restante y, si no cabe, falla cerrado con `InferenciaNoDisponible`. Pruebas nuevas en rojo primero. La Enmienda 2 del ADR-0021 no está en esta propiedad (`docs/adr/` es ruta del coordinador): entró por gobernanza y el propietario la aceptó el 2026-11-25.
 
 ### T-416 — Observabilidad: `run_evals` y la evaluación interna construyen `AgenteService` con `SeguridadService` real, y la suite `enrutador` no se omite en silencio
 `¤observabilidad` `¤seguridad-canal`
