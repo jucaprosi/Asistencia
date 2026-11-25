@@ -4,6 +4,7 @@
 """Compuerta pública de la sala agente (RF-AG-01..07)."""
 from __future__ import annotations
 
+import threading
 import uuid
 from contextlib import nullcontext
 from datetime import date, datetime, timedelta, timezone
@@ -27,6 +28,7 @@ from features.agente.tipos import (
     ContextoConversacion,
     ConversacionEnSilencio,
     ErrorAgente,
+    EstadoAsistente,
     HerramientaFallida,
     ModoAgente,
     ModeloNoDisponible,
@@ -43,6 +45,7 @@ __all__ = [
     "ModoAgente",
     "ResolucionPropiedad",
     "Respuesta",
+    "EstadoAsistente",
     "ErrorAgente",
     "TopeIteraciones",
     "HerramientaFallida",
@@ -56,6 +59,11 @@ __all__ = [
 ]
 
 RUTA_CONFIG = Path(__file__).with_name("config_agente.yaml")
+
+
+# ¤agente-enrutador
+def _ahora() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 # ¤agente-enrutador
@@ -126,6 +134,11 @@ class AgenteService:
         self._observabilidad = observabilidad or _DobleObservabilidadNulo()
         self._pms = pms
         self._memoria = memoria or MemoriaConversacion(db_path=config.get("db_path"))
+        # Estado del asistente (T-417): Cloud Run atiende varias solicitudes a la vez, así que el estado va bajo candado.
+        self._inferencia = inferencia
+        self._candado_estado = threading.Lock()
+        self._indisponible_desde: datetime | None = None
+        self._derivadas = 0
         self._prompts = PromptsManager(config)
         self._enrutador = EnrutadorPropiedad(config)
         # La compuerta de inferencia la construye e inyecta app_core (ADPA §3, ADR-0021); sin ella, falla cerrada.
@@ -390,6 +403,10 @@ class AgenteService:
         resultado_traza = "degradada" if respuesta_cruda.degradada else "resuelta"
         self._observabilidad.cerrar_traza(traza_id, resultado_traza)
 
+        # R4 de T-417: una respuesta degradada con texto es un huésped enviado al contacto humano.
+        if respuesta_cruda.degradada and texto_rehidratado:
+            self._observar_estado(derivada=True)
+
         return Respuesta(
             texto=texto_rehidratado,
             botones=respuesta_cruda.botones,
@@ -403,6 +420,33 @@ class AgenteService:
             degradada=respuesta_cruda.degradada,
             acuse_emitido=respuesta_cruda.acuse_emitido,
         )
+
+    # ¤agente-enrutador
+    def estado_asistente(self) -> EstadoAsistente:
+        """Informa si el asistente está disponible y por qué (RF-AG-05). No llama al modelo ni escribe nada."""
+        return self._observar_estado(derivada=False)
+
+    def _observar_estado(self, derivada: bool) -> EstadoAsistente:
+        disponible, motivo = self._leer_inferencia()
+        with self._candado_estado:
+            if disponible:
+                self._indisponible_desde = None
+                self._derivadas = 0
+                return EstadoAsistente(True, "", None, 0)
+            if self._indisponible_desde is None:
+                self._indisponible_desde = _ahora()
+            if derivada:
+                self._derivadas += 1
+            return EstadoAsistente(False, motivo, self._indisponible_desde, self._derivadas)
+
+    def _leer_inferencia(self) -> tuple[bool, str]:
+        if self._inferencia is None:
+            return False, "sin_inferencia"
+        try:
+            estado = self._inferencia.estado()
+            return bool(estado.disponible), str(estado.motivo or "")
+        except Exception:
+            return False, "estado_inferencia_ilegible"
 
     # ¤agente-enrutador
     def contexto(self, conversacion_id: str) -> ContextoConversacion:
