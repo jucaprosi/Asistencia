@@ -17,7 +17,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-AG-02 | T-104 | plataforma.feature: Prompt por propiedad |
 | RF-AG-03 | T-301 | plataforma.feature: Herramientas expuestas por rol |
 | RF-AG-04 | T-104, T-408, T-407, T-415 | plataforma.feature: Tope de iteraciones |
-| RF-AG-05 | T-104, T-409 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
+| RF-AG-05 | T-104, T-409, T-417, T-702 | incidencias_handoff.feature: Escalamiento antes de la fase 4<br>reservas.feature: El PMS no responde |
 | RF-AG-06 | T-104 | plataforma.feature: Memoria tras un reinicio |
 | RF-AG-07 | T-403 | plataforma.feature: Caché semántico |
 | RF-AG-08 | T-301 | plataforma.feature: El planificador se reinicia |
@@ -59,7 +59,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-SEC-02 | T-102 | seguridad.feature: Pasar a huésped activo<br>seguridad.feature: El modelo pide una herramienta prohibida |
 | RF-SEC-03 | T-102 | seguridad.feature: Límite por remitente |
 | RF-SEC-04 | T-102, T-401 | seguridad.feature: Intento de inyección |
-| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507 | privacidad.feature: Nada de PII hacia el modelo |
+| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507, T-419 | privacidad.feature: Nada de PII hacia el modelo |
 | RF-SEC-06 | T-102 | plataforma.feature: Audit log inalterable |
 | RF-SEC-07 | T-304 | plataforma.feature: Aislamiento por propiedad en la base |
 | RF-SEC-08 | T-304 | checkin.feature: Un código de reserva ajeno no abre las instrucciones<br>checkin.feature: Los secretos operativos no pasan por el modelo |
@@ -90,13 +90,13 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-PAN-06 | T-505 | administracion.feature: Pregunta al asistente |
 | RF-PAN-07 | T-303, T-701 | incidencias_handoff.feature: Bandeja por zona<br>incidencias_handoff.feature: Devolver al asistente |
 | RF-PAN-08 | T-303 | plataforma.feature: Resolver incidencia |
-| RF-PAN-09 | T-404, T-604 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
+| RF-PAN-09 | T-404, T-604, T-702 | administracion.feature: Administrar usuarios<br>administracion.feature: Reglas por versión<br>administracion.feature: Solo el administrador entra |
 | RF-PAN-10 | T-404 | plataforma.feature: Calidad del panel |
 | RF-PAN-11 | T-801, T-810 | plataforma.feature: Instalar la terminal móvil |
 | RF-PAN-12 | T-801, T-810 | plataforma.feature: Aviso de venta por validar |
 | RF-PAN-13 | T-801 | plataforma.feature: Sin red |
 | RF-PAN-14 | T-801 | plataforma.feature: Doble toque con red inestable |
-| RF-WEB-01 | T-105 | web_publica.feature: Ver el catálogo sin datos del PMS |
+| RF-WEB-01 | T-105, T-418 | web_publica.feature: Ver el catálogo sin datos del PMS |
 | RF-WEB-02 | T-205 | web_publica.feature: Buscar por fechas<br>web_publica.feature: El PMS no responde durante la búsqueda |
 | RF-WEB-03 | T-205 | web_publica.feature: Comparar propiedades |
 | RF-WEB-04 | T-105, T-205 | web_publica.feature: Pasar a WhatsApp con contexto<br>web_publica.feature: La web no reserva |

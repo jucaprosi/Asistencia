@@ -284,7 +284,7 @@ Boceto inspirado en la ergonomía de paneles de operaciones de referencia (densi
 | `--texto-secundario` | `#5F665F` | `#A3A89F` | etiquetas, metadatos |
 | `--acento` | `#2F6B4F` | `#6FBF8E` | acción principal (verde bosque: identidad del glamping) |
 | `--exito` | `#2E7D32` | `#81C784` | validada, resuelta |
-| `--aviso` | `#B26A00` | `#FFB74D` | por validar, pendiente de publicar |
+| `--aviso` | `#8A5300` | `#FFB74D` | por validar, pendiente de publicar |
 | `--error` | `#B3261E` | `#F2B8B5` | rechazada, fallo |
 | `--info` | `#1F5F8B` | `#8FC1E3` | handoff, informativo |
 

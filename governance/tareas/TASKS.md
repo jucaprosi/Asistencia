@@ -67,10 +67,10 @@
 | **Ola 13** | `T-901` (C1 — Fail-fast en montaje de panel operativo y CRM) | Calidad pasillo central (`app_core`) |
 | **Ola 14** | `T-902` (C2 — Profundizar pruebas de contrato dobles vs compuertas) | Contratos tipados y mutantes muertos |
 | **Ola 15** | `T-903` (C3 — Árbitro real de escritura conforme y casos sintéticos) | Verificación formal UTF-8, huellas e IP safety |
-| **Ola 16** (A) | `T-408` (H-1, `herramientas_glamping`) · `T-409` (I-1, `inferencia`) · `T-416` (`observabilidad`) | Anotaciones `x-pii` y espera ante 429 |
+| **Ola 16** (A) | `T-408` (H-1, `herramientas_glamping`) · `T-409` (I-1, `inferencia`) · `T-416` (`observabilidad`) · `T-417` (`agente`, `estado_asistente`) | Anotaciones `x-pii`, espera ante 429 y estado del asistente |
 | **Ola 17** (B) | `T-412` (P-1, pasillo) · `T-407` (A11 con A2, `agente`) · `T-413` (S-2, `seguridad`) · `T-414` (O-1, `observabilidad`) | Entorno de producción, salidas de herramientas tokenizadas y suite PII real |
 | **Ola 18** (C) | `T-415` (A8-bis, `agente`) · `T-507` (TL-2, `arm_jarvis`) · `G-2` (árbitro de especificaciones) · `S-3` (`seguridad`, secretos sin clave publicada) | Argumentos inválidos al modelo, ARM con inferencia y secretos con clave efímera |
-| **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) | Ensamblaje del ARM con inferencia |
+| **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) · `T-702` (`panel_operativo`, estado del asistente) · `T-418` (`web_huespedes`, contraste de `--aviso`) · `T-419` (`herramientas_glamping`, `incidencia_id` acotado) | Ensamblaje del ARM con inferencia, estado del asistente en el panel, contraste AA e `incidencia_id` sin forma de teléfono |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1009,7 +1009,7 @@ comando_arbitro = "pytest tests/e2e/test_inbox_huespedes.py"
 # el árbitro los admite como límite de alcance, no como permiso para tocar otra sala.
 [limites]
 "features/panel_operativo/estaticos/app.js" = "Solo el registro de la ruta y la navegación de P-13. No cambia el código de otras pantallas."
-"features/panel_operativo/estaticos/styles.css" = "Solo añade clases con el prefijo .inbox-. No cambia tokens ni clases que ya existen."
+"features/panel_operativo/estaticos/styles.css" = "Solo añade clases con el prefijo .inbox-. No cambia tokens ni clases que ya existen, y el valor claro de --aviso pasa a #8A5300."
 "features/panel_operativo/ui/tests/bffSimulado.ts" = "Solo añade respuestas simuladas de los endpoints del inbox. No cambia las que ya existen."
 "tests/panel_operativo/dobles.py" = "Solo añade dobles para el inbox. No cambia los dobles que ya existen."
 "features/panel_operativo/config_panel_operativo.yaml" = "Solo la clave del disparador de volumen del ADR-0010. No toca otras claves."
@@ -1147,7 +1147,7 @@ sala = "inferencia"
 rol = "¤¤machine-learning-engineer"
 requisitos = ["RF-AG-05"]
 depende_de = ["TASK-000"]
-bloqueada_por = ["Enmienda 2 del ADR-0021, aceptada por el propietario"]
+bloqueada_por = []
 propiedad = [
   "features/inferencia/config_inferencia.yaml",
   "features/inferencia/inferencia_service.py",
@@ -1158,7 +1158,7 @@ crea = ["tests/inferencia/test_reintento_429.py"]
 consume = ["observabilidad_service (cuota_inferencia, ya inyectada)"]
 arbitro = "tests/inferencia/test_reintento_429.py; tests/inferencia/test_paso4_adr0021.py; arnés Exit Code 0"
 ```
-Entregables (decisión A4): el reintento único ante 429 se mantiene (Decisión 6 del ADR-0021); cambia la espera. `espera_reintento_s: 1.0` con su jitter en `config_inferencia.yaml`; si el proveedor envía `Retry-After`, se respeta; el reintento solo ocurre si la espera cabe en el plazo restante y, si no cabe, falla cerrado con `InferenciaNoDisponible`. Pruebas nuevas en rojo primero. La Enmienda 2 del ADR-0021 no está en esta propiedad (`docs/adr/` es ruta del coordinador): la escribe el Arquitecto en un commit de gobernanza.
+Entregables (decisión A4): el reintento único ante 429 se mantiene (Decisión 6 del ADR-0021); cambia la espera. `espera_reintento_s: 1.0` con su jitter en `config_inferencia.yaml`; si el proveedor envía `Retry-After`, se respeta; el reintento solo ocurre si la espera cabe en el plazo restante y, si no cabe, falla cerrado con `InferenciaNoDisponible`. Pruebas nuevas en rojo primero. La Enmienda 2 del ADR-0021 no está en esta propiedad (`docs/adr/` es ruta del coordinador): entró por gobernanza y el propietario la aceptó el 2026-11-25.
 
 ### T-416 — Observabilidad: `run_evals` y la evaluación interna construyen `AgenteService` con `SeguridadService` real, y la suite `enrutador` no se omite en silencio
 `¤observabilidad` `¤seguridad-canal`
@@ -1182,6 +1182,30 @@ consume = ["agente_service", "seguridad_service"]
 arbitro = "tests/observabilidad/test_t416_enrutador_con_seguridad.py; scripts/run_evals.py --suite enrutador; arnés Exit Code 0"
 ```
 Entregables: `features/observabilidad/observabilidad_service.py` (evaluación de la suite `enrutador`) y `scripts/run_evals.py` dejan de construir `AgenteService(cargar_config_agente())` sin `seguridad`: lo construyen con un `SeguridadService` real, importado por su compuerta. Funciona hoy sin romper nada, porque el parámetro ya existe, y deja libre a `T-407` para exigirlo (A2). La prueba nueva fija que la suite `enrutador` no queda omitida en silencio: hoy la llamada de `observabilidad_service.py` está envuelta en `except Exception: pass`. No pone un doble por defecto en `AgenteService`.
+
+### T-417 — Agente: `estado_asistente()` informa si el asistente está disponible y por qué
+`¤agente-enrutador`
+```toml
+id = "T-417"
+ola = 16
+fase = 5
+estado = "pendiente"
+sala = "agente"
+rol = "¤¤backend-developer"
+requisitos = ["RF-AG-05"]
+depende_de = ["T-403"]
+bloqueada_por = []
+propiedad = [
+  "features/agente/agente_service.py",
+  "features/agente/tipos.py",
+  "docs/modulos/agente.md",
+  "tests/agente/test_estado_asistente.py",
+]
+crea = ["tests/agente/test_estado_asistente.py"]
+consume = ["inferencia_service (estado)", "observabilidad_service"]
+arbitro = "tests/agente/test_estado_asistente.py; tests/test_firmas_compuertas.py; arnés Exit Code 0"
+```
+Entregables: la compuerta añade `AgenteService.estado_asistente()`, que devuelve `EstadoAsistente(disponible, motivo, desde, derivadas)` (tipo nuevo en `features/agente/tipos.py`). Solo se añade un método: las firmas existentes no cambian (regla 4). `docs/modulos/agente.md` documenta el método y el tipo. Va en la ola 16 porque ninguna otra ficha de esa ola reclama archivos de `agente`; `T-407` (ola 17) y `T-415` (ola 18) vuelven a tocar `agente_service.py` y `agente.md` después.
 
 ### T-412 — Pasillo central: con `K_SERVICE` se exige PostgreSQL, SQLite solo en beta o prueba, y producción rechaza la clave efímera (P-1)
 `¤pasillo-central`
@@ -1218,7 +1242,7 @@ estado = "pendiente"
 sala = "agente"
 rol = "¤¤machine-learning-engineer"
 requisitos = ["RF-AG-04", "RF-SEC-05", "INV_PII_FUERA_DEL_MODELO"]
-depende_de = ["T-403", "T-408", "T-416"]
+depende_de = ["T-403", "T-408", "T-416", "T-417"]
 bloqueada_por = []
 propiedad = [
   "features/agente/agente_service.py",
@@ -1284,15 +1308,43 @@ propiedad = [
   "features/observabilidad/trazas_internal.py",
   "tests/observabilidad/test_o1_almacen_db_url.py",
   "tests/app_core/test_contenedor.py",
+  "tests/app_core/test_mcp_compose.py",
+  "tests/app_core/test_vendedores_app.py",
+  "tests/app_core/test_webhook_app.py",
+  "tests/app_core/test_worker_y_panel.py",
+  "tests/integracion/carga/test_carga_concurrente.py",
+  "tests/integracion/carga/test_sondeo_salud.py",
+  "tests/integracion/test_fase1.py",
+  "tests/integracion/test_fase3.py",
+  "tests/integracion/test_fase4.py",
+  "tests/integracion/test_fase5.py",
+  "tests/integracion/test_fase6.py",
+  "tests/integracion/test_fase7.py",
+  "tests/integracion/test_terminal_movil_despliegue.py",
+  "tests/test_interfaz_purificada.py",
 ]
 crea = ["tests/observabilidad/test_o1_almacen_db_url.py"]
 consume = ["persistencia_sql_service"]
-arbitro = "tests/observabilidad/test_o1_almacen_db_url.py (rojo del QA, 3 rojos); tests/app_core completo (test_inferencia_con_tope.py también importa ENTORNO_PRUEBA); arnés Exit Code 0"
+arbitro = "tests/observabilidad/test_o1_almacen_db_url.py (6 casos, A1 a A6 de la spec); tests/observabilidad, tests/app_core, tests/integracion y tests/test_interfaz_purificada.py sin DATABASE_URL; arnés Exit Code 0"
 
 [limites]
 "tests/app_core/test_contenedor.py" = "Solo la constante ENTORNO_PRUEBA pierde DATABASE_URL."
+"tests/app_core/test_mcp_compose.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_vendedores_app.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_webhook_app.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/app_core/test_worker_y_panel.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/carga/test_carga_concurrente.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/carga/test_sondeo_salud.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase1.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase3.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase4.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase5.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase6.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_fase7.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/integracion/test_terminal_movil_despliegue.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
+"tests/test_interfaz_purificada.py" = "Solo se quita DATABASE_URL de la constante de entorno de la prueba."
 ```
-Entregables: `AlmacenTrazas` abre la base con `config["db_url"]`, que `app_core` ya resuelve con el `env` inyectado, y deja de leer `os.environ`. **Primero en rojo:** demostrar que, con el arreglo aplicado y sin el ajuste de `ENTORNO_PRUEBA`, la suite `tests/app_core` falla; después, el ajuste del límite y la suite completa en verde. El verde corre `tests/app_core` completo, no solo `test_contenedor.py`: `tests/app_core/test_inferencia_con_tope.py` también importa `ENTORNO_PRUEBA`.
+Entregables: `AlmacenTrazas` abre la base con `config["db_url"]`, que `app_core` ya resuelve con el `env` inyectado, y deja de leer `os.environ`. **Primero en rojo:** demostrar que, con el arreglo aplicado y sin el ajuste de `ENTORNO_PRUEBA`, la suite `tests/app_core` falla; después, el ajuste del límite y la suite completa en verde. El verde corre `tests/observabilidad`, `tests/app_core`, `tests/integracion` y `tests/test_interfaz_purificada.py` sin `DATABASE_URL`: además de `ENTORNO_PRUEBA` (que también importa `tests/app_core/test_inferencia_con_tope.py`), otros 14 archivos arman su propio entorno con `"DATABASE_URL": "postgresql://prueba"` y, con el arreglo, intentarían conectar a un PostgreSQL inexistente (82 pruebas en rojo medidas por el Arquitecto). Esas pruebas usan SQLite en memoria: dejan de declarar PostgreSQL, y el almacén sigue fallando cerrado ante un PostgreSQL inalcanzable. Si al tomar T-414 alguna de T-111, T-211, T-311, T-410, T-411, T-511, T-810 o T-611 sigue sin sellar, T-414 rebasa su cambio de una línea sobre ella; quien llega después, carga.
 
 ### T-415 — Agente: los argumentos inválidos se devuelven al modelo, tokenizados (A8-bis, A5)
 `¤agente-enrutador`
@@ -1399,7 +1451,98 @@ arbitro = "tests/app_core (suite completa); tests/arm_jarvis/test_extraccion_inf
 [limites]
 "app_core/contenedor.py" = "Solo pasa inferencia= a ArmJarvisService."
 ```
-Entregables: `construir` pasa a `ArmJarvisService` la misma instancia de `InferenciaService` que ya recibe el agente. Es la única ficha de la ola 19 y la única sobre `app_core/`.
+Entregables: `construir` pasa a `ArmJarvisService` la misma instancia de `InferenciaService` que ya recibe el agente. Es la única ficha de la ola 19 sobre `app_core/`.
+
+### T-702 — Panel operativo: estado del asistente en el inicio (P-02), los handoffs (P-08) y la salud del sistema (P-11)
+`¤panel-operativo`
+```toml
+id = "T-702"
+ola = 19
+fase = 8
+estado = "pendiente"
+sala = "panel_operativo"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-PAN-09", "RF-AG-05"]
+depende_de = ["T-417", "T-701"]
+bloqueada_por = []
+propiedad = [
+  "features/panel_operativo/bff_internal.py",
+  "features/panel_operativo/panel_operativo_service.py",
+  "features/panel_operativo/tipos.py",
+  "features/panel_operativo/estaticos/app.js",
+  "features/panel_operativo/estaticos/styles.css",
+  "features/panel_operativo/ui/tests/asistente/estado.spec.ts",
+  "features/panel_operativo/ui/tests/bffSimulado.ts",
+  "tests/panel_operativo/dobles.py",
+  "tests/panel_operativo/test_bff_estado_asistente.py",
+  "docs/modulos/panel_operativo.md",
+]
+crea = ["features/panel_operativo/ui/tests/asistente/estado.spec.ts", "tests/panel_operativo/test_bff_estado_asistente.py"]
+consume = ["agente_service (estado_asistente)", "seguridad_service", "observabilidad_service"]
+arbitro = "tests/panel_operativo/test_bff_estado_asistente.py; features/panel_operativo/ui/tests/asistente/estado.spec.ts; arnés Exit Code 0"
+
+# Archivos compartidos dentro de la propia sala; T-701 (ola 12) también los toca.
+[limites]
+"features/panel_operativo/bff_internal.py" = "Solo GET /inicio, GET /admin/salud y, si la especificación lo decide, el endpoint de handoffs (P-08) añaden estado_asistente a su respuesta."
+"features/panel_operativo/panel_operativo_service.py" = "Solo lee agente.estado_asistente() para el inicio y para estado_sistema."
+"features/panel_operativo/tipos.py" = "Solo añade el campo del estado del asistente a EstadoSistema."
+"features/panel_operativo/estaticos/app.js" = "Solo muestra el estado del asistente en las vistas de inicio, de salud y de handoffs (P-08)."
+"features/panel_operativo/estaticos/styles.css" = "Solo añade clases .asistente-; no cambia tokens ni clases existentes."
+"features/panel_operativo/ui/tests/bffSimulado.ts" = "Solo añade las respuestas simuladas de estado_asistente; no cambia las que ya existen."
+"tests/panel_operativo/dobles.py" = "Solo añade estado_asistente a DobleAgenteService; no cambia los dobles existentes."
+"docs/modulos/panel_operativo.md" = "Solo las secciones de P-02, P-08 y de salud del sistema (P-11)."
+```
+Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). Si P-08 lo toma de `GET /inicio` o del endpoint de handoffs lo decide la especificación. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. Los textos de cara al equipo son del UX/UI.
+
+### T-418 — Web pública: el valor claro de `--aviso` pasa a `#8A5300` (contraste AA)
+`¤web-huespedes`
+```toml
+id = "T-418"
+ola = 19
+fase = 5
+estado = "pendiente"
+sala = "web_huespedes"
+rol = "¤¤frontend-developer"
+requisitos = ["RF-WEB-01"]
+depende_de = ["T-405"]
+bloqueada_por = []
+propiedad = ["features/web_huespedes/templates/base.html", "tests/web_huespedes/test_token_aviso.py"]
+crea = ["tests/web_huespedes/test_token_aviso.py"]
+consume = []
+arbitro = "tests/web_huespedes/test_token_aviso.py; arnés Exit Code 0"
+
+[limites]
+"features/web_huespedes/templates/base.html" = "Solo el valor claro de --aviso pasa a #8A5300."
+```
+Entregables: en `features/web_huespedes/templates/base.html`, el token `--aviso` del tema claro pasa de `#B26A00` a `#8A5300`, el mismo valor de `docs/FRONTEND.md` §6. El tema oscuro no cambia. La prueba nueva `tests/web_huespedes/test_token_aviso.py` comprueba que el valor claro de `--aviso` en `base.html` es igual al de `docs/FRONTEND.md:287` y que su contraste con el fondo claro de `base.html` es de al menos 4,5:1; la mutación es volver a `#B26A00`.
+
+### T-419 — Herramientas: `incidencia_id` acotado y exento de PII (sin forma de teléfono)
+`¤herramientas-glamping`
+```toml
+id = "T-419"
+ola = 19
+fase = 5
+estado = "pendiente"
+sala = "herramientas_glamping"
+rol = "¤¤backend-developer"
+requisitos = ["RF-SEC-05", "INV_PII_FUERA_DEL_MODELO"]
+depende_de = ["T-408"]
+bloqueada_por = []
+propiedad = [
+  "features/herramientas_glamping/esquemas/reportar_incidencia.json",
+  "features/herramientas_glamping/herramientas_internal.py",
+  "tests/herramientas_glamping/test_t419_incidencia_id.py",
+  "docs/modulos/herramientas_glamping.md",
+]
+crea = ["tests/herramientas_glamping/test_t419_incidencia_id.py"]
+consume = ["seguridad_service (detector de PII)"]
+arbitro = "tests/herramientas_glamping/test_t419_incidencia_id.py; tests/herramientas_glamping/test_x_pii_esquemas.py; arnés Exit Code 0"
+
+[limites]
+"features/herramientas_glamping/esquemas/reportar_incidencia.json" = "Solo el pattern de incidencia_id pasa a ^I-[0-9]{4}-[0-9]{4,5}$ y se le agrega x-pii-exento."
+"features/herramientas_glamping/herramientas_internal.py" = "Solo el id de respaldo (línea 487) pasa de 4 hexadecimales a 4 dígitos decimales."
+```
+Entregables: `incidencia_id` queda acotado a `^I-[0-9]{4}-[0-9]{4,5}$` y declarado `x-pii-exento`, para que nunca tenga forma de teléfono. Se descarta `{4,8}`: el Arquitecto midió que con sufijos de 6 a 8 dígitos cerca del 90 % se detecta como TELEFONO. El id de respaldo de `herramientas_internal.py` usa 4 dígitos decimales en lugar de 4 hexadecimales, para cumplir el pattern. `docs/modulos/herramientas_glamping.md` documenta el pattern y la exención. `tests/herramientas_glamping/test_x_pii_esquemas.py` lo crea T-408 y no existe todavía (R1), así que no entra en la propiedad. Su A10 admite la exención de incidencia_id solo si el pattern rechaza sufijos de 6 dígitos o más, así que T-419 la cumple sin tocarla. `test_t419_incidencia_id.py` prueba el pattern acotado, la exención declarada, las cero fugas del detector sobre ids válidos y el id de respaldo en dígitos.
 
 ---
 
