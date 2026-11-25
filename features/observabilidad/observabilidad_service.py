@@ -12,7 +12,7 @@ from typing import Any, Mapping
 
 import yaml
 
-from features.observabilidad.alertas_internal import DetectorAlertas
+from features.observabilidad.alertas_internal import DetectorAlertas, costo_del_dia
 from features.observabilidad.cuota_internal import CuotaDiaria
 from features.observabilidad.logs_internal import LoggerObservabilidad
 from features.observabilidad.metricas_internal import calcular_metricas_prd
@@ -207,9 +207,7 @@ class ObservabilidadService:
         if "ultimo_mensaje_at" not in datos and trazas:
             datos["ultimo_mensaje_at"] = max(t.inicio for t in trazas)
         if "costo_diario" not in datos and "costo_diario_usd" not in datos:
-            ahora = datetime.now(timezone.utc)
-            trazas_hoy = [t for t in trazas if t.inicio.date() == ahora.date()]
-            datos["costo_diario_usd"] = sum(float(s.costo_usd or 0) for t in trazas_hoy for s in t.spans)
+            datos["costo_diario_usd"] = costo_del_dia(trazas, datetime.now(timezone.utc))
         if "conciliaciones_fallidas" not in datos and self._cuotas:
             datos["conciliaciones_fallidas"] = sum(c.conciliaciones_fallidas for c in self._cuotas)
         return self._detector_alertas.verificar_todas(fuente_datos=datos)

@@ -5,7 +5,8 @@
 
 Se cuenta en micro-dólares enteros para que la comparación sea exacta. La reserva es un único
 ``UPDATE … WHERE gastado + costo <= tope RETURNING``: o entra entera o no entra, también entre procesos
-en PostgreSQL. El día es el día UTC. Cualquier error de la base se trata como «no hay cupo» (falla cerrada).
+en PostgreSQL. El día es el de Google Cloud: medianoche del Pacífico (America/Los_Angeles), como sus
+cuotas diarias. Cualquier error de la base se trata como «no hay cupo» (falla cerrada).
 """
 from __future__ import annotations
 
@@ -14,11 +15,22 @@ import threading
 from datetime import datetime, timezone
 from decimal import ROUND_CEILING, Decimal
 from typing import Any, Callable
+from zoneinfo import ZoneInfo
 
-__all__ = ["CuotaDiaria"]
+__all__ = ["CuotaDiaria", "dia_de_cuota"]
 
 _MICRO = Decimal("1000000")
 _LOG = logging.getLogger(__name__)
+# Decisión del propietario (2026-11-25, ADR-0021): el día de las cuotas diarias de Google Cloud.
+_ZONA_CUOTA = ZoneInfo("America/Los_Angeles")
+
+
+# ¤observabilidad
+def dia_de_cuota(instante: datetime) -> str:
+    """Día (AAAA-MM-DD) en la zona de Google Cloud; un instante sin zona es un error, no se supone UTC."""
+    if instante.tzinfo is None:
+        raise ValueError("el instante necesita zona horaria")
+    return instante.astimezone(_ZONA_CUOTA).date().isoformat()
 
 
 # ¤observabilidad
@@ -43,7 +55,7 @@ class CuotaDiaria:
     # ¤observabilidad
     @staticmethod
     def _dia() -> str:
-        return datetime.now(timezone.utc).date().isoformat()
+        return dia_de_cuota(datetime.now(timezone.utc))
 
     # ¤observabilidad
     def reservar(self, costo: Decimal) -> bool:

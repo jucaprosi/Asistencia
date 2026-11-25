@@ -8,9 +8,21 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Mapping, Sequence
 
+from features.observabilidad.cuota_internal import dia_de_cuota
 from features.observabilidad.tipos import Alerta, Traza
 
-__all__ = ["DetectorAlertas"]
+__all__ = ["DetectorAlertas", "costo_del_dia"]
+
+
+# ¤observabilidad
+def costo_del_dia(trazas: Sequence[Traza], ahora: datetime) -> float:
+    """Costo de los spans del día de la cuota (el de Google Cloud), para la alerta de costo diario."""
+    hoy = dia_de_cuota(ahora)
+
+    def dia(instante: datetime) -> str:  # una traza antigua sin zona se toma como UTC, como antes
+        return dia_de_cuota(instante if instante.tzinfo else instante.replace(tzinfo=timezone.utc))
+
+    return sum(float(s.costo_usd or 0) for t in trazas if dia(t.inicio) == hoy for s in t.spans)
 
 
 # ¤observabilidad

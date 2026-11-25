@@ -22,6 +22,8 @@ dependencies = [
   "jsonschema>=4.0",  # comisiones valida la exportación en tiempo de ejecución
   # ADR-0021: SDK de Vertex AI, solo lo importa la sala inferencia; fijado y con hash en requirements.lock.
   "google-genai==2.34.0",
+  # Día de la cuota (America/Los_Angeles, ADR-0021 enmienda 1): la base de zonas viaja con la app (r5).
+  "tzdata>=2024.1",
 ]
 
 [project.optional-dependencies]
