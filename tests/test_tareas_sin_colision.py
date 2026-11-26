@@ -11,7 +11,8 @@ Lee cada bloque ```toml``` del archivo y comprueba:
 Reglas de ortogonalidad (dictamen del Arquitecto ADPA G.I., 2026-11-25). **Regla de oro:** solo las fichas no selladas
 compiten por un archivo; al sellarse, sus archivos quedan libres.
 - R1: una ficha no sellada declara archivos exactos (sin `*`, `**` ni `/` final); cada uno existe en HEAD o está en
-  `crea`, y `crea` está incluida en `propiedad`. `crea` declara intención y no se vuelve a comprobar después de crear:
+  `crea` o en el `crea` de una dependencia directa declarada en `depende_de` de una ola estrictamente anterior (no cuenta
+  la transitiva), y `crea` está incluida en `propiedad`. `crea` declara intención y no se vuelve a comprobar después de crear:
   en el PR de la tarea, y en main entre el merge y el sellado, HEAD ya trae el archivo y la ficha sigue pendiente.
 - R2: cada archivo ajeno que una ficha de sala toma lleva su límite en `limites`.
 - R3: ninguna ficha no sellada reclama los archivos de gobernanza comunes.
@@ -38,7 +39,10 @@ RESERVADAS = (
     "README.md", "CLAUDE.md",
 )
 RECURSOS_POR_SALA = {
-    "seguridad": {"evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/"},
+    "seguridad": {
+        "evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/",
+        "scripts/rotar_pii_vault_key.py", "docs/operacion/ROTACION_PII_VAULT_KEY.md", "evals/pii_nombres.jsonl",
+    },
     "agente": {"docs/prompts/", "evals/enrutador.jsonl"},
     "conocimiento": {"scripts/seed_knowledge.py", "evals/set_dorado.jsonl", "docs/negocio/README.md"},
     "arm_jarvis": {"evals/ventas.jsonl"},
@@ -168,14 +172,30 @@ def _violaciones_r2(tareas: list[dict]) -> list[str]:
 
 
 # --- R1: archivos exactos y crea -------------------------------------------------------------------------------------
+def _creadas_por_dependencias(tarea: dict, tareas: list[dict]) -> frozenset[str]:
+    """Rutas del ``crea`` de las dependencias directas de ``tarea`` que son de una ola estrictamente anterior.
+
+    El id de cada dependencia es lo que va antes del primer espacio de ``depende_de`` (como en el resto del árbitro).
+    No cuenta la dependencia transitiva ni una ficha que no esté declarada en ``depende_de``.
+    """
+    ids = {dependencia.split(" ")[0] for dependencia in tarea["depende_de"]}
+    return frozenset(
+        ruta
+        for otra in tareas
+        if otra["id"] in ids and int(otra["ola"]) < int(tarea["ola"])
+        for ruta in otra.get("crea", [])
+    )
+
+
 def _violaciones_r1(tareas: list[dict], en_head: frozenset[str]) -> list[str]:
     violaciones: list[str] = []
     for tarea in _no_selladas(tareas):
         crea = list(tarea.get("crea", []))
+        creadas_antes = _creadas_por_dependencias(tarea, tareas)
         for ruta in tarea["propiedad"]:
             if "*" in ruta or ruta.endswith("/"):
                 violaciones.append(f"{tarea['id']}: {ruta} no es un archivo exacto (sin *, ** ni / final)")
-            elif ruta not in en_head and ruta not in crea:
+            elif ruta not in en_head and ruta not in crea and ruta not in creadas_antes:
                 violaciones.append(f"{tarea['id']}: {ruta} no existe en HEAD y no está en crea")
         for ruta in crea:  # crea declara intención: no se exige que siga sin existir (ver docstring del módulo)
             if ruta not in tarea["propiedad"]:
