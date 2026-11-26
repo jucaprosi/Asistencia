@@ -9,7 +9,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-GW-02 | T-101 | plataforma.feature: Envío con reintentos y estados |
 | RF-GW-03 | T-101 | checkin.feature: Fuera de la ventana de 24 horas<br>plataforma.feature: Texto libre fuera de ventana |
 | RF-GW-04 | T-101 | plataforma.feature: Plantilla con variables incorrectas o sin aprobar |
-| RF-GW-05 | T-101 | plataforma.feature: Medio recibido |
+| RF-GW-05 | T-101, T-425, T-426, T-427 | plataforma.feature: Medio recibido |
 | RF-GW-06 | T-503, T-510, T-509 | plataforma.feature: Canales separados |
 | RF-GW-07 | T-101 | ingesta_mensajes.feature: Un mensaje válido queda persistido antes de responder a Meta<br>ingesta_mensajes.feature: Un reintento de Meta no duplica el mensaje<br>ingesta_mensajes.feature: Una caída del proceso no pierde el mensaje |
 | RF-GW-08 | T-101 | ingesta_mensajes.feature: Los mensajes seguidos de un remitente se atienden como un solo turno |
@@ -59,12 +59,12 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RF-SEC-02 | T-102 | seguridad.feature: Pasar a huésped activo<br>seguridad.feature: El modelo pide una herramienta prohibida |
 | RF-SEC-03 | T-102 | seguridad.feature: Límite por remitente |
 | RF-SEC-04 | T-102, T-401 | seguridad.feature: Intento de inyección |
-| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507, T-422, T-419 | privacidad.feature: Nada de PII hacia el modelo |
+| RF-SEC-05 | T-102, T-408, T-416, T-407, T-413, T-415, T-507, T-422, T-423, T-428, T-429, T-431, T-419 | privacidad.feature: Nada de PII hacia el modelo |
 | RF-SEC-06 | T-102 | plataforma.feature: Audit log inalterable |
 | RF-SEC-07 | T-304 | plataforma.feature: Aislamiento por propiedad en la base |
-| RF-SEC-08 | T-304 | checkin.feature: Un código de reserva ajeno no abre las instrucciones<br>checkin.feature: Los secretos operativos no pasan por el modelo |
-| RF-PRIV-01 | T-102, T-422, T-509 | privacidad.feature: Aviso en el primer contacto |
-| RF-PRIV-02 | T-102 | plataforma.feature: Inventario completo |
+| RF-SEC-08 | T-304, T-423 | checkin.feature: Un código de reserva ajeno no abre las instrucciones<br>checkin.feature: Los secretos operativos no pasan por el modelo |
+| RF-PRIV-01 | T-102, T-422, T-509, T-425, T-427 | privacidad.feature: Aviso en el primer contacto |
+| RF-PRIV-02 | T-102, T-425 | plataforma.feature: Inventario completo |
 | RF-PRIV-03 | T-401 | privacidad.feature: Retención automática |
 | RF-PRIV-04 | T-401, S-3 | privacidad.feature: Eliminación por criptoborrado |
 | RF-PRIV-05 | T-401 | privacidad.feature: Conservación por obligación legal |
@@ -127,7 +127,7 @@ Archivo generado por `scripts/generar_trazabilidad.py`. No se edita a mano.
 | RNF-15 | T-610 | por árbitro de la tabla del PRD |
 | RNF-16 | T-403, T-412, T-414 | por árbitro de la tabla del PRD |
 | RNF-17 | T-401 | por árbitro de la tabla del PRD |
-| RNF-18 | T-102, T-412 | por árbitro de la tabla del PRD |
+| RNF-18 | T-102, T-412, T-430 | por árbitro de la tabla del PRD |
 | RNF-19 | T-110 | por árbitro de la tabla del PRD |
 | US-01 | T-211 | reservas.feature: Consulta con disponibilidad<br>reservas.feature: Consulta sin disponibilidad<br>reservas.feature: El PMS no responde |
 | US-02 | T-211 | reservas.feature: Reserva preliminar<br>reservas.feature: Reintento idempotente<br>reservas.feature: Una reserva preliminar sin pago expira<br>reservas.feature: Cancelar o cambiar una reserva pasa por una persona |
