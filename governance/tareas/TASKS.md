@@ -72,7 +72,11 @@
 | **Ola 18** (C) | `T-415` (A8-bis, `agente`) · `T-507` (TL-2, `arm_jarvis`) · `G-2` (árbitro de especificaciones) · `S-3` (`seguridad`, secretos sin clave publicada) | Argumentos inválidos al modelo, ARM con inferencia y secretos con clave efímera |
 | **Ola 19** | `T-508` (TL-2, pasillo: `app_core` inyecta `inferencia` en el ARM) · `T-420` (`agente`, pausa dinámica) · `T-418` (`web_huespedes`, contraste de `--aviso`) · `T-419` (`herramientas_glamping`, `incidencia_id` acotado) | Ensamblaje del ARM con inferencia, pausa dinámica del asistente, contraste AA e `incidencia_id` sin forma de teléfono |
 | **Ola 20** | `T-702` (`panel_operativo`, estado del asistente) · `T-421` (`agente`, derivación a una persona) · `T-422` (`seguridad`, aviso LOPDP) | Estado del asistente en el panel, con la pausa dinámica; aviso LOPDP y derivación |
-| **Ola 21** | `T-509` (pasillo: lazo del huésped con aviso) | Filtro de entrada, aviso y respuesta enviada al huésped |
+| **Ola 21** | `T-509` (pasillo: lazo del huésped con aviso) · `T-423` (`seguridad`, rotación de `PII_VAULT_KEY`) | Filtro de entrada, aviso y respuesta enviada al huésped; rotación de la clave de la bóveda |
+| **Ola 22** | `T-425` (`inferencia`, transcripción de audio) · `T-426` (`canal_whatsapp`, audio efímero) · `T-428` (`seguridad`, PII de nombres y correos) | Transcripción de audio, audio que se elimina siempre y detección de nombres propios y correos con tilde |
+| **Ola 23** | `T-427` (`pasillo_central`, el lazo transcribe el audio) | Audio del huésped, apagado por omisión |
+| **Ola 24** | `T-430` (`pasillo_central`, arranque productivo exige Vertex) · `T-431` (`observabilidad`, las evaluaciones de ventas pasan seguridad) | Arranque productivo sin Vertex incompleto y evaluaciones de ventas con seguridad real |
+| **Ola 25** | `T-429` (`arm_jarvis`, seguridad obligatoria en el ARM) | Seguridad obligatoria en el ARM, sin doble por defecto |
 
 Estados: `pendiente` → `boceto` → `sellada` · `bloqueada`.
 
@@ -1230,7 +1234,7 @@ propiedad = [
 ]
 crea = ["tests/app_core/test_o1_entorno_cuota.py"]
 consume = ["persistencia_sql_service (es_postgres)", "seguridad_service (estado().clave_efimera)", "observabilidad_service"]
-arbitro = "tests/app_core/test_o1_entorno_cuota.py (rojo del QA: 8 rojos y 6 guardas); arnés Exit Code 0"
+arbitro = "tests/app_core/test_o1_entorno_cuota.py (rojo v2 del QA, con A14 y A15: 13 rojos y 13 guardas); arnés Exit Code 0"
 ```
 Entregables (T1-a, O1 del QA): `K_SERVICE` manda: si está, `construir` exige PostgreSQL sea cual sea `APP_ENV`. Sin `K_SERVICE`, SQLite solo con `APP_ENV` en {beta, prueba}; cualquier otro valor, también uno desconocido, exige PostgreSQL. Un árbitro estático exige `APP_ENV=produccion` en `infra/gcp/cloudrun.yaml` y en el `run deploy` de `infra/gcp/cloudbuild.yaml`. En producción, `construir` rechaza `seguridad.estado().clave_efimera`. `tests/app_core/test_o1_entorno_cuota.py` define su propio entorno y **no importa** `ENTORNO_PRUEBA` de `tests/app_core/test_contenedor.py` (cada suite monta sus datos), porque `T-414` cambia esa constante en la misma ola. Es la única ficha de la ola 17 sobre `app_core/`; no reclama `tests/app_core/test_contenedor.py`, que es de `T-414`.
 
@@ -1427,12 +1431,15 @@ rol = "¤¤security-engineer"
 requisitos = ["RF-PRIV-04", "INV_SIN_SECRETOS_EN_REPO"]
 depende_de = ["T-401"]
 bloqueada_por = []
-propiedad = ["features/seguridad/secretos_internal.py", "tests/seguridad/test_s3_secretos_clave_efimera.py"]
+propiedad = ["features/seguridad/secretos_internal.py", "features/seguridad/pii_internal.py", "tests/seguridad/test_s3_secretos_clave_efimera.py"]
 crea = ["tests/seguridad/test_s3_secretos_clave_efimera.py"]
-consume = ["observabilidad_service"]
+consume = []
 arbitro = "tests/seguridad/test_s3_secretos_clave_efimera.py"
+
+[limites]
+"features/seguridad/pii_internal.py" = "Solo añade clave_efimera_del_proceso() -> str, que devuelve la clave efímera que ya usa PIIRedactor; no cambia nada más."
 ```
-Entregables: `secretos_internal.py` deja de importar `CLAVE_DEFECTO_BOVEDA`; reporta cuando usa la clave efímera; ante `InvalidTag` actúa como T-406-b (C2): devuelve el marcador neutro y registra un aviso sin PII, en lugar de lanzar. Va en la ola 18 porque la 17 ya tiene cuatro fichas; es disjunta de `T-413` (S-2).
+Entregables: `secretos_internal.py` deja de importar `CLAVE_DEFECTO_BOVEDA`; reporta cuando usa la clave efímera; ante `InvalidTag` actúa como T-406-b (C2): devuelve el marcador neutro y registra un aviso sin PII, en lugar de lanzar. El marcador neutro de `rehidratar_secretos` es `[DATO_BORRADO]` y la advertencia va por `logging`, sin dependencia nueva de `observabilidad_service`. `pii_internal.py` solo gana `clave_efimera_del_proceso()`, para que el gestor comparta la clave efímera de `PIIRedactor`. Va en la ola 18 porque la 17 ya tiene cuatro fichas; es disjunta de `T-413` (S-2).
 
 ### T-508 — Pasillo central: `app_core` inyecta `inferencia` en `ArmJarvisService` (TL-2, pasillo)
 `¤pasillo-central` `¤arm-jarvis`
@@ -1446,12 +1453,13 @@ rol = "¤¤solutions-architect"
 requisitos = ["RF-ARM-02"]
 depende_de = ["T-507", "T-412"]
 bloqueada_por = []
-propiedad = ["app_core/contenedor.py"]
+propiedad = ["app_core/contenedor.py", "tests/app_core/test_arm_con_inferencia.py"]
+crea = ["tests/app_core/test_arm_con_inferencia.py"]
 consume = ["arm_jarvis_service", "inferencia_service"]
 arbitro = "tests/app_core (suite completa); tests/arm_jarvis/test_extraccion_inferencia.py; arnés Exit Code 0"
 
 [limites]
-"app_core/contenedor.py" = "Solo pasa inferencia= a ArmJarvisService."
+"app_core/contenedor.py" = "Pasa inferencia= a ArmJarvisService y mueve, sin cambiarlo, el bloque que construye InferenciaService (sin_tope_compartido, inferencia y su comentario) antes de la construcción del ARM."
 ```
 Entregables: `construir` pasa a `ArmJarvisService` la misma instancia de `InferenciaService` que ya recibe el agente. Es la única ficha de la ola 19 sobre `app_core/`.
 
@@ -1526,7 +1534,7 @@ arbitro = "tests/panel_operativo/test_bff_estado_asistente.py; features/panel_op
 "tests/panel_operativo/dobles.py" = "Solo añade estado_asistente a DobleAgenteService; no cambia los dobles existentes."
 "docs/modulos/panel_operativo.md" = "Solo las secciones de P-02, P-08 y de salud del sistema (P-11)."
 ```
-Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). Si P-08 lo toma de `GET /inicio` o del endpoint de handoffs lo decide la especificación. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. La pausa muestra su causa (`motivo`) y no presenta "disponible" como garantía de cuota ni de proveedor activos. Los textos de cara al equipo son del UX/UI.
+Entregables: `GET /inicio` (`bff_internal.py`, `inicio_endpoint`) y `GET /admin/salud` (`bff_internal.py`, `salud_sistema_endpoint`, que sirve `PanelOperativoService.estado_sistema`) exponen el `EstadoAsistente` que devuelve `agente.estado_asistente()` por la compuerta. La interfaz lo muestra en el inicio, en la salud del sistema y en P-08 Handoffs (franja `role="status"` y chip «Asistente en pausa», en `estaticos/app.js` y `estaticos/styles.css`; la pausa usa `--aviso`). P-08 lo toma de `GET /inicio`. La salud del sistema es una vista mínima: una rama `salud` en `navegar` que llama a `GET /panel/api/admin/salud`, con la franja del asistente; las métricas OP-01 a OP-10 y el resto de P-11 no entran. Su arnés de interfaz va en `ui/tests/asistente/estado.spec.ts`. La pausa muestra su causa (`motivo`) y no presenta "disponible" como garantía de cuota ni de proveedor activos. Los textos de cara al equipo los fija el UX/UI y el PR trae pegado el Playwright en verde.
 
 ### T-421 — Agente: la derivación a una persona (PERSONA, persona, humano y agente) y la oferta en los prompts
 `¤agente-enrutador` `¤seguridad-canal`
@@ -1643,6 +1651,264 @@ arbitro = "tests/app_core/test_lazo_huesped.py; tests/app_core/test_contenedor.p
 ```
 Entregables: el receptor de huéspedes pasa a ser `LazoHuesped`: filtra la entrada, envía el aviso antes del primer mensaje al modelo, falla cerrado hacia una persona y envía la respuesta del agente. Hallazgo medido sobre `origin/main ecf9119`: en producción la respuesta del agente nunca llega al huésped y `filtrar_entrada` no tiene llamador fuera de `tests/` (`contenedor.py:325`, `trabajador_internal.py:140-145`, `enrutamiento_canal_internal.py:166`). Fuera de alcance: botones y listas con formato propio, el lazo del canal de vendedores, la cortesía de caída por conversación y la variante con consentimiento, todavía [DECISIÓN PENDIENTE].
 
+### T-423 — Seguridad: rotación de `PII_VAULT_KEY` con clave anterior de respaldo y reencriptado por lotes
+`¤seguridad-canal`
+```toml
+id = "T-423"
+ola = 21
+fase = 5
+estado = "pendiente"
+sala = "seguridad"
+rol = "¤¤security-engineer"
+requisitos = ["RF-SEC-05", "RF-SEC-08"]
+depende_de = ["T-412", "S-3", "T-422"]
+bloqueada_por = []
+propiedad = [
+  "features/seguridad/rotacion_internal.py",
+  "features/seguridad/pii_internal.py",
+  "features/seguridad/secretos_internal.py",
+  "features/seguridad/seguridad_service.py",
+  "features/seguridad/tipos.py",
+  "features/seguridad/config_seguridad.yaml",
+  "scripts/rotar_pii_vault_key.py",
+  "docs/operacion/ROTACION_PII_VAULT_KEY.md",
+  "docs/modulos/seguridad.md",
+  "tests/seguridad/test_t423_rotacion_pii_vault_key.py",
+]
+crea = ["features/seguridad/rotacion_internal.py", "scripts/rotar_pii_vault_key.py", "docs/operacion/ROTACION_PII_VAULT_KEY.md", "tests/seguridad/test_t423_rotacion_pii_vault_key.py"]
+consume = ["persistencia_sql_service (envolver, es_postgres)"]
+arbitro = "tests/seguridad/test_t423_rotacion_pii_vault_key.py; tests/seguridad; tests/app_core/test_o1_entorno_cuota.py; arnés Exit Code 0"
+
+[limites]
+"features/seguridad/pii_internal.py" = "Solo la lectura de la clave anterior y el descifrado de respaldo."
+"features/seguridad/secretos_internal.py" = "Solo la lectura de la clave anterior y el descifrado de respaldo."
+"features/seguridad/seguridad_service.py" = "Solo la resolución de pii.clave_anterior y los dos métodos nuevos."
+"features/seguridad/tipos.py" = "Solo EstadoRotacion y ResultadoRotacion."
+"features/seguridad/config_seguridad.yaml" = "Solo pii.clave_anterior."
+"docs/modulos/seguridad.md" = "Solo la sección de la bóveda."
+```
+Entregables: La bóveda se cifra siempre con `PII_VAULT_KEY` y se descifra con esa o, si no abre, con `PII_VAULT_KEY_ANTERIOR`. `SeguridadService.reencriptar_boveda` y `estado_rotacion_boveda` y el script `scripts/rotar_pii_vault_key.py` vuelven a cifrar lo guardado con la clave anterior, por lotes y sin repetir trabajo, y avisan con código de salida cuándo se puede retirar la clave anterior. `docs/operacion/ROTACION_PII_VAULT_KEY.md` explica el procedimiento en cinco pasos. La falla cerrada de T-412 se mantiene. Los pasos en Google Cloud los ejecuta el propietario por medio de Antigravity.
+
+### T-425 — Inferencia: `InferenciaService.transcribir`, el audio del huésped se transcribe con Gemini en Vertex y se descarta
+`¤inferencia`
+```toml
+id = "T-425"
+ola = 22
+fase = 5
+estado = "pendiente"
+sala = "inferencia"
+rol = "¤¤integration-engineer"
+requisitos = ["RF-GW-05 (medios: recibe audio)", "RF-PRIV-01", "RF-PRIV-02"]
+depende_de = ["T-409"]
+bloqueada_por = ["respuesta del abogado sobre la voz (la Enmienda 4 del ADR-0021 ya está aceptada)"]
+propiedad = [
+  "features/inferencia/inferencia_service.py",
+  "features/inferencia/tipos.py",
+  "features/inferencia/config_inferencia.yaml",
+  "docs/modulos/inferencia.md",
+  "tests/inferencia/test_transcripcion_audio.py",
+]
+crea = ["docs/modulos/inferencia.md", "tests/inferencia/test_transcripcion_audio.py"]
+consume = []
+arbitro = "tests/inferencia/test_transcripcion_audio.py; tests/inferencia; tests/test_firmas_compuertas.py; arnés Exit Code 0"
+
+[limites]
+"features/inferencia/inferencia_service.py" = "Solo transcribir y la extracción del reintento y de la reserva de cuota a una función privada compartida, sin cambiar la conducta de generar."
+"features/inferencia/tipos.py" = "Solo Transcripcion."
+"features/inferencia/config_inferencia.yaml" = "Solo la clave audio."
+"docs/modulos/inferencia.md" = "Archivo nuevo, solo la sección de la transcripción."
+```
+Entregables: `InferenciaService.transcribir` convierte un audio en texto con Gemini en Vertex, con la falla cerrada, la lista blanca, el tope diario, el plazo y el único reintento de `generar`. El audio se procesa y se descarta: ninguna parte de la sala lo conserva. El `bloqueada_por` es informativo: el código se construye y se sella con pruebas; lo que sigue bloqueado es el tráfico real con audio.
+
+### T-426 — Canal WhatsApp: `CanalWhatsappService.con_audio`, el audio se entrega a una función y se elimina siempre
+`¤canal-whatsapp`
+```toml
+id = "T-426"
+ola = 22
+fase = 5
+estado = "pendiente"
+sala = "canal_whatsapp"
+rol = "¤¤integration-engineer"
+requisitos = ["RF-GW-05"]
+depende_de = ["T-101"]
+bloqueada_por = []
+propiedad = [
+  "features/canal_whatsapp/canal_whatsapp_service.py",
+  "features/canal_whatsapp/medios_internal.py",
+  "features/canal_whatsapp/persistencia_internal.py",
+  "docs/modulos/canal_whatsapp.md",
+  "tests/canal_whatsapp/test_audio_efimero.py",
+]
+crea = ["tests/canal_whatsapp/test_audio_efimero.py"]
+consume = ["seguridad_service", "observabilidad_service"]
+arbitro = "tests/canal_whatsapp/test_audio_efimero.py; tests/canal_whatsapp; tests/test_firmas_compuertas.py; arnés Exit Code 0"
+
+[limites]
+"features/canal_whatsapp/canal_whatsapp_service.py" = "Solo el método con_audio."
+"features/canal_whatsapp/medios_internal.py" = "Solo eliminar en AlmacenamientoMedios y GestorMedios.con_audio."
+"features/canal_whatsapp/persistencia_internal.py" = "Solo eliminar_medio."
+"docs/modulos/canal_whatsapp.md" = "Solo la sección del audio."
+```
+Entregables: `CanalWhatsappService.con_audio` entrega los bytes y el tipo MIME de un audio a una función y elimina siempre el medio, del almacén y de `canal.medios`, también cuando algo falla.
+
+### T-427 — Pasillo central: el lazo del huésped transcribe el audio (apagado por omisión)
+`¤pasillo-central` `¤inferencia` `¤canal-whatsapp`
+```toml
+id = "T-427"
+ola = 23
+fase = 5
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤integration-engineer"
+requisitos = ["RF-GW-05 (medios: recibe audio)", "RF-PRIV-01"]
+depende_de = ["T-509", "T-425", "T-426"]
+bloqueada_por = ["respuesta del abogado sobre la voz (la Enmienda 4 del ADR-0021 ya está aceptada)"]
+propiedad = [
+  "app_core/lazo_huesped.py",
+  "app_core/contenedor.py",
+  "tests/app_core/test_lazo_huesped.py",
+  ".env.example",
+  "infra/gcp/cloudrun.yaml",
+  "docs/modulos/app_core.md",
+  "tests/app_core/test_lazo_audio.py",
+]
+crea = ["tests/app_core/test_lazo_audio.py"]
+consume = ["canal_whatsapp_service", "inferencia_service", "seguridad_service", "agente_service"]
+arbitro = "tests/app_core/test_lazo_audio.py; tests/app_core; tests/canal_whatsapp; arnés Exit Code 0"
+
+[limites]
+"app_core/lazo_huesped.py" = "Solo el camino del audio (R1 a R7) y el parámetro audio_activo."
+"app_core/contenedor.py" = "Solo la línea que construye LazoHuesped, para pasarle audio_activo."
+"tests/app_core/test_lazo_huesped.py" = "Solo el tipo AUDIO en las filas de A13 y A16."
+".env.example" = "Solo la línea AUDIO_TRANSCRIPCION."
+"infra/gcp/cloudrun.yaml" = "Solo la variable AUDIO_TRANSCRIPCION en env, sin secretKeyRef."
+"docs/modulos/app_core.md" = "Solo la sección del audio en el lazo del huésped."
+```
+Entregables: `LazoHuesped` transcribe el audio del huésped después del aviso, filtra y tokeniza la transcripción y la atiende como un mensaje normal. Ningún paso guarda el audio. Un audio con texto también se transcribe y el agente recibe el texto y la transcripción. Si la transcripción falla, el huésped recibe la petición de explicarse (T-509), o solo se atiende su texto si lo trae. Nace apagado con `AUDIO_TRANSCRIPCION=0`. El `bloqueada_por` es informativo: lo que sigue bloqueado es el tráfico real con audio.
+
+### T-428 — Seguridad: el detector de PII redacta correos con tilde y nombres propios sin introductor
+`¤seguridad-canal`
+```toml
+id = "T-428"
+ola = 22
+fase = 5
+estado = "pendiente"
+sala = "seguridad"
+rol = "¤¤security-engineer"
+requisitos = ["RF-SEC-05"]
+depende_de = ["T-412", "T-413"]
+bloqueada_por = []
+propiedad = [
+  "features/seguridad/pii_internal.py",
+  "features/seguridad/nombres_propios.yaml",
+  "evals/pii_nombres.jsonl",
+  "docs/modulos/seguridad.md",
+  "tests/seguridad/test_pii_nombres_correos.py",
+]
+crea = ["features/seguridad/nombres_propios.yaml", "evals/pii_nombres.jsonl", "tests/seguridad/test_pii_nombres_correos.py"]
+consume = []
+arbitro = "tests/seguridad/test_pii_nombres_correos.py; tests/seguridad; arnés Exit Code 0"
+
+[limites]
+"features/seguridad/pii_internal.py" = "Solo RX_CORREO, RX_NOMBRE, la detección de nombres y la carga del archivo de nombres."
+"docs/modulos/seguridad.md" = "Solo la sección de la detección de nombres."
+```
+Entregables: El detector de PII redacta correos con tilde y nombres propios sin introductor (introductores de parentesco, tratamientos y un diccionario de nombres sin ambiguos), sin tokenizar palabras comunes ni lugares; falla cerrado si falta `nombres_propios.yaml`. Se mide con `evals/pii_nombres.jsonl`.
+
+### T-429 — ARM «Jarvis»: `seguridad` obligatoria en `ArmJarvisService` y retiro del doble por defecto
+`¤arm-jarvis`
+```toml
+id = "T-429"
+ola = 25
+fase = 5
+estado = "pendiente"
+sala = "arm_jarvis"
+rol = "¤¤integration-engineer"
+requisitos = ["RF-SEC-05"]
+depende_de = ["T-407", "T-507", "T-431"]
+bloqueada_por = []
+propiedad = [
+  "features/arm_jarvis/arm_jarvis_service.py",
+  "tests/agente/test_sin_doble_seguridad_en_servicios.py",
+  "tests/arm_jarvis/test_ventas_multiples.py",
+  "tests/arm_jarvis/test_asistente_lider.py",
+  "tests/arm_jarvis/test_notificacion.py",
+  "tests/arm_jarvis/test_tablero.py",
+  "tests/arm_jarvis/test_comision.py",
+  "tests/arm_jarvis/test_ingesta.py",
+  "tests/arm_jarvis/test_consulta_comision.py",
+  "tests/arm_jarvis/test_estados.py",
+  "tests/arm_jarvis/test_ticket.py",
+  "tests/test_contratos_compuertas_vs_dobles.py",
+  "docs/modulos/arm_jarvis.md",
+  "tests/arm_jarvis/test_seguridad_obligatoria.py",
+]
+crea = ["tests/arm_jarvis/test_seguridad_obligatoria.py"]
+consume = ["seguridad_service"]
+arbitro = "tests/arm_jarvis/test_seguridad_obligatoria.py; tests/arm_jarvis; tests/observabilidad; tests/agente/test_sin_doble_seguridad_en_servicios.py; arnés Exit Code 0"
+
+[limites]
+"features/arm_jarvis/arm_jarvis_service.py" = "Solo el constructor (seguridad obligatoria) y el import de DobleSeguridad."
+"tests/agente/test_sin_doble_seguridad_en_servicios.py" = "Solo retirar EXCEPCIONES."
+"tests/test_contratos_compuertas_vs_dobles.py" = "Solo pasar seguridad= en cada construcción."
+"docs/modulos/arm_jarvis.md" = "Solo la línea de la compuerta."
+```
+Entregables: `ArmJarvisService` exige `seguridad` y retira el doble por defecto; se retira la excepción nominal de T-407. Los nueve archivos de `tests/arm_jarvis/` de la propiedad solo pasan `seguridad=` en cada construcción. De otra sala toca solo pruebas con su límite (`tests/agente/test_sin_doble_seguridad_en_servicios.py` y `tests/test_contratos_compuertas_vs_dobles.py`). El código de `observabilidad` y `scripts/run_evals.py` lo cambia T-431 antes, en la ola 24.
+
+### T-431 — Observabilidad: las evaluaciones de ventas pasan una seguridad real al ARM
+`¤arm-jarvis`
+```toml
+id = "T-431"
+ola = 24
+fase = 5
+estado = "pendiente"
+sala = "observabilidad"
+rol = "¤¤integration-engineer"
+requisitos = ["RF-SEC-05"]
+depende_de = ["T-416"]
+bloqueada_por = []
+propiedad = [
+  "features/observabilidad/observabilidad_service.py",
+  "scripts/run_evals.py",
+  "tests/observabilidad/test_ventas_con_seguridad.py",
+]
+crea = ["tests/observabilidad/test_ventas_con_seguridad.py"]
+consume = ["seguridad_service"]
+arbitro = "tests/observabilidad/test_ventas_con_seguridad.py; tests/observabilidad; tests/arm_jarvis; arnés Exit Code 0"
+
+[limites]
+"features/observabilidad/observabilidad_service.py" = "Solo la construcción de la suite ventas."
+"scripts/run_evals.py" = "Solo la construcción de la suite ventas."
+```
+Entregables: Las dos evaluaciones de ventas (`ObservabilidadService.evaluar` y `scripts/run_evals.py`) construyen `ArmJarvisService` con una `seguridad` real, antes de que T-429 la haga obligatoria. Cada ficha toca solo su sala.
+
+### T-430 — Pasillo central: el arranque productivo exige Vertex configurado
+`¤pasillo-central`
+```toml
+id = "T-430"
+ola = 24
+fase = 5
+estado = "pendiente"
+sala = "pasillo_central"
+rol = "¤¤solutions-architect"
+requisitos = ["RNF-18"]
+depende_de = ["T-412", "T-427"]
+bloqueada_por = []
+propiedad = [
+  "app_core/contenedor.py",
+  "docs/modulos/app_core.md",
+  "tests/app_core/test_inferencia_obligatoria_en_produccion.py",
+]
+crea = ["tests/app_core/test_inferencia_obligatoria_en_produccion.py"]
+consume = ["inferencia_service"]
+arbitro = "tests/app_core/test_inferencia_obligatoria_en_produccion.py; tests/app_core/test_o1_entorno_cuota.py; tests/app_core/test_r4_cuota_produccion.py; arnés Exit Code 0"
+
+[limites]
+"app_core/contenedor.py" = "Solo la comprobación nueva, justo después de construir InferenciaService."
+"docs/modulos/app_core.md" = "Solo la sección del arranque productivo."
+```
+Entregables: El arranque productivo (`K_SERVICE` o entorno fuera de beta y prueba) falla cerrado con un mensaje fijo si faltan `GOOGLE_CLOUD_PROJECT` o una `VERTEX_LOCATION` permitida, si hay una clave de API en el entorno o si falta el SDK `google-genai`. El arranque sin tope diario sigue permitido (T-412 R2).
+
 ### T-418 — Web pública: el valor claro de `--aviso` pasa a `#8A5300` (contraste AA)
 `¤web-huespedes`
 ```toml
@@ -1681,6 +1947,7 @@ propiedad = [
   "features/herramientas_glamping/esquemas/reportar_incidencia.json",
   "features/herramientas_glamping/herramientas_internal.py",
   "tests/herramientas_glamping/test_t419_incidencia_id.py",
+  "tests/herramientas_glamping/test_x_pii_esquemas.py",
   "docs/modulos/herramientas_glamping.md",
 ]
 crea = ["tests/herramientas_glamping/test_t419_incidencia_id.py"]
@@ -1690,8 +1957,9 @@ arbitro = "tests/herramientas_glamping/test_t419_incidencia_id.py; tests/herrami
 [limites]
 "features/herramientas_glamping/esquemas/reportar_incidencia.json" = "Solo el pattern de incidencia_id pasa a ^I-[0-9]{4}-[0-9]{4,5}$ y se le agrega x-pii-exento."
 "features/herramientas_glamping/herramientas_internal.py" = "Solo el id de respaldo (línea 487) pasa de 4 hexadecimales a 4 dígitos decimales."
+"tests/herramientas_glamping/test_x_pii_esquemas.py" = "Solo añade a la tabla R1 la entrada (\"reportar_incidencia\", \"incidencia_id\"): {\"x-pii-exento\": True}."
 ```
-Entregables: `incidencia_id` queda acotado a `^I-[0-9]{4}-[0-9]{4,5}$` y declarado `x-pii-exento`, para que nunca tenga forma de teléfono. Se descarta `{4,8}`: el Arquitecto midió que con sufijos de 6 a 8 dígitos cerca del 90 % se detecta como TELEFONO. El id de respaldo de `herramientas_internal.py` usa 4 dígitos decimales en lugar de 4 hexadecimales, para cumplir el pattern. `docs/modulos/herramientas_glamping.md` documenta el pattern y la exención. `tests/herramientas_glamping/test_x_pii_esquemas.py` lo crea T-408 y no existe todavía (R1), así que no entra en la propiedad. Su A10 admite la exención de incidencia_id solo si el pattern rechaza sufijos de 6 dígitos o más, así que T-419 la cumple sin tocarla. `test_t419_incidencia_id.py` prueba el pattern acotado, la exención declarada, las cero fugas del detector sobre ids válidos y el id de respaldo en dígitos.
+Entregables: `incidencia_id` queda acotado a `^I-[0-9]{4}-[0-9]{4,5}$` y declarado `x-pii-exento`, para que nunca tenga forma de teléfono. Se descarta `{4,8}`: el Arquitecto midió que con sufijos de 6 a 8 dígitos cerca del 90 % se detecta como TELEFONO. El id de respaldo de `herramientas_internal.py` usa 4 dígitos decimales en lugar de 4 hexadecimales, para cumplir el pattern. `docs/modulos/herramientas_glamping.md` documenta el pattern y la exención. `tests/herramientas_glamping/test_x_pii_esquemas.py` lo creó T-408 y ya está en `main`; su caso `test_r1_anotaciones_obligatorias` exige que las rutas anotadas sean exactamente las de la tabla `R1`, así que la propiedad lo incorpora, solo para añadir a `R1` la entrada de `incidencia_id` (decisión del CTO, 2026-11-25). Su A10 admite la exención de incidencia_id solo si el pattern rechaza sufijos de 6 dígitos o más, y T-419 la cumple sin tocarla. `test_t419_incidencia_id.py` prueba el pattern acotado, la exención declarada, las cero fugas del detector sobre ids válidos y el id de respaldo en dígitos.
 
 ---
 

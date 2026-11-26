@@ -11,7 +11,8 @@ Lee cada bloque ```toml``` del archivo y comprueba:
 Reglas de ortogonalidad (dictamen del Arquitecto ADPA G.I., 2026-11-25). **Regla de oro:** solo las fichas no selladas
 compiten por un archivo; al sellarse, sus archivos quedan libres.
 - R1: una ficha no sellada declara archivos exactos (sin `*`, `**` ni `/` final); cada uno existe en HEAD o está en
-  `crea`, y `crea` está incluida en `propiedad`. `crea` declara intención y no se vuelve a comprobar después de crear:
+  `crea` o en el `crea` de una dependencia directa declarada en `depende_de` de una ola estrictamente anterior (no cuenta
+  la transitiva), y `crea` está incluida en `propiedad`. `crea` declara intención y no se vuelve a comprobar después de crear:
   en el PR de la tarea, y en main entre el merge y el sellado, HEAD ya trae el archivo y la ficha sigue pendiente.
 - R2: cada archivo ajeno que una ficha de sala toma lleva su límite en `limites`.
 - R3: ninguna ficha no sellada reclama los archivos de gobernanza comunes.
@@ -38,7 +39,10 @@ RESERVADAS = (
     "README.md", "CLAUDE.md",
 )
 RECURSOS_POR_SALA = {
-    "seguridad": {"evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/"},
+    "seguridad": {
+        "evals/inyecciones.jsonl", "evals/pii.jsonl", "docs/privacidad/",
+        "scripts/rotar_pii_vault_key.py", "docs/operacion/ROTACION_PII_VAULT_KEY.md", "evals/pii_nombres.jsonl",
+    },
     "agente": {"docs/prompts/", "evals/enrutador.jsonl"},
     "conocimiento": {"scripts/seed_knowledge.py", "evals/set_dorado.jsonl", "docs/negocio/README.md"},
     "arm_jarvis": {"evals/ventas.jsonl"},
@@ -168,14 +172,30 @@ def _violaciones_r2(tareas: list[dict]) -> list[str]:
 
 
 # --- R1: archivos exactos y crea -------------------------------------------------------------------------------------
+def _creadas_por_dependencias(tarea: dict, tareas: list[dict]) -> frozenset[str]:
+    """Rutas del ``crea`` de las dependencias directas de ``tarea`` que son de una ola estrictamente anterior.
+
+    El id de cada dependencia es lo que va antes del primer espacio de ``depende_de`` (como en el resto del árbitro).
+    No cuenta la dependencia transitiva ni una ficha que no esté declarada en ``depende_de``.
+    """
+    ids = {dependencia.split(" ")[0] for dependencia in tarea["depende_de"]}
+    return frozenset(
+        ruta
+        for otra in tareas
+        if otra["id"] in ids and int(otra["ola"]) < int(tarea["ola"])
+        for ruta in otra.get("crea", [])
+    )
+
+
 def _violaciones_r1(tareas: list[dict], en_head: frozenset[str]) -> list[str]:
     violaciones: list[str] = []
     for tarea in _no_selladas(tareas):
         crea = list(tarea.get("crea", []))
+        creadas_antes = _creadas_por_dependencias(tarea, tareas)
         for ruta in tarea["propiedad"]:
             if "*" in ruta or ruta.endswith("/"):
                 violaciones.append(f"{tarea['id']}: {ruta} no es un archivo exacto (sin *, ** ni / final)")
-            elif ruta not in en_head and ruta not in crea:
+            elif ruta not in en_head and ruta not in crea and ruta not in creadas_antes:
                 violaciones.append(f"{tarea['id']}: {ruta} no existe en HEAD y no está en crea")
         for ruta in crea:  # crea declara intención: no se exige que siga sin existir (ver docstring del módulo)
             if ruta not in tarea["propiedad"]:
@@ -381,3 +401,118 @@ def test_mutante_r6_sala_inexistente_no_abre_sala_sin_adr() -> None:
     assert not _violaciones_r1([ficha], HEAD_FALSO)  # R1 sola no la ve
     assert _violaciones_r6([ficha], ("seguridad", "agente"))
     assert not _violaciones_r6([_ficha("T-1", 1, ["x.py"], sala="infraestructura")], ("seguridad",))
+
+
+# === Recursos de seguridad (rotación de la clave PII) ================================================================
+RECURSOS_ROTACION = ("scripts/rotar_pii_vault_key.py", "docs/operacion/ROTACION_PII_VAULT_KEY.md", "evals/pii_nombres.jsonl")
+
+
+def test_recursos_seguridad_admite_rotacion_de_la_clave_pii() -> None:
+    """Una ficha de seguridad reclama el script de rotación, su runbook y el eval de nombres sin violación."""
+    ficha = _ficha("S-9", 4, list(RECURSOS_ROTACION), sala="seguridad")
+    assert _violaciones_de_sala([ficha]) == []
+
+
+def test_recursos_seguridad_son_rutas_exactas_sin_comodines() -> None:
+    """Se admiten esos tres archivos y nada más de la carpeta ni de scripts/ o evals/."""
+    ajenas = ("docs/operacion/OTRO_RUNBOOK.md", "scripts/otro_script.py", "evals/otro.jsonl")
+    for ruta in ajenas:
+        violaciones = _violaciones_de_sala([_ficha("S-9", 4, [ruta], sala="seguridad")])
+        assert any(ruta in v for v in violaciones), ruta
+    assert all(ruta in RECURSOS_POR_SALA["seguridad"] for ruta in RECURSOS_ROTACION)
+
+
+def test_recursos_seguridad_son_solo_de_seguridad() -> None:
+    """Las mismas rutas en una ficha de otra sala siguen siendo ajenas: cada recurso tiene una sola sala."""
+    for sala in ("agente", "arm_jarvis", "observabilidad"):
+        for ruta in RECURSOS_ROTACION:
+            violaciones = _violaciones_de_sala([_ficha("O-9", 4, [ruta], sala=sala)])
+            assert any(ruta in v for v in violaciones), (sala, ruta)
+
+
+def test_arm_jarvis_no_reclama_la_sala_de_observabilidad() -> None:
+    ficha = _ficha("A-9", 4, ["features/observabilidad/observabilidad_service.py"], sala="arm_jarvis")
+    violaciones = _violaciones_de_sala([ficha])
+    assert any("features/observabilidad/observabilidad_service.py" in v for v in violaciones)
+    assert _violaciones_de_sala([_ficha("A-9", 4, ["scripts/run_evals.py"], sala="arm_jarvis")])
+
+
+# === R1: una ruta creada por una dependencia de una ola anterior cuenta como existente ===============================
+RUTA_LAZO = "app_core/lazo_huesped.py"
+RUTA_SEG = "tests/agente/test_sin_doble_seguridad_en_servicios.py"
+
+
+def _de(violaciones: list[str], id_: str) -> list[str]:
+    return [v for v in violaciones if v.startswith(f"{id_}:")]
+
+
+def test_r1_ruta_creada_por_una_dependencia_directa_de_ola_anterior() -> None:
+    """T-427 (ola 23) toma app_core/lazo_huesped.py, que crea T-509 (ola 21), de la que depende."""
+    fichas = [
+        _ficha("T-509", 21, [RUTA_LAZO], crea=[RUTA_LAZO]),
+        _ficha("T-427", 23, [RUTA_LAZO], depende_de=("T-509", "T-425", "T-426")),
+    ]
+    assert _violaciones_r1(fichas, HEAD_FALSO) == []
+
+
+def test_r1_ruta_de_prueba_creada_por_una_dependencia_de_otra_sala() -> None:
+    """T-429 (ola 25, arm_jarvis) toma una prueba que crea T-407 (ola 17, agente), de la que depende."""
+    fichas = [
+        _ficha("T-407", 17, [RUTA_SEG], sala="agente", crea=[RUTA_SEG]),
+        _ficha("T-429", 25, [RUTA_SEG], sala="arm_jarvis", depende_de=("T-407", "T-507", "T-431")),
+    ]
+    assert _violaciones_r1(fichas, HEAD_FALSO) == []
+
+
+def test_r1_dependencia_con_comentario_en_depende_de() -> None:
+    """Las dependencias se leen como el resto del árbitro: el id es lo que va antes del primer espacio."""
+    fichas = [
+        _ficha("T-509", 21, [RUTA_LAZO], crea=[RUTA_LAZO]),
+        _ficha("T-427", 23, [RUTA_LAZO], depende_de=("T-509 (el lazo)",)),
+    ]
+    assert _violaciones_r1(fichas, HEAD_FALSO) == []
+
+
+def test_r1_ruta_ajena_sin_dependencia_sigue_fallando() -> None:
+    fichas = [
+        _ficha("T-509", 21, [RUTA_LAZO], crea=[RUTA_LAZO]),
+        _ficha("T-427", 23, [RUTA_LAZO], depende_de=("T-425", "T-426")),
+        _ficha("T-425", 22, ["app_core/otro.py"], crea=["app_core/otro.py"]),
+    ]
+    assert _de(_violaciones_r1(fichas, HEAD_FALSO), "T-427")
+    assert _violaciones_r1([_ficha("T-427", 23, [RUTA_LAZO])], HEAD_FALSO)
+
+
+def test_r1_la_ola_de_quien_crea_debe_ser_estrictamente_anterior() -> None:
+    """Misma ola o ola posterior: aunque figure en depende_de, lo que crea no existe todavía para la ficha."""
+    for ola_creadora in (23, 24):
+        fichas = [
+            _ficha("T-509", ola_creadora, [RUTA_LAZO], crea=[RUTA_LAZO]),
+            _ficha("T-427", 23, [RUTA_LAZO], depende_de=("T-509",)),
+        ]
+        assert _de(_violaciones_r1(fichas, HEAD_FALSO), "T-427"), ola_creadora
+
+
+def test_r1_la_dependencia_transitiva_no_cuenta() -> None:
+    """Solo la dependencia directa: X (ola 5) depende de Y (ola 3), que depende de Z (ola 1), que crea la ruta."""
+    fichas = [
+        _ficha("Z-1", 1, [RUTA_LAZO], crea=[RUTA_LAZO]),
+        _ficha("Y-1", 3, ["b.py"], depende_de=("Z-1",), crea=["b.py"]),
+        _ficha("X-1", 5, [RUTA_LAZO], depende_de=("Y-1",)),
+    ]
+    assert _de(_violaciones_r1(fichas, HEAD_FALSO), "X-1")
+
+
+def test_r1_ninguna_ficha_anterior_que_no_sea_dependencia_cuenta() -> None:
+    fichas = [
+        _ficha("Z-1", 1, [RUTA_LAZO], crea=[RUTA_LAZO]),
+        _ficha("X-1", 5, [RUTA_LAZO], depende_de=("TASK-001",)),
+    ]
+    assert _de(_violaciones_r1(fichas, HEAD_FALSO), "X-1")
+
+
+def test_r1_lo_que_crea_la_propia_ficha_o_esta_en_head_no_cambia() -> None:
+    propia = "tests/agente/test_nuevo.py"
+    assert _violaciones_r1([_ficha("T-1", 3, [propia], sala="agente", crea=[propia])], HEAD_FALSO) == []
+    assert _violaciones_r1([_ficha("T-1", 3, ["tests/agente/test_bucle.py"], sala="agente")], HEAD_FALSO) == []
+    assert _violaciones_r1([_ficha("T-1", 3, [propia], sala="agente")], HEAD_FALSO)

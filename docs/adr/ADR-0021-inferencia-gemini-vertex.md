@@ -156,6 +156,24 @@ Decisión del propietario del 2026-11-25, con la validación de CTO Evydentia. C
   - T-509, pasillo: el lazo del huésped, que envía el aviso y la respuesta.
 - Árbitro: `tests/seguridad/test_aviso_primer_mensaje.py`, `tests/agente/test_derivacion_persona.py` y `tests/app_core/test_lazo_huesped.py`.
 
+## Enmienda 4 (Aceptada, 2026-11-25): el audio del huésped se transcribe con Gemini en Vertex
+
+**Contexto.** La Decisión 12 dice que los datos que no son texto (los comprobantes de pago en imagen) no se envían al modelo, y `INV_PII_FUERA_DEL_MODELO` exige que la PII salga tokenizada. El propietario decidió el 2026-11-25 que los audios del huésped se transcriben a texto y se atienden como un mensaje normal, con el mismo Gemini de Vertex.
+
+**Decisión.**
+1. **Excepción acotada.** El audio del huésped es el único dato no textual que puede enviarse a Vertex, por el método `InferenciaService.transcribir` y solo para obtener su transcripción. Las imágenes, ubicaciones y documentos siguen sin enviarse.
+2. **Excepción a `INV_PII_FUERA_DEL_MODELO`.** El audio no se puede tokenizar antes de enviarlo. La transcripción sí se tokeniza (compuerta `seguridad`) antes de llegar al agente; el agente nunca ve el texto sin tokenizar.
+3. **Se procesa y se descarta.** Ni la sala `inferencia` ni el canal conservan el audio después de la transcripción: la sala no lo guarda en ningún atributo, log, traza ni excepción, y el canal elimina el medio al terminar (T-426).
+4. **Límites.** Solo los tipos MIME de `audio.mimes_permitidos` y hasta `audio.max_bytes` (2 MiB al inicio). Un audio fuera de esos límites no se envía; el huésped recibe el texto que le pide que cuente un poco más de lo que necesita (T-509, R9).
+5. **Región y tope.** Misma región `us` y mismo tope diario compartido (Decisión 9). Un fallo de la transcripción se trata como un fallo del modelo: el huésped recibe esa misma petición.
+6. **Tráfico real bloqueado.** Aceptar la enmienda autoriza construir y sellar el código, no el tráfico real con audio. Este queda apagado (`AUDIO_TRANSCRIPCION=0`) mientras la [DECISIÓN PENDIENTE] siguiente siga abierta.
+7. **Sin límite de audios seguidos.** Con el audio encendido, cada audio se atiende como un mensaje normal, sin límite de audios seguidos (aclaración del propietario del 2026-11-25).
+8. **Los bytes no llegan al agente.** El agente recibe solo el texto transcrito y tokenizado, porque la voz no se puede tokenizar.
+
+**[DECISIÓN PENDIENTE] para el abogado del propietario.** ¿El aviso informativo del primer mensaje basta para que el huésped sepa que su voz se procesa con un servicio de IA en {{1}}, o la voz exige un consentimiento aparte? Mientras no responda, el tráfico real con audio sigue bloqueado, igual que el del ADR-0012 y la Enmienda 3.
+
+**Consecuencias.** T-425 (`inferencia`), T-426 (`canal_whatsapp`, entrega y elimina los bytes) y T-427 (pasillo, el lazo transcribe y tokeniza). El aviso (T-422) debe mencionar la voz cuando el abogado responda.
+
 ---
 
 © 2026 Juan Carlos Proaño. Todos los derechos reservados.
